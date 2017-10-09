@@ -173,6 +173,20 @@ function animate() {
     var intersections = raycaster.intersectObjects(objects);
     var isOnObject = intersections.length > 0;
 
+    if (moveForward) velocity.z = -0.004 * delta;
+    else if (moveBackward) velocity.z = 0.004 * delta;
+    else velocity.z = 0;
+    if (moveLeft) velocity.x = -0.004 * delta;
+    else if (moveRight) velocity.x = 0.004 * delta;
+    else velocity.x = 0;
+    if (moveDown) velocity.y = -0.004 * delta;
+    else if (moveUp) velocity.y = 0.004 * delta;
+    else velocity.y = 0;
+
+    controls.getObject().translateX(velocity.x * delta);
+    controls.getObject().translateY(velocity.y * delta);
+    controls.getObject().translateZ(velocity.z * delta);
+
     prevTime = time;
     renderer.render(scene, camera);
 }

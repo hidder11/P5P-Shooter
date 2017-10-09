@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebResourcesPaths">
+    <contentEntries>
+      <entry url="file://$PROJECT_DIR$">
+        <entryData>
+          <resourceRoots>
+            <path value="file://$PROJECT_DIR$/node_modules" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/build" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/animation" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/cameras" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/controls" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/crossfade" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/curves" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/effects" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/exporters" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/geometries" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/libs" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/lights" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/loaders" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/math" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/modifiers" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/nodes" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/objects" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/pmrem" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/postprocessing" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/renderers" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/shaders" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/utils" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/vr" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/loaders/ctm" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/loaders/draco" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/loaders/sea3d" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/loaders/ctm/license" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/loaders/sea3d/o3dgc" />
+            <path value="file://$PROJECT_DIR$/node_modules/three/examples/js/loaders/sea3d/physics" />
+            <path value="file://$PROJECT_DIR$/assets" />
+            <path value="file://$PROJECT_DIR$/assets/css" />
+            <path value="file://$PROJECT_DIR$/assets/js" />
+          </resourceRoots>
+        </entryData>
+      </entry>
+    </contentEntries>
+  </component>
+</project>

@@ -154,6 +154,27 @@ function init() {
     var material = new THREE.LineBasicMaterial({
         color: 0x0000ff,
     });
+    geometry = new THREE.PlaneGeometry(2000, 2000, 100, 100);
+    geometry.rotateX(-Math.PI / 2);
+    for (var i = 0, l = geometry.vertices.length; i < l; i++) {
+        var vertex = geometry.vertices[i];
+        vertex.x += Math.random() * 20 - 10;
+        vertex.y += Math.random() * 2;
+        vertex.z += Math.random() * 20 - 10;
+    }
+    for (var i = 0, l = geometry.faces.length; i < l; i++) {
+        var face = geometry.faces[i];
+        face.vertexColors[0] = new THREE.Color().setHSL(Math.random() * 0.3 +
+            0.5, 0.75, Math.random() * 0.25 + 0.75);
+        face.vertexColors[1] = new THREE.Color().setHSL(Math.random() * 0.3 +
+            0.5, 0.75, Math.random() * 0.25 + 0.75);
+        face.vertexColors[2] = new THREE.Color().setHSL(Math.random() * 0.3 +
+            0.5, 0.75, Math.random() * 0.25 + 0.75);
+    }
+    material = new THREE.MeshBasicMaterial({vertexColors: THREE.VertexColors});
+    mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+
     animate();
 
     window.addEventListener('resize', onWindowResize, false);
@@ -173,15 +194,12 @@ function animate() {
     var intersections = raycaster.intersectObjects(objects);
     var isOnObject = intersections.length > 0;
 
-    if (moveForward) velocity.z = -0.004 * delta;
-    else if (moveBackward) velocity.z = 0.004 * delta;
+    if (moveForward) velocity.z = -0.4 * delta;
+    else if (moveBackward) velocity.z = 0.4 * delta;
     else velocity.z = 0;
-    if (moveLeft) velocity.x = -0.004 * delta;
-    else if (moveRight) velocity.x = 0.004 * delta;
+    if (moveLeft) velocity.x = -0.4 * delta;
+    else if (moveRight) velocity.x = 0.4 * delta;
     else velocity.x = 0;
-    if (moveDown) velocity.y = -0.004 * delta;
-    else if (moveUp) velocity.y = 0.004 * delta;
-    else velocity.y = 0;
 
     controls.getObject().translateX(velocity.x * delta);
     controls.getObject().translateY(velocity.y * delta);

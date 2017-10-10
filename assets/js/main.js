@@ -24,6 +24,8 @@ var blocker = document.getElementById('blocker');
 var instructions = document.getElementById('instructions');
 var camDirection;
 
+var walkSpeed = 0.04;
+
 var havePointerLock = 'pointerLockElement' in document ||
     'mozPointerLockElement' in document || 'webkitPointerLockElement' in
     document;
@@ -102,7 +104,7 @@ function init() {
                 moveRight = true;
                 break;
             case 32: // space
-                velocity.y = 7.5;
+                velocity.y = 1.5;
                 break;
             case 67:
                 moveDown = true;
@@ -152,7 +154,7 @@ function init() {
     var material = new THREE.LineBasicMaterial({
         color: 0x0000ff,
     });
-    geometry = new THREE.PlaneGeometry(2000, 2000, 100, 100);
+    geometry = new THREE.PlaneGeometry(400, 400);
     geometry.rotateX(-Math.PI / 2);
     for (var i = 0, l = geometry.vertices.length; i < l; i++) {
         var vertex = geometry.vertices[i];
@@ -173,6 +175,11 @@ function init() {
     mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 
+    var geometry = new THREE.BoxGeometry(2, 4, 20);
+    var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+    var cube = new THREE.Mesh(geometry, material);
+    scene.add(cube);
+
     animate();
 
     window.addEventListener('resize', onWindowResize, false);
@@ -192,17 +199,17 @@ function animate() {
     var intersections = raycaster.intersectObjects(objects);
     var isOnObject = intersections.length > 0;
 
-    if (moveForward) velocity.z = -0.4 * delta;
-    else if (moveBackward) velocity.z = 0.4 * delta;
+    if (moveForward) velocity.z = -walkSpeed * delta;
+    else if (moveBackward) velocity.z = walkSpeed * delta;
     else velocity.z = 0;
-    if (moveLeft) velocity.x = -0.4 * delta;
-    else if (moveRight) velocity.x = 0.4 * delta;
+    if (moveLeft) velocity.x = -walkSpeed * delta;
+    else if (moveRight) velocity.x = walkSpeed * delta;
     else velocity.x = 0;
-    if (controls.getObject().position.y > 10) {
-        velocity.y -= 0.49 * delta;
+    if (controls.getObject().position.y > 2) {
+        velocity.y -= 0.098 * delta;
     }
     else {
-        controls.getObject().position.y = 10;
+        controls.getObject().position.y = 2;
         if (velocity.y < 0) velocity.y = 0;
     }
 

@@ -28,6 +28,9 @@ var raycaster;
 var blocker = document.getElementById('blocker');
 var instructions = document.getElementById('instructions');
 var camDirection;
+var socket = io('http://shooter.dev:3000');
+var clientID;
+var clients = [];
 
 var havePointerLock = 'pointerLockElement' in document ||
     'mozPointerLockElement' in document || 'webkitPointerLockElement' in
@@ -175,6 +178,10 @@ function init() {
     mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 
+    function newPlayer() {
+
+    }
+
     animate();
 
     window.addEventListener('resize', onWindowResize, false);
@@ -205,8 +212,20 @@ function animate() {
     controls.getObject().translateY(velocity.y * delta);
     controls.getObject().translateZ(velocity.z * delta);
 
+    if (Math.round(time) % 5 === 0) {
+        socket.emit('playerData',
+            {camera: controls.getObject().position, id: clientID});
+    }
+
     prevTime = time;
     renderer.render(scene, camera);
 }
 
 init();
+socket.on('info', function(client) {
+    clientID = client.id;
+    console.log(clientID);
+});
+socket.on('log', function(data) {
+    console.log(data);
+});

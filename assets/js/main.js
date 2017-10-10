@@ -3,13 +3,8 @@ var directionalLight;
 var light;
 var scene;
 var camera;
-var controlsEnabled = false;
-var moveForward = false;
-var moveBackward = false;
-var moveLeft = false;
-var moveRight = false;
-var moveDown = false;
-var moveUp = false;
+var moveDown, moveUp, moveRight, moveLeft, moveBackward, moveForward,
+    controlsEnabled, sprinting = false;
 var prevTime = performance.now();
 var velocity = new THREE.Vector3();
 var freeCam = false;
@@ -87,6 +82,9 @@ function init() {
     var onKeyDown = function(event) {
         // console.log(event.keyCode);
         switch (event.keyCode) {
+            case 16: // shift
+                sprinting = true;
+                break;
             case 38: // up
             case 87: // w
                 moveForward = true;
@@ -104,7 +102,7 @@ function init() {
                 moveRight = true;
                 break;
             case 32: // space
-                moveUp = true;
+                velocity.y = 7.5;
                 break;
             case 67:
                 moveDown = true;
@@ -113,6 +111,9 @@ function init() {
     };
     var onKeyUp = function(event) {
         switch (event.keyCode) {
+            case 16: // shift
+                sprinting = false;
+                break;
             case 38: // up
             case 87: // w
                 moveForward = false;
@@ -128,9 +129,6 @@ function init() {
             case 39: // right
             case 68: // d
                 moveRight = false;
-                break;
-            case 32: // space
-                moveUp = false;
                 break;
             case 67:
                 moveDown = false;
@@ -200,6 +198,18 @@ function animate() {
     if (moveLeft) velocity.x = -0.4 * delta;
     else if (moveRight) velocity.x = 0.4 * delta;
     else velocity.x = 0;
+    if (controls.getObject().position.y > 10) {
+        velocity.y -= 0.49 * delta;
+    }
+    else {
+        controls.getObject().position.y = 10;
+        if (velocity.y < 0) velocity.y = 0;
+    }
+
+    if (sprinting) {
+        velocity.x *= 2;
+        velocity.z *= 2;
+    }
 
     controls.getObject().translateX(velocity.x * delta);
     controls.getObject().translateY(velocity.y * delta);

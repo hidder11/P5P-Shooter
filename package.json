@@ -17,8 +17,10 @@
   },
   "homepage": "https://github.com/hidder11/P5P-Shooter#readme",
   "dependencies": {
+    "cannon": "^0.6.2",
     "firebase": "^4.5.0",
     "jquery": "^3.2.1",
+    "playground": "^0.7.0",
     "three": "^0.87.1"
   }
 }

@@ -1,8 +1,10 @@
+'use strict';
 const app = require('http').createServer(handler);
 const io = require('socket.io')(app);
 const fs = require('fs');
 const THREE = require('Three');
 var clients = [];
+var clientCounter = 0;
 
 app.listen(3000);
 
@@ -20,26 +22,34 @@ function handler(req, res) {
 }
 
 io.sockets.on('connection', function(socket) {
-    socket.emit('log', 'connected');
-    let client = new Client(clients.length);
+    socket.emit('oldPlayers', clients);
+    let client = new Client(socket.id);
     clients.push(client);
-    socket.emit('info', client);
-    io.sockets.emit('log', clients);
-
+    io.sockets.emit('newPlayer', client);
     socket.on('disconnect', function(socket) {
+        io.sockets.emit('playerDisconnect', client);
         clients.splice(clients.indexOf(client), 1);
-        // io.sockets.emit("log",client.id);
     });
-
     socket.on('playerData', function(data) {
-        clients[clients.indexOf(client)].position = data.camera;
+        client.position = data.camera;
     });
+    socket.on('log', function(data) {
+        console.log(data);
+    });
+    newData(socket);
 });
+
+function newData(socket) {
+    socket.emit('playerData', clients);
+    setTimeout(function() {
+        newData(socket);
+    }, 1);
+}
 
 class Client {
     constructor(id) {
         this.id = id;
-        this.position = new THREE.Vector3(0, 0, 0);
-        this.velocity = new THREE.Vector3(0, 0, 0);
+        this.position = {x: 0, y: 0, z: 0};
+        this.velocity = {x: 0, y: 0, z: 0};
     }
 }

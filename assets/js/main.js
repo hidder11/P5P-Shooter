@@ -13,11 +13,9 @@ var moveDown = false;
 var moveUp = false;
 var prevTime = performance.now();
 var velocity = new THREE.Vector3();
-var freeCam = false;
-var geometry, material, mesh;
-var controls;
-var objects = [];
 var raycaster;
+var map;
+const distance = 10;
 
 var blocker = document.getElementById('blocker');
 var instructions = document.getElementById('instructions');
@@ -25,7 +23,6 @@ var camDirection;
 var geometry, material, mesh;
 var controls;
 var objects = [];
-var raycaster;
 var blocker = document.getElementById('blocker');
 var instructions = document.getElementById('instructions');
 var camDirection;
@@ -83,8 +80,8 @@ function init() {
     camera = new THREE.PerspectiveCamera(60, window.innerWidth /
         window.innerHeight, 0.1, 1000);
     // camera.position.y = 3;
-    light = new THREE.AmbientLight(0xffffff, 0.2);
-    directionalLight = new THREE.DirectionalLight(0xffffff, 0.4);
+    light = new THREE.AmbientLight(0xffffff, 0.5);
+    directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
 
     controls = new THREE.PointerLockControls(camera);
     scene.add(controls.getObject());
@@ -109,6 +106,7 @@ function init() {
                 break;
             case 32: // space
                 moveUp = true;
+                velocity.y = 5;
                 break;
             case 67:
                 moveDown = true;
@@ -147,10 +145,35 @@ function init() {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
-    raycaster = new THREE.Raycaster(new THREE.Vector3(),
-        new THREE.Vector3(0, -1, 0), 0, 10);
+
+    raycaster = new THREE.Raycaster();
+    raycaster.set(controls.getObject().position, new THREE.Vector3(0, 1, 0));
+    var distance = 10;
+
     //load objects
     var loader = new THREE.ObjectLoader();
+
+    var DAELoader = new THREE.ColladaLoader();
+
+    var map;
+
+    // load a resource
+    DAELoader.load('assets/maps/Arena.dae',
+            function ( collada ) {
+                let scale = 0.2;
+                collada.scene.children[0].material = new THREE.MeshPhongMaterial('0xddffdd');
+                collada.scene.scale.set(scale,scale,scale);
+                collada.scene.rotation.set(-Math.PI/2,0,0);
+                collada.receiveShadows = true;
+                collada.castShadows = true;
+                scene.add( collada.scene );
+                objects.push(collada.scene);
+            }
+        );
+
+    var Plight = new THREE.PointLight( 0xffffff, 0.5, 500, 5);
+    light.position.set( 140, 1, 48 );
+    scene.add( Plight );
 
     //add everything to the scene
     scene.add(light, directionalLight);
@@ -177,7 +200,7 @@ function init() {
     }
     material = new THREE.MeshBasicMaterial({vertexColors: THREE.VertexColors});
     mesh = new THREE.Mesh(geometry, material);
-    scene.add(mesh);
+    // scene.add(mesh);
     animate();
 
     window.addEventListener('resize', onWindowResize, false);
@@ -193,9 +216,10 @@ function animate() {
     requestAnimationFrame(animate);
     var time = performance.now();
     var delta = ( time - prevTime ) / 10;
-    raycaster.ray.origin.copy(controls.getObject().position);
-    var intersections = raycaster.intersectObjects(objects);
-    var isOnObject = intersections.length > 0;
+    // raycaster.origin = controls.getObject().position.clone();
+    raycaster.set(controls.getObject().position, new THREE.Vector3(0, -1, 0));
+    // var intersections = raycaster.intersectObjects(objects);
+    // var isOnObject = intersections.length > 0;
 
     if (moveForward) velocity.z = -0.4 * delta;
     else if (moveBackward) velocity.z = 0.4 * delta;
@@ -203,6 +227,31 @@ function animate() {
     if (moveLeft) velocity.x = -0.4 * delta;
     else if (moveRight) velocity.x = 0.4 * delta;
     else velocity.x = 0;
+
+    var intersects = raycaster.intersectObjects(scene.children,true); //use intersectObjects() to check the intersection on multiple
+
+//new position is higher so you need to move you object upwards
+
+    if(intersects.length>0){
+        if (distance > intersects[0].distance) {
+            controls.getObject().translateY((distance - intersects[0].distance) - 1); // the -1 is a fix for a shake effect I had
+        }
+
+//gravity and prevent falling through floor
+        if (distance >= intersects[0].distance && velocity.y <= 0) {
+            velocity.y = 0;
+        } else if (distance <= intersects[0].distance && velocity.y === 0) {
+            velocity.y -= 0.9 ;
+        }
+        else{
+            velocity.y -= 0.9 ;
+        }
+    }
+
+    if(controls.getObject().position.y < -30){
+        controls.getObject().position.y = 5;
+    }
+
 
     controls.getObject().translateX(velocity.x * delta);
     controls.getObject().translateY(velocity.y * delta);

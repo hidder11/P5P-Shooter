@@ -1,3 +1,4 @@
+'use strict';
 var renderer;
 var directionalLight;
 var light;
@@ -28,6 +29,9 @@ var raycaster;
 var blocker = document.getElementById('blocker');
 var instructions = document.getElementById('instructions');
 var camDirection;
+var socket = io('localhost:3000');
+var clientID;
+var players = {};
 
 var havePointerLock = 'pointerLockElement' in document ||
     'mozPointerLockElement' in document || 'webkitPointerLockElement' in
@@ -165,16 +169,15 @@ function init() {
     for (var i = 0, l = geometry.faces.length; i < l; i++) {
         var face = geometry.faces[i];
         face.vertexColors[0] = new THREE.Color().setHSL(Math.random() * 0.3 +
-            0.5, 0.75, Math.random() * 0.25 + 0.75);
+            0.5, Math.random() * 0.25 + 0.75, 0.75);
         face.vertexColors[1] = new THREE.Color().setHSL(Math.random() * 0.3 +
-            0.5, 0.75, Math.random() * 0.25 + 0.75);
+            0.5, Math.random() * 0.25 + 0.75, 0.75);
         face.vertexColors[2] = new THREE.Color().setHSL(Math.random() * 0.3 +
-            0.5, 0.75, Math.random() * 0.25 + 0.75);
+            0.5, Math.random() * 0.25 + 0.75, 0.75);
     }
     material = new THREE.MeshBasicMaterial({vertexColors: THREE.VertexColors});
     mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
-
     animate();
 
     window.addEventListener('resize', onWindowResize, false);
@@ -205,8 +208,53 @@ function animate() {
     controls.getObject().translateY(velocity.y * delta);
     controls.getObject().translateZ(velocity.z * delta);
 
+    socket.emit('playerData',
+        {camera: controls.getObject().position, id: clientID});
+
     prevTime = time;
     renderer.render(scene, camera);
 }
 
+function newPlayer(player) {
+    var geometry = new THREE.BoxGeometry(10, 10, 10);
+    var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+    var cube = new THREE.Mesh(geometry, material);
+    cube.position.x = player.position.x;
+    cube.position.y = player.position.y;
+    cube.position.z = player.position.z;
+    cube.playerID = player.id;
+    players[player.id] = cube;
+    scene.add(cube);
+}
+
 init();
+socket.on('log', function(data) {
+    console.log(data);
+});
+socket.on('newPlayer', function(player) {
+    if (clientID) {
+        newPlayer(player);
+    }
+    else {
+        clientID = player.id;
+    }
+});
+socket.on('oldPlayers', function(players) {
+    for (let player of players) {
+        newPlayer(player);
+    }
+});
+socket.on('playerData', function(clients) {
+    for (let player of clients) {
+        if (player.id === clientID) {
+            continue;
+        }
+        players[player.id].position.x = player.position.x;
+        players[player.id].position.y = player.position.y;
+        players[player.id].position.z = player.position.z;
+    }
+});
+socket.on('playerDisconnect', function(player) {
+    scene.remove(players[player.id]);
+    delete players[player.id];
+});

@@ -26,7 +26,7 @@ var objects = [];
 var blocker = document.getElementById('blocker');
 var instructions = document.getElementById('instructions');
 var camDirection;
-var socket = io('localhost:3000');
+var socket = io('shooter.arankieskamp.com');
 var clientID;
 var players = {};
 
@@ -158,12 +158,14 @@ function init() {
     var map;
 
     // load a resource
-    DAELoader.load('assets/maps/Arena.dae',
+    DAELoader.load('assets/maps/test.dae',
             function ( collada ) {
-                let scale = 0.2;
+                let scale = 100;
+                // let scale = 0.2;
                 collada.scene.children[0].material = new THREE.MeshPhongMaterial('0xddffdd');
                 collada.scene.scale.set(scale,scale,scale);
                 collada.scene.rotation.set(-Math.PI/2,0,0);
+                collada.scene.position.y = -30;
                 collada.receiveShadows = true;
                 collada.castShadows = true;
                 scene.add( collada.scene );
@@ -171,16 +173,18 @@ function init() {
             }
         );
 
-    var Plight = new THREE.PointLight( 0xffffff, 0.5, 500, 5);
-    light.position.set( 140, 1, 48 );
-    scene.add( Plight );
-
-    //add everything to the scene
+    // var Plight = new THREE.PointLight( 0xffffff, 0.5, 500, 5);
+    // light.position.set( 140, 1, 48 );
+    // scene.add( Plight );
+    //
+    // //add everything to the scene
     scene.add(light, directionalLight);
 
     var material = new THREE.LineBasicMaterial({
         color: 0x0000ff,
     });
+
+
     geometry = new THREE.PlaneGeometry(2000, 2000, 100, 100);
     geometry.rotateX(-Math.PI / 2);
     for (var i = 0, l = geometry.vertices.length; i < l; i++) {

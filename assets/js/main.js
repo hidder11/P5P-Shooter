@@ -154,18 +154,21 @@ function init() {
     var loader = new THREE.ObjectLoader();
 
     var DAELoader = new THREE.ColladaLoader();
+    var maps = [
+        ['assets/maps/Arena.dae',0.2,0],
+        ['assets/maps/test.dae',100,-30]
+    ];
 
-    var map;
+    var map = maps[0];
 
     // load a resource
-    DAELoader.load('assets/maps/test.dae',
+    DAELoader.load(map[0],
             function ( collada ) {
-                let scale = 100;
-                // let scale = 0.2;
+                let scale = map[1];
                 collada.scene.children[0].material = new THREE.MeshPhongMaterial('0xddffdd');
                 collada.scene.scale.set(scale,scale,scale);
                 collada.scene.rotation.set(-Math.PI/2,0,0);
-                collada.scene.position.y = -30;
+                collada.scene.position.y = map[2];
                 collada.receiveShadows = true;
                 collada.castShadows = true;
                 scene.add( collada.scene );
@@ -173,11 +176,11 @@ function init() {
             }
         );
 
-    // var Plight = new THREE.PointLight( 0xffffff, 0.5, 500, 5);
-    // light.position.set( 140, 1, 48 );
-    // scene.add( Plight );
-    //
-    // //add everything to the scene
+    var Plight = new THREE.PointLight( 0xffffff, 0.5, 500, 5);
+    light.position.set( 140, 1, 48 );
+    scene.add( Plight );
+
+    //add everything to the scene
     scene.add(light, directionalLight);
 
     var material = new THREE.LineBasicMaterial({

@@ -1,37 +1,38 @@
 'use strict';
-const app = require('http').createServer(handler);
-const io = require('socket.io')(app);
-const fs = require('fs');
-const THREE = require('Three');
+
+//TODO fix cors
+
+const express = require('express');
+const app = express();
+app.get('/', function(req, res) {
+    res.sendfile('index.html');
+});
+app.use('/assets', express.static('assets'));
+app.use('/node_modules', express.static('node_modules'));
+
+const server = app.listen(3000);
+const io = require('socket.io').listen(server);
+const THREE = require('three');
 var clients = [];
-var clientCounter = 0;
 
-app.listen(3000);
-
-function handler(req, res) {
-    fs.readFile(__dirname + '/index.html',
-        function(err, data) {
-            if (err) {
-                res.writeHead(500);
-                return res.end('Error loading index.html');
-            }
-
-            res.writeHead(200);
-            res.end(data);
-        });
-}
-
-io.sockets.on('connection', function(socket) {
+io.on('connection', function(socket) {
     socket.emit('oldPlayers', clients);
     let client = new Client(socket.id);
+    io.emit('newPlayer', client);
     clients.push(client);
-    io.sockets.emit('newPlayer', client);
     socket.on('disconnect', function(socket) {
-        io.sockets.emit('playerDisconnect', client);
+        io.emit('playerDisconnect', client);
         clients.splice(clients.indexOf(client), 1);
+        delete clients[clients.indexOf(client)];
     });
     socket.on('playerData', function(data) {
-        client.position = data.camera;
+        client.position = (data.position);
+        client.rotation = (data.rotation);
+        client.moveLeft = data.moveLeft;
+        client.moveRight = data.moveRight;
+        client.moveForward = data.moveForward;
+        client.moveBackward = data.moveBackward;
+        client.jump = data.jump;
     });
     socket.on('log', function(data) {
         console.log(data);
@@ -49,7 +50,15 @@ function newData(socket) {
 class Client {
     constructor(id) {
         this.id = id;
-        this.position = {x: 0, y: 0, z: 0};
-        this.velocity = {x: 0, y: 0, z: 0};
+        this.position = new THREE.Vector3(0, 0, 0);
+        this.velocity = new THREE.Vector3(0, 0, 0);
+        this.rotation = {_x: 0, _y: 0, _z: 0};
+        this.time = Date.now();
+        this.moveForward = false;
+        this.moveBackward = false;
+        this.moveLeft = false;
+        this.moveRight = false;
+        this.jump = false;
+        this.team = 'none';
     }
 }

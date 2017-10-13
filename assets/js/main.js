@@ -9,8 +9,7 @@ var moveForward = false;
 var moveBackward = false;
 var moveLeft = false;
 var moveRight = false;
-var moveDown = false;
-var moveUp = false;
+var jump = false;
 var prevTime = performance.now();
 var velocity = new THREE.Vector3();
 var raycasterFloor;
@@ -109,11 +108,8 @@ function init() {
                 moveRight = true;
                 break;
             case 32: // space
-                moveUp = true;
+                jump = true;
                 velocity.y = 1;
-                break;
-            case 67:
-                moveDown = true;
                 break;
             case 80:
                 console.log(controls.getObject().position);
@@ -139,10 +135,8 @@ function init() {
                 moveRight = false;
                 break;
             case 32: // space
-                moveUp = false;
+                jump = false;
                 break;
-            case 67:
-                moveDown = false;
         }
     };
 
@@ -170,6 +164,24 @@ function init() {
     //load objects
     var loader = new THREE.ObjectLoader();
 
+    var DAELoader = new THREE.ColladaLoader();
+
+    var map;
+
+    // load a resource
+    DAELoader.load('assets/maps/Arena.dae',
+        // DAELoader.load('assets/maps/Arena.dae',
+            function ( collada ) {
+                let scale = 0.2;
+                collada.scene.children[0].material = new THREE.MeshPhongMaterial('0xddffdd');
+                collada.scene.scale.set(scale,scale,scale);
+                collada.scene.rotation.set(-Math.PI/2,0,0);
+                collada.receiveShadows = true;
+                collada.castShadows = true;
+                scene.add( collada.scene );
+                objects.push(collada.scene);
+            }
+        );
 
     var Plight = new THREE.PointLight(0xffffff, 0.5, 500, 5);
     light.position.set(140, 1, 48);
@@ -239,7 +251,16 @@ function animate() {
     controls.getObject().translateZ(velocity.z * delta);
 
     socket.emit('playerData',
-        {camera: controls.getObject().position, id: clientID});
+        {
+            id: clientID,
+            position: controls.getObject().position,
+            rotation: controls.getObject().rotation,
+            moveForward: moveForward,
+            moveBackward: moveBackward,
+            moveRight: moveRight,
+            moveLeft: moveLeft,
+            Jump: jump,
+        });
 
     prevTime = time;
     renderer.render(scene, camera);
@@ -249,19 +270,25 @@ function newPlayer(player) {
     var geometry = new THREE.BoxGeometry(10, 10, 10);
     var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
     var cube = new THREE.Mesh(geometry, material);
-    cube.position.x = player.position.x;
-    cube.position.y = player.position.y;
-    cube.position.z = player.position.z;
+    cube.position.set(player.position.x, player.position.y, player.position.z);
     cube.playerID = player.id;
     players[player.id] = cube;
     scene.add(cube);
 }
 
 init();
+// socket.on("*",function(data){
+//     console.log(data);
+//     debugger;
+// });
+socket.on('connect', function() {
+    console.log('socketio Connected to server!');
+});
 socket.on('log', function (data) {
     console.log(data);
 });
 socket.on('newPlayer', function (player) {
+    if (!player.position) return;
     if (clientID) {
         newPlayer(player);
     }
@@ -271,17 +298,19 @@ socket.on('newPlayer', function (player) {
 });
 socket.on('oldPlayers', function (players) {
     for (let player of players) {
+        if (!player.position) continue;
         newPlayer(player);
     }
 });
 socket.on('playerData', function (clients) {
     for (let player of clients) {
+        if (!player.position) continue;
         if (player.id === clientID) {
             continue;
         }
-        players[player.id].position.x = player.position.x;
-        players[player.id].position.y = player.position.y;
-        players[player.id].position.z = player.position.z;
+        players[player.id].position.set(player.position.x, player.position.y,
+            player.position.z);
+        players[player.id].rotation.y = player.rotation._y;
     }
 });
 socket.on('playerDisconnect', function (player) {

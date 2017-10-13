@@ -13,7 +13,10 @@ var moveDown = false;
 var moveUp = false;
 var prevTime = performance.now();
 var velocity = new THREE.Vector3();
-var raycaster;
+var raycasterFloor;
+var raycasterWallFeet;
+var raycasterWallHead;
+var raycasterRoof;
 var map;
 const distance = 10;
 
@@ -81,7 +84,7 @@ function init() {
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(60, window.innerWidth /
         window.innerHeight, 0.1, 1000);
-
+    // camera.position.y = 3;
     light = new THREE.AmbientLight(0xffffff, 0.5);
     directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
 
@@ -109,7 +112,7 @@ function init() {
                 break;
             case 32: // space
                 moveUp = true;
-                velocity.y = 5;
+                velocity.y = 1;
                 break;
             case 67:
                 moveDown = true;
@@ -153,8 +156,17 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    raycaster = new THREE.Raycaster();
-    raycaster.set(controls.getObject().position, new THREE.Vector3(0, 1, 0));
+    raycasterFloor = new THREE.Raycaster();
+    raycasterFloor.set(controls.getObject().position, new THREE.Vector3(0, -1, 0));
+
+    raycasterWallFeet = new THREE.Raycaster();
+    raycasterWallFeet.set(controls.getObject().position.clone().add(velocity.clone().normalize()), new THREE.Vector3(0, 0, 1));
+
+    raycasterWallHead = new THREE.Raycaster();
+    raycasterWallHead.set(controls.getObject().position.clone().add(velocity.clone().normalize()), new THREE.Vector3(0, 0, 1));
+
+    raycasterRoof = new THREE.Raycaster();
+    raycasterRoof.set(controls.getObject().position, new THREE.Vector3(0, 1, 0));
     var distance = 10;
 
     //load objects
@@ -197,7 +209,6 @@ function init() {
     // material = new THREE.MeshBasicMaterial({vertexColors: THREE.VertexColors});
     // mesh = new THREE.Mesh(geometry, material);
     // scene.add(mesh);
-
     animate();
 
     window.addEventListener('resize', onWindowResize, false);
@@ -209,14 +220,17 @@ function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
+var count = 0;
+
 function animate() {
     requestAnimationFrame(animate);
     var time = performance.now();
     var delta = ( time - prevTime ) / 10;
-    // raycaster.origin = controls.getObject().position.clone();
-    raycaster.set(controls.getObject().position, new THREE.Vector3(0, -1, 0));
-    // var intersections = raycaster.intersectObjects(objects);
-    // var isOnObject = intersections.length > 0;
+    raycasterFloor.set(controls.getObject().position, new THREE.Vector3(0, -1, 0));
+    raycasterRoof.set(controls.getObject().position, new THREE.Vector3(0, 1, 0));
+    let intersectsFloor = raycasterFloor.intersectObjects(scene.children, true);
+    let intersectsRoof = raycasterRoof.intersectObjects(scene.children, true);
+
 
     if (moveForward) velocity.z = -0.4 * delta;
     else if (moveBackward) velocity.z = 0.4 * delta;
@@ -225,35 +239,58 @@ function animate() {
     else if (moveRight) velocity.x = 0.4 * delta;
     else velocity.x = 0;
 
-    var intersects = raycaster.intersectObjects(scene.children, true); //use intersectObjects() to check the intersection on multiple
-
-//new position is higher so you need to move you object upwards
-
-    if (intersects.length > 0) {
-        if (distance > intersects[0].distance) {
-            controls.getObject().translateY((distance - intersects[0].distance) - 1); // the -1 is a fix for a shake effect I had
+    if (intersectsFloor.length > 0) {
+        if (distance > intersectsFloor[0].distance) {
+            controls.getObject().translateY((distance - intersectsFloor[0].distance) - 1);
         }
 
-//gravity and prevent falling through floor
-        if (distance >= intersects[0].distance && velocity.y <= 0) {
+        if (distance >= intersectsFloor[0].distance && velocity.y <= 0) {
             velocity.y = 0;
-        }
-        else if (distance <= intersects[0].distance && velocity.y === 0) {
-            velocity.y -= 0.9;
+        } else if (distance <= intersectsFloor[0].distance && velocity.y === 0) {
+            velocity.y -= 0.1;
         }
         else {
-            velocity.y -= 0.9;
+            velocity.y -= 0.1;
         }
     }
 
-    if (controls.getObject().position.y < -40) {
+    if (controls.getObject().position.y < -30) {
         controls.getObject().position.y = 5;
     }
 
+    raycasterWallFeet.set(controls.getObject().position.clone().sub(new THREE.Vector3(0,4,0)), velocity.clone().applyAxisAngle(new THREE.Vector3(0,1,0), controls.getObject().rotation.y));
+    let intersectsWallFeet = raycasterWallFeet.intersectObjects(scene.children, true);
+
+
+    if (intersectsWallFeet[0]) {
+        if (intersectsWallFeet[0].distance < 5) {
+            console.log('hit');
+            controls.getObject().translateX(-velocity.x * delta);
+            controls.getObject().translateZ(-velocity.z * delta);
+        }
+    }
+
+    raycasterWallHead.set(controls.getObject().position.clone().add(new THREE.Vector3(0,4,0)), velocity.clone().applyAxisAngle(new THREE.Vector3(0,1,0), controls.getObject().rotation.y));
+    let intersectsWallHead = raycasterWallHead.intersectObjects(scene.children, true);
+
+
+    if (intersectsWallHead[0]) {
+        if (intersectsWallHead[0].distance < 5) {
+            console.log('hit');
+            controls.getObject().translateX(-velocity.x * delta);
+            controls.getObject().translateZ(-velocity.z * delta);
+        }
+    }
 
     controls.getObject().translateX(velocity.x * delta);
     controls.getObject().translateY(velocity.y * delta);
     controls.getObject().translateZ(velocity.z * delta);
+
+    if (intersectsRoof.length > 0) {
+        if (intersectsRoof[0].distance < 3) {
+            velocity.y = Math.abs(velocity.y) * -1;
+        }
+    }
 
     socket.emit('playerData',
         {camera: controls.getObject().position, id: clientID});
@@ -275,7 +312,6 @@ function newPlayer(player) {
 }
 
 init();
-
 socket.on('log', function (data) {
     console.log(data);
 });

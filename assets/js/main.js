@@ -196,11 +196,6 @@ function init() {
     //add everything to the scene
     scene.add(light, directionalLight);
 
-    var material = new THREE.LineBasicMaterial({
-        color: 0x0000ff,
-    });
-
-
     geometry = new THREE.PlaneGeometry(2000, 2000, 100, 100);
     geometry.rotateX(-Math.PI / 2);
     for (var i = 0, l = geometry.vertices.length; i < l; i++) {
@@ -288,7 +283,6 @@ function animate() {
 
     if (intersectsWallHead[0]) {
         if (intersectsWallHead[0].distance < 5) {
-            console.log('hit');
             controls.getObject().translateX(-velocity.x * delta);
             controls.getObject().translateZ(-velocity.z * delta);
         }

@@ -88,6 +88,7 @@ function init() {
 
     controls = new THREE.PointerLockControls(camera);
     scene.add(controls.getObject());
+
     var onKeyDown = function (event) {
         // console.log(event.keyCode);
         switch (event.keyCode) {
@@ -113,6 +114,9 @@ function init() {
                 break;
             case 67:
                 moveDown = true;
+                break;
+            case 80:
+                console.log(controls.getObject().position);
                 break;
         }
     };
@@ -141,6 +145,7 @@ function init() {
                 moveDown = false;
         }
     };
+
     document.addEventListener('keydown', onKeyDown, false);
     document.addEventListener('keyup', onKeyUp, false);
     //init rendering
@@ -165,29 +170,6 @@ function init() {
     //load objects
     var loader = new THREE.ObjectLoader();
 
-    var DAELoader = new THREE.ColladaLoader();
-    var maps = [
-        ['assets/maps/Arena.dae', 0.2, 0],
-        ['assets/maps/test.dae', 100, -30],
-        ['assets/maps/CollisionTest.dae', 0.02, 0]
-    ];
-
-    var map = maps[0];
-
-    // load a resource
-    DAELoader.load(map[0],
-        function (collada) {
-            let scale = map[1];
-            collada.scene.children[0].material = new THREE.MeshPhongMaterial('0xddffdd');
-            collada.scene.scale.set(scale, scale, scale);
-            collada.scene.rotation.set(-Math.PI / 2, 0, 0);
-            collada.scene.position.y = map[2];
-            collada.receiveShadows = true;
-            collada.castShadows = true;
-            scene.add(collada.scene);
-            objects.push(collada.scene);
-        }
-    );
 
     var Plight = new THREE.PointLight(0xffffff, 0.5, 500, 5);
     light.position.set(140, 1, 48);
@@ -196,25 +178,34 @@ function init() {
     //add everything to the scene
     scene.add(light, directionalLight);
 
-    geometry = new THREE.PlaneGeometry(2000, 2000, 100, 100);
-    geometry.rotateX(-Math.PI / 2);
-    for (var i = 0, l = geometry.vertices.length; i < l; i++) {
-        var vertex = geometry.vertices[i];
-        vertex.x += Math.random() * 20 - 10;
-        vertex.y += Math.random() * 2;
-        vertex.z += Math.random() * 20 - 10;
-    }
-    for (var i = 0, l = geometry.faces.length; i < l; i++) {
-        var face = geometry.faces[i];
-        face.vertexColors[0] = new THREE.Color().setHSL(Math.random() * 0.3 +
-            0.5, Math.random() * 0.25 + 0.75, 0.75);
-        face.vertexColors[1] = new THREE.Color().setHSL(Math.random() * 0.3 +
-            0.5, Math.random() * 0.25 + 0.75, 0.75);
-        face.vertexColors[2] = new THREE.Color().setHSL(Math.random() * 0.3 +
-            0.5, Math.random() * 0.25 + 0.75, 0.75);
-    }
-    material = new THREE.MeshBasicMaterial({vertexColors: THREE.VertexColors});
-    mesh = new THREE.Mesh(geometry, material);
+    var material = new THREE.LineBasicMaterial({
+        color: 0x0000ff,
+    });
+
+    const currentMap = 0;
+
+    const spawnPositions = LoadMap(currentMap);
+
+
+    // geometry = new THREE.PlaneGeometry(2000, 2000, 100, 100);
+    // geometry.rotateX(-Math.PI / 2);
+    // for (var i = 0, l = geometry.vertices.length; i < l; i++) {
+    //     var vertex = geometry.vertices[i];
+    //     vertex.x += Math.random() * 20 - 10;
+    //     vertex.y += Math.random() * 2;
+    //     vertex.z += Math.random() * 20 - 10;
+    // }
+    // for (var i = 0, l = geometry.faces.length; i < l; i++) {
+    //     var face = geometry.faces[i];
+    //     face.vertexColors[0] = new THREE.Color().setHSL(Math.random() * 0.3 +
+    //         0.5, Math.random() * 0.25 + 0.75, 0.75);
+    //     face.vertexColors[1] = new THREE.Color().setHSL(Math.random() * 0.3 +
+    //         0.5, Math.random() * 0.25 + 0.75, 0.75);
+    //     face.vertexColors[2] = new THREE.Color().setHSL(Math.random() * 0.3 +
+    //         0.5, Math.random() * 0.25 + 0.75, 0.75);
+    // }
+    // material = new THREE.MeshBasicMaterial({vertexColors: THREE.VertexColors});
+    // mesh = new THREE.Mesh(geometry, material);
     // scene.add(mesh);
     animate();
 
@@ -271,7 +262,6 @@ function animate() {
 
     if (intersectsWallFeet[0]) {
         if (intersectsWallFeet[0].distance < 5) {
-            console.log('hit');
             controls.getObject().translateX(-velocity.x * delta);
             controls.getObject().translateZ(-velocity.z * delta);
         }
@@ -348,3 +338,97 @@ socket.on('playerDisconnect', function (player) {
     scene.remove(players[player.id]);
     delete players[player.id];
 });
+
+function LoadMap(mapNumber) {
+    var DAELoader = new THREE.ColladaLoader();
+    var maps = [{
+        position: 'assets/maps/Arena.dae',
+        scale: 0.2,
+        offset: 0,
+        spawnPositionsTeam1: [
+            {x: -225, y: 21, z: -135},
+            {x: -140, y: 21, z: -90},
+            {x: -250, y: 33, z: -35},
+            {x: -160, y: 33, z: -25},
+            {x: -245, y: 33, z: 115},
+            {x: -153, y: 33, z: 70},
+            {x: -135, y: 33, z: 145},
+            {x: -165, y: 57, z: 22},
+            {x: -165, y: 9, z: 110},
+            {x: -240, y: 9, z: 145},
+            {x: -200, y: 9, z: 65},
+            {x: -205, y: 9, z: 25}
+        ],
+        spawnPositionsTeam2: [
+            {x: 225, y: 21, z: 135},
+            {x: 140, y: 21, z: 90},
+            {x: 250, y: 33, z: 35},
+            {x: 160, y: 33, z: 25},
+            {x: 245, y: 33, z: -115},
+            {x: 153, y: 33, z: -70},
+            {x: 135, y: 33, z: -145},
+            {x: 165, y: 57, z: -22},
+            {x: 140, y: 45, z: -120},
+            {x: 165, y: 9, z: -110},
+            {x: 240, y: 9, z: -145},
+            {x: 200, y: 9, z: -65},
+            {x: 205, y: 9, z: -25}
+        ]
+    }, {
+        position: 'assets/maps/test.dae',
+        scale: 100,
+        offset: -30,
+        spawnPositionsTeam1: [
+            {x: -225, y: 21, z: -135},
+            {x: -140, y: 21, z: -90},
+            {x: -240, y: 33, z: -40},
+            {x: -160, y: 33, z: -25},
+            {x: -245, y: 33, z: 115},
+            {x: -153, y: 33, z: 70},
+            {x: -135, y: 33, z: 145},
+            {x: -150, y: 57, z: 15},
+            {x: -165, y: 9, z: 110},
+            {x: -240, y: 9, z: 145},
+            {x: -200, y: 9, z: 65},
+            {x: -205, y: 9, z: 25}
+        ],
+        spawnPositionsTeam2: [
+        ]
+    }
+    ];
+
+    map = maps[mapNumber];
+
+    // load a resource
+    DAELoader.load(map.position,
+        function (collada) {
+            let scale = map.scale;
+            collada.scene.children[0].material = new THREE.MeshPhongMaterial('0xddffdd');
+            collada.scene.scale.set(scale, scale, scale);
+            collada.scene.rotation.set(-Math.PI / 2, 0, 0);
+            collada.scene.position.y = map.offset;
+            collada.receiveShadows = true;
+            collada.castShadows = true;
+            scene.add(collada.scene);
+            objects.push(collada.scene);
+        }
+    );
+
+    let spwanPoint = Math.floor(Math.random() * (map.spawnPositionsTeam1.length - 0)) + 0;
+
+    controls.getObject().position.x = map.spawnPositionsTeam1[spwanPoint].x;
+    controls.getObject().position.y = map.spawnPositionsTeam1[spwanPoint].y;
+    controls.getObject().position.z = map.spawnPositionsTeam1[spwanPoint].z;
+
+    var material = new THREE.MeshBasicMaterial({color: 0xff0000});
+    var geometry = new THREE.BoxGeometry(1, 1, 1);
+
+    for (var point of map.spawnPositionsTeam1) {
+        var mesh = new THREE.Mesh(geometry, material);
+        mesh.position.x = point.x;
+        mesh.position.y = point.y - 8;
+        mesh.position.z = point.z;
+        scene.add(mesh);
+    }
+
+}

@@ -5,6 +5,8 @@
 
 # User-specific stuff:
 .idea/**/workspace.xml
+.idea/deployment.xml
+.idea/webServers.xml
 .idea/**/tasks.xml
 .idea/dictionaries
 

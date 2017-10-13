@@ -83,7 +83,7 @@ function init() {
         window.innerHeight, 0.1, 1000);
     // camera.position.y = 3;
     light = new THREE.AmbientLight(0xffffff, 0.5);
-    directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+    directionalLight = new THREE.DirectionalLight(0xffffff, 0.3);
 
     controls = new THREE.PointerLockControls(camera);
     scene.add(controls.getObject());
@@ -161,30 +161,8 @@ function init() {
     raycasterRoof.set(controls.getObject().position, new THREE.Vector3(0, 1, 0));
     var distance = 10;
 
-    //load objects
-    var loader = new THREE.ObjectLoader();
-
-    var DAELoader = new THREE.ColladaLoader();
-
-    var map;
-
-    // load a resource
-    DAELoader.load('assets/maps/Arena.dae',
-        // DAELoader.load('assets/maps/Arena.dae',
-            function ( collada ) {
-                let scale = 0.2;
-                collada.scene.children[0].material = new THREE.MeshPhongMaterial('0xddffdd');
-                collada.scene.scale.set(scale,scale,scale);
-                collada.scene.rotation.set(-Math.PI/2,0,0);
-                collada.receiveShadows = true;
-                collada.castShadows = true;
-                scene.add( collada.scene );
-                objects.push(collada.scene);
-            }
-        );
-
     var Plight = new THREE.PointLight(0xffffff, 0.5, 500, 5);
-    light.position.set(140, 1, 48);
+    light.position.set(0, 1, 0);
     scene.add(Plight);
 
     //add everything to the scene
@@ -321,9 +299,48 @@ socket.on('playerDisconnect', function (player) {
 function loadMap(mapNumber) {
     var DAELoader = new THREE.ColladaLoader();
     var maps = [{
+        position: 'assets/maps/Arena2.dae',
+        scale: 8,
+        offset: 0,
+        lights: [
+            {type: ''}
+        ],
+        spawnPositionsTeam1: [
+            {x: -225, y: 21, z: -135},
+            {x: -140, y: 21, z: -90},
+            {x: -250, y: 33, z: -35},
+            {x: -160, y: 33, z: -25},
+            {x: -245, y: 33, z: 115},
+            {x: -153, y: 33, z: 70},
+            {x: -135, y: 33, z: 145},
+            {x: -165, y: 57, z: 22},
+            {x: -165, y: 9, z: 110},
+            {x: -240, y: 9, z: 145},
+            {x: -200, y: 9, z: 65},
+            {x: -205, y: 9, z: 25}
+        ],
+        spawnPositionsTeam2: [
+            {x: 225, y: 21, z: 135},
+            {x: 140, y: 21, z: 90},
+            {x: 250, y: 33, z: 35},
+            {x: 160, y: 33, z: 25},
+            {x: 245, y: 33, z: -115},
+            {x: 153, y: 33, z: -70},
+            {x: 135, y: 33, z: -145},
+            {x: 165, y: 57, z: -22},
+            {x: 140, y: 45, z: -120},
+            {x: 165, y: 9, z: -110},
+            {x: 240, y: 9, z: -145},
+            {x: 200, y: 9, z: -65},
+            {x: 205, y: 9, z: -25}
+        ]
+    }, {
         position: 'assets/maps/Arena.dae',
         scale: 0.2,
         offset: 0,
+        lights: [
+            {type: ''}
+        ],
         spawnPositionsTeam1: [
             {x: -225, y: 21, z: -135},
             {x: -140, y: 21, z: -90},
@@ -393,11 +410,11 @@ function loadMap(mapNumber) {
         }
     );
 
-    let spwanPoint = Math.floor(Math.random() * (map.spawnPositionsTeam1.length - 0)) + 0;
+    let spawnPoint = Math.floor(Math.random() * (map.spawnPositionsTeam1.length));
 
-    controls.getObject().position.x = map.spawnPositionsTeam1[spwanPoint].x;
-    controls.getObject().position.y = map.spawnPositionsTeam1[spwanPoint].y;
-    controls.getObject().position.z = map.spawnPositionsTeam1[spwanPoint].z;
+    controls.getObject().position.x = map.spawnPositionsTeam1[spawnPoint].x;
+    controls.getObject().position.y = map.spawnPositionsTeam1[spawnPoint].y;
+    controls.getObject().position.z = map.spawnPositionsTeam1[spawnPoint].z;
 
     var material = new THREE.MeshBasicMaterial({color: 0xff0000});
     var geometry = new THREE.BoxGeometry(1, 1, 1);

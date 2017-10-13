@@ -184,7 +184,7 @@ function init() {
 
     const currentMap = 0;
 
-    const spawnPositions = LoadMap(currentMap);
+    const spawnPositions = loadMap(currentMap);
 
 
     // geometry = new THREE.PlaneGeometry(2000, 2000, 100, 100);
@@ -224,11 +224,6 @@ function animate() {
     requestAnimationFrame(animate);
     var time = performance.now();
     var delta = ( time - prevTime ) / 10;
-    raycasterFloor.set(controls.getObject().position, new THREE.Vector3(0, -1, 0));
-    raycasterRoof.set(controls.getObject().position, new THREE.Vector3(0, 1, 0));
-    let intersectsFloor = raycasterFloor.intersectObjects(scene.children, true);
-    let intersectsRoof = raycasterRoof.intersectObjects(scene.children, true);
-
 
     if (moveForward) velocity.z = -0.4 * delta;
     else if (moveBackward) velocity.z = 0.4 * delta;
@@ -237,56 +232,11 @@ function animate() {
     else if (moveRight) velocity.x = 0.4 * delta;
     else velocity.x = 0;
 
-    if (intersectsFloor.length > 0) {
-        if (distance > intersectsFloor[0].distance) {
-            controls.getObject().translateY((distance - intersectsFloor[0].distance) - 1);
-        }
-
-        if (distance >= intersectsFloor[0].distance && velocity.y <= 0) {
-            velocity.y = 0;
-        } else if (distance <= intersectsFloor[0].distance && velocity.y === 0) {
-            velocity.y -= 0.1;
-        }
-        else {
-            velocity.y -= 0.1;
-        }
-    }
-
-    if (controls.getObject().position.y < -30) {
-        controls.getObject().position.y = 5;
-    }
-
-    raycasterWallFeet.set(controls.getObject().position.clone().sub(new THREE.Vector3(0,4,0)), velocity.clone().applyAxisAngle(new THREE.Vector3(0,1,0), controls.getObject().rotation.y));
-    let intersectsWallFeet = raycasterWallFeet.intersectObjects(scene.children, true);
-
-
-    if (intersectsWallFeet[0]) {
-        if (intersectsWallFeet[0].distance < 5) {
-            controls.getObject().translateX(-velocity.x * delta);
-            controls.getObject().translateZ(-velocity.z * delta);
-        }
-    }
-
-    raycasterWallHead.set(controls.getObject().position.clone().add(new THREE.Vector3(0,4,0)), velocity.clone().applyAxisAngle(new THREE.Vector3(0,1,0), controls.getObject().rotation.y));
-    let intersectsWallHead = raycasterWallHead.intersectObjects(scene.children, true);
-
-
-    if (intersectsWallHead[0]) {
-        if (intersectsWallHead[0].distance < 5) {
-            controls.getObject().translateX(-velocity.x * delta);
-            controls.getObject().translateZ(-velocity.z * delta);
-        }
-    }
+    checkCollision(delta);
 
     controls.getObject().translateX(velocity.x * delta);
     controls.getObject().translateY(velocity.y * delta);
     controls.getObject().translateZ(velocity.z * delta);
-
-    if (intersectsRoof.length > 0) {
-        if (intersectsRoof[0].distance < 3) {
-            velocity.y = Math.abs(velocity.y) * -1;
-        }
-    }
 
     socket.emit('playerData',
         {camera: controls.getObject().position, id: clientID});
@@ -339,7 +289,7 @@ socket.on('playerDisconnect', function (player) {
     delete players[player.id];
 });
 
-function LoadMap(mapNumber) {
+function loadMap(mapNumber) {
     var DAELoader = new THREE.ColladaLoader();
     var maps = [{
         position: 'assets/maps/Arena.dae',
@@ -431,4 +381,58 @@ function LoadMap(mapNumber) {
         scene.add(mesh);
     }
 
+}
+
+function checkCollision(delta) {
+    raycasterFloor.set(controls.getObject().position, new THREE.Vector3(0, -1, 0));
+    raycasterRoof.set(controls.getObject().position, new THREE.Vector3(0, 1, 0));
+    let intersectsFloor = raycasterFloor.intersectObjects(scene.children, true);
+    let intersectsRoof = raycasterRoof.intersectObjects(scene.children, true);
+
+    if (intersectsFloor.length > 0) {
+        if (distance > intersectsFloor[0].distance) {
+            controls.getObject().translateY((distance - intersectsFloor[0].distance) - 1);
+        }
+
+        if (distance >= intersectsFloor[0].distance && velocity.y <= 0) {
+            velocity.y = 0;
+        } else if (distance <= intersectsFloor[0].distance && velocity.y === 0) {
+            velocity.y -= 0.1;
+        }
+        else {
+            velocity.y -= 0.1;
+        }
+    }
+
+    if (controls.getObject().position.y < -30) {
+        controls.getObject().position.y = 5;
+    }
+
+    raycasterWallFeet.set(controls.getObject().position.clone().sub(new THREE.Vector3(0, 4, 0)), velocity.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), controls.getObject().rotation.y));
+    let intersectsWallFeet = raycasterWallFeet.intersectObjects(scene.children, true);
+
+
+    if (intersectsWallFeet[0]) {
+        if (intersectsWallFeet[0].distance < 5) {
+            controls.getObject().translateX(-velocity.x * delta);
+            controls.getObject().translateZ(-velocity.z * delta);
+        }
+    }
+
+    raycasterWallHead.set(controls.getObject().position.clone().add(new THREE.Vector3(0, 4, 0)), velocity.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), controls.getObject().rotation.y));
+    let intersectsWallHead = raycasterWallHead.intersectObjects(scene.children, true);
+
+
+    if (intersectsWallHead[0]) {
+        if (intersectsWallHead[0].distance < 5) {
+            controls.getObject().translateX(-velocity.x * delta);
+            controls.getObject().translateZ(-velocity.z * delta);
+        }
+    }
+
+    if (intersectsRoof.length > 0) {
+        if (intersectsRoof[0].distance < 3) {
+            velocity.y = Math.abs(velocity.y) * -1;
+        }
+    }
 }

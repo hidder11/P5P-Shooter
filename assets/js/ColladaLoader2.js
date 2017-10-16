@@ -1354,7 +1354,7 @@ THREE.ColladaLoader.prototype = {
 
 				case 'phong':
 				case 'blinn':
-                    material = new THREE.MeshStandardMaterial();
+                    material = new THREE.MeshLambertMaterial();
 					break;
 
 				case 'lambert':

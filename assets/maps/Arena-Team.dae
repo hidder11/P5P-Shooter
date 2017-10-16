@@ -5,8 +5,8 @@
       <author>Blender User</author>
       <authoring_tool>Blender 2.79.0 commit date:2017-09-11, commit time:10:43, hash:5bd8ac9</authoring_tool>
     </contributor>
-    <created>2017-10-16T13:09:22</created>
-    <modified>2017-10-16T13:09:22</modified>
+    <created>2017-10-16T14:36:32</created>
+    <modified>2017-10-16T14:36:32</modified>
     <unit name="meter" meter="1"/>
     <up_axis>Z_UP</up_axis>
   </asset>
@@ -898,7 +898,7 @@
     <light id="Point-light" name="Point.002">
       <technique_common>
         <point>
-          <color sid="color">0.28 0.28 0.28</color>
+          <color sid="color">2.06 2.06 2.06</color>
           <constant_attenuation>1</constant_attenuation>
           <linear_attenuation>0</linear_attenuation>
           <quadratic_attenuation>2.0154e-4</quadratic_attenuation>
@@ -916,7 +916,7 @@
           <shadow_r sid="blender_shadow_r" type="float">0</shadow_r>
           <shadow_g sid="blender_shadow_g" type="float">0</shadow_g>
           <shadow_b sid="blender_shadow_b" type="float">0</shadow_b>
-          <energy sid="blender_energy" type="float">0.28</energy>
+          <energy sid="blender_energy" type="float">2.06</energy>
           <dist sid="blender_dist" type="float">70.43999</dist>
           <spotsize sid="spotsize" type="float">45</spotsize>
           <spotblend sid="spotblend" type="float">0.15</spotblend>
@@ -1034,7 +1034,7 @@
     <light id="Hemi-light" name="Hemi">
       <technique_common>
         <ambient>
-          <color>0.08000004 0.08000004 0.08000004</color>
+          <color>0.2400001 0.2400001 0.2400001</color>
         </ambient>
       </technique_common>
       <extra>
@@ -1049,7 +1049,7 @@
           <shadow_r sid="blender_shadow_r" type="float">0</shadow_r>
           <shadow_g sid="blender_shadow_g" type="float">0</shadow_g>
           <shadow_b sid="blender_shadow_b" type="float">0</shadow_b>
-          <energy sid="blender_energy" type="float">0.08000004</energy>
+          <energy sid="blender_energy" type="float">0.24</energy>
           <dist sid="blender_dist" type="float">25</dist>
           <spotsize sid="spotsize" type="float">45</spotsize>
           <spotblend sid="spotblend" type="float">0.15</spotblend>
@@ -4346,9 +4346,6 @@
             </technique_common>
           </bind_material>
         </instance_geometry>
-        <node id="Last_Saved_SketchUp_View" name="Last_Saved_SketchUp_View" type="NODE">
-          <matrix sid="transform">1927.859 0 NaN 27.82327 0 0 NaN 0 0 0 NaN 2569.043 0 0 NaN 1</matrix>
-        </node>
         <node id="instance_0" name="instance_0" type="NODE">
           <matrix sid="transform">1 0 0 -0.4204827 0 1 0 -787.4016 0 0 1 -118.1102 0 0 0 1</matrix>
           <instance_geometry url="#ID4_005-mesh" name="instance_0">

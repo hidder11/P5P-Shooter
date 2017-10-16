@@ -1,37 +1,6 @@
 'use strict';
-var renderer;
-var directionalLight;
-var light;
-var scene;
-var camera;
-var controlsEnabled = false;
-var moveForward = false;
-var moveBackward = false;
-var moveLeft = false;
-var moveRight = false;
-var jump = false;
-var prevTime = performance.now();
-var velocity = new THREE.Vector3();
-var raycasterFloor;
-var raycasterWallFeet;
-var raycasterWallHead;
-var raycasterRoof;
-var map;
-const distance = 10;
 
-var blocker = document.getElementById('blocker');
-var instructions = document.getElementById('instructions');
-var camDirection;
-var geometry, material, mesh;
-var controls;
-var objects = [];
-var blocker = document.getElementById('blocker');
-var instructions = document.getElementById('instructions');
-var camDirection;
-var socket = io('shooter.arankieskamp.com');
-var clientID;
-var players = {};
-
+//Pointer Lock
 var havePointerLock = 'pointerLockElement' in document ||
     'mozPointerLockElement' in document || 'webkitPointerLockElement' in
     document;
@@ -45,7 +14,8 @@ if (havePointerLock) {
             controlsEnabled = true;
             controls.enabled = true;
             blocker.style.display = 'none';
-        } else {
+        }
+        else {
             controls.enabled = false;
             blocker.style.display = '-webkit-box';
             blocker.style.display = '-moz-box';
@@ -72,7 +42,8 @@ if (havePointerLock) {
             element.mozRequestPointerLock || element.webkitRequestPointerLock;
         element.requestPointerLock();
     }, false);
-} else {
+}
+else {
     instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
 }
 
@@ -139,9 +110,14 @@ function init() {
                 break;
         }
     };
+    var onClick = function (event) {
+        socket.emit('poof');
+    };
 
     document.addEventListener('keydown', onKeyDown, false);
     document.addEventListener('keyup', onKeyUp, false);
+    document.addEventListener('click', onClick, false);
+
     //init rendering
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -172,7 +148,7 @@ function init() {
         color: 0x0000ff,
     });
 
-    const currentMap = 0;
+    const currentMap = 1;
 
     const spawnPositions = loadMap(currentMap);
 
@@ -259,7 +235,7 @@ init();
 //     console.log(data);
 //     debugger;
 // });
-socket.on('connect', function() {
+socket.on('connect', function () {
     console.log('socketio Connected to server!');
 });
 socket.on('log', function (data) {
@@ -334,63 +310,53 @@ function loadMap(mapNumber) {
             {x: 200, y: 9, z: -65},
             {x: 205, y: 9, z: -25}
         ]
-    }, {
-        position: 'assets/maps/Arena.dae',
-        scale: 0.2,
-        offset: 0,
-        lights: [
-            {type: ''}
-        ],
-        spawnPositionsTeam1: [
-            {x: -225, y: 21, z: -135},
-            {x: -140, y: 21, z: -90},
-            {x: -250, y: 33, z: -35},
-            {x: -160, y: 33, z: -25},
-            {x: -245, y: 33, z: 115},
-            {x: -153, y: 33, z: 70},
-            {x: -135, y: 33, z: 145},
-            {x: -165, y: 57, z: 22},
-            {x: -165, y: 9, z: 110},
-            {x: -240, y: 9, z: 145},
-            {x: -200, y: 9, z: 65},
-            {x: -205, y: 9, z: 25}
-        ],
-        spawnPositionsTeam2: [
-            {x: 225, y: 21, z: 135},
-            {x: 140, y: 21, z: 90},
-            {x: 250, y: 33, z: 35},
-            {x: 160, y: 33, z: 25},
-            {x: 245, y: 33, z: -115},
-            {x: 153, y: 33, z: -70},
-            {x: 135, y: 33, z: -145},
-            {x: 165, y: 57, z: -22},
-            {x: 140, y: 45, z: -120},
-            {x: 165, y: 9, z: -110},
-            {x: 240, y: 9, z: -145},
-            {x: 200, y: 9, z: -65},
-            {x: 205, y: 9, z: -25}
-        ]
-    }, {
-        position: 'assets/maps/test.dae',
-        scale: 100,
-        offset: -30,
-        spawnPositionsTeam1: [
-            {x: -225, y: 21, z: -135},
-            {x: -140, y: 21, z: -90},
-            {x: -240, y: 33, z: -40},
-            {x: -160, y: 33, z: -25},
-            {x: -245, y: 33, z: 115},
-            {x: -153, y: 33, z: 70},
-            {x: -135, y: 33, z: 145},
-            {x: -150, y: 57, z: 15},
-            {x: -165, y: 9, z: 110},
-            {x: -240, y: 9, z: 145},
-            {x: -200, y: 9, z: 65},
-            {x: -205, y: 9, z: 25}
-        ],
-        spawnPositionsTeam2: [
-        ]
-    }
+    },
+        {
+            position: 'assets/maps/Arena.dae',
+            scale: 0.2,
+            offset: 0,
+            lights: [
+                {type: ''}
+            ],
+            spawnPositionsTeam1: [
+                {x: -225, y: 21, z: -135},
+                {x: -140, y: 21, z: -90},
+                {x: -250, y: 33, z: -35},
+                {x: -160, y: 33, z: -25},
+                {x: -245, y: 33, z: 115},
+                {x: -153, y: 33, z: 70},
+                {x: -135, y: 33, z: 145},
+                {x: -165, y: 57, z: 22},
+                {x: -165, y: 9, z: 110},
+                {x: -240, y: 9, z: 145},
+                {x: -200, y: 9, z: 65},
+                {x: -205, y: 9, z: 25}
+            ],
+            spawnPositionsTeam2: [
+                {x: 225, y: 21, z: 135},
+                {x: 140, y: 21, z: 90},
+                {x: 250, y: 33, z: 35},
+                {x: 160, y: 33, z: 25},
+                {x: 245, y: 33, z: -115},
+                {x: 153, y: 33, z: -70},
+                {x: 135, y: 33, z: -145},
+                {x: 165, y: 57, z: -22},
+                {x: 140, y: 45, z: -120},
+                {x: 165, y: 9, z: -110},
+                {x: 240, y: 9, z: -145},
+                {x: 200, y: 9, z: -65},
+                {x: 205, y: 9, z: -25}
+            ]
+        },
+        {
+            position: 'assets/maps/test.dae',
+            scale: 100,
+            offset: -30,
+            spawnPositionsTeam1: [
+                {x: 0, y: 0, z: 0}
+            ],
+            spawnPositionsTeam2: []
+        }
     ];
 
     map = maps[mapNumber];
@@ -399,7 +365,7 @@ function loadMap(mapNumber) {
     DAELoader.load(map.position,
         function (collada) {
             let scale = map.scale;
-            collada.scene.children[0].material = new THREE.MeshPhongMaterial('0xddffdd');
+            collada.scene.children[0].material = new THREE.MeshLambertMaterial('0xddffdd');
             collada.scene.scale.set(scale, scale, scale);
             collada.scene.rotation.set(-Math.PI / 2, 0, 0);
             collada.scene.position.y = map.offset;
@@ -426,7 +392,6 @@ function loadMap(mapNumber) {
         mesh.position.z = point.z;
         scene.add(mesh);
     }
-
 }
 
 function checkCollision(delta) {
@@ -442,7 +407,8 @@ function checkCollision(delta) {
 
         if (distance >= intersectsFloor[0].distance && velocity.y <= 0) {
             velocity.y = 0;
-        } else if (distance <= intersectsFloor[0].distance && velocity.y === 0) {
+        }
+        else if (distance <= intersectsFloor[0].distance && velocity.y === 0) {
             velocity.y -= 0.1;
         }
         else {

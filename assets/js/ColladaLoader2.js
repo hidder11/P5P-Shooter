@@ -1354,7 +1354,7 @@ THREE.ColladaLoader.prototype = {
 
 				case 'phong':
 				case 'blinn':
-					material = new THREE.MeshPhongMaterial();
+                    material = new THREE.MeshStandardMaterial();
 					break;
 
 				case 'lambert':
@@ -1409,6 +1409,9 @@ THREE.ColladaLoader.prototype = {
 			}
 
 			var parameters = technique.parameters;
+
+            material.metalness = 0;
+            material.roughness = 1;
 
 			for ( var key in parameters ) {
 

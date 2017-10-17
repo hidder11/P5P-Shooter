@@ -1,16 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link href="node_modules/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="node_modules/toastr/build/toastr.min.css" rel="stylesheet">
     <link href="assets/css/custom.css" rel="stylesheet">
     <meta charset="UTF-8">
     <title>FUS</title>
 </head>
 <body>
 <script src="node_modules/jquery/dist/jquery.min.js"></script>
+<script src="node_modules/toastr/build/toastr.min.js"></script>
 <script src="node_modules/three/build/three.min.js"></script>
 <script src="node_modules/three/examples/js/controls/PointerLockControls.js"></script>
 <script src="assets/js/ColladaLoader2.js"></script>
 <script src="node_modules/socket.io-client/dist/socket.io.js"></script>
+<div id="crosshair-overlay">
+    <img src="assets/images/crosshair.png" id="crosshair">
+</div>
 <div id="blocker">
     <div id="instructions">
         <span style="font-size:40px">Click to play</span>
@@ -20,6 +26,7 @@
 </div>
 <script src="assets/js/classes.js"></script>
 <script src="assets/js/references.js"></script>
+<script src="assets/js/game.ui.js"></script>
 <script src="assets/js/main.js"></script>
 </body>
 </html>

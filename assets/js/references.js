@@ -17,6 +17,10 @@ let raycasterFloor;
 let raycasterWallFeet;
 let raycasterWallHead;
 let raycasterRoof;
+
+let raycasterShoot;
+let shotRange = 10000;
+
 var map;
 const distance = 10;
 

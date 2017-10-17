@@ -47,6 +47,7 @@ else {
     instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
 }
 
+
 function init() {
     //init scene, camera, lights
     scene = new THREE.Scene();
@@ -111,7 +112,15 @@ function init() {
         }
     };
     var onClick = function (event) {
-        socket.emit('poof');
+        switch (event.button) {
+            case 2: // shoot
+                socket.emit('shot', 'poof');
+                shoot();
+                break;
+            case 1: // aim
+                // socket.emit('shot', 'poof');
+                break;
+        }
     };
 
     document.addEventListener('keydown', onKeyDown, false);
@@ -135,6 +144,10 @@ function init() {
 
     raycasterRoof = new THREE.Raycaster();
     raycasterRoof.set(controls.getObject().position, new THREE.Vector3(0, 1, 0));
+
+    raycasterShoot = new THREE.Raycaster();
+    raycasterShoot.set(controls.getObject().position.clone().add(velocity.clone().normalize()), new THREE.Vector3(0, 0, 1));
+
     var distance = 10;
 
     var Plight = new THREE.PointLight(0xffffff, 0.5, 500, 5);
@@ -152,30 +165,11 @@ function init() {
 
     const spawnPositions = loadMap(currentMap);
 
-
-    // geometry = new THREE.PlaneGeometry(2000, 2000, 100, 100);
-    // geometry.rotateX(-Math.PI / 2);
-    // for (var i = 0, l = geometry.vertices.length; i < l; i++) {
-    //     var vertex = geometry.vertices[i];
-    //     vertex.x += Math.random() * 20 - 10;
-    //     vertex.y += Math.random() * 2;
-    //     vertex.z += Math.random() * 20 - 10;
-    // }
-    // for (var i = 0, l = geometry.faces.length; i < l; i++) {
-    //     var face = geometry.faces[i];
-    //     face.vertexColors[0] = new THREE.Color().setHSL(Math.random() * 0.3 +
-    //         0.5, Math.random() * 0.25 + 0.75, 0.75);
-    //     face.vertexColors[1] = new THREE.Color().setHSL(Math.random() * 0.3 +
-    //         0.5, Math.random() * 0.25 + 0.75, 0.75);
-    //     face.vertexColors[2] = new THREE.Color().setHSL(Math.random() * 0.3 +
-    //         0.5, Math.random() * 0.25 + 0.75, 0.75);
-    // }
-    // material = new THREE.MeshBasicMaterial({vertexColors: THREE.VertexColors});
-    // mesh = new THREE.Mesh(geometry, material);
-    // scene.add(mesh);
     animate();
 
     window.addEventListener('resize', onWindowResize, false);
+
+
 }
 
 function onWindowResize() {
@@ -184,7 +178,7 @@ function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-var count = 0;
+var line;
 
 function animate() {
     requestAnimationFrame(animate);
@@ -218,6 +212,20 @@ function animate() {
 
     prevTime = time;
     renderer.render(scene, camera);
+
+    scene.remove(line);
+
+    var material = new THREE.LineBasicMaterial({color: 0x0000ff});
+    var geometry = new THREE.Geometry();
+    geometry.vertices.push(new THREE.Vector3(0, 1, 20));
+    geometry.vertices.push(new THREE.Vector3(0, 1, -20));
+    line = new THREE.Line(geometry, material);
+
+    scene.add(line);
+
+    line.position.copy(controls.getObject().position);
+    line.rotation.y = controls.getObject().rotation.y;
+// console.log(line.position);
 }
 
 function newPlayer(player) {
@@ -231,6 +239,7 @@ function newPlayer(player) {
 }
 
 init();
+
 // socket.on("*",function(data){
 //     console.log(data);
 //     debugger;
@@ -447,4 +456,11 @@ function checkCollision(delta) {
             velocity.y = Math.abs(velocity.y) * -1;
         }
     }
+}
+
+function shoot() {
+    raycasterShoot.set(controls.getObject().position.clone().sub(new THREE.Vector3(0, 2, 0)), controls.getDirection(new THREE.Vector3(0, 0, -1)));
+    let hit = raycasterShoot.intersectObjects(scene.children, true);
+
+    console.log(hit);
 }

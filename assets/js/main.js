@@ -59,7 +59,7 @@ function init() {
     camera.add(listener);
 
     // camera.position.y = 3;
-    light = new THREE.AmbientLight(0xffffff, 0.7);
+    light = new THREE.AmbientLight(0xffffff, 0.5);
     directionalLight = new THREE.DirectionalLight(0xffffff, 0.3);
 
     controls = new THREE.PointerLockControls(camera);
@@ -156,17 +156,16 @@ function init() {
 
     var Plight = new THREE.PointLight(0xffffff, 0.5, 500, 5);
     light.position.set(0, 1, 0);
-    scene.add(Plight);
+    // scene.add(Plight);
 
     //add everything to the scene
-    scene.add(light, directionalLight);
+    // scene.add(light, directionalLight);
 
     var material = new THREE.LineBasicMaterial({
         color: 0x0000ff,
     });
 
-    const currentMap = 3;
-
+    const currentMap = 0;
 
     loadMap(currentMap);
 
@@ -203,11 +202,13 @@ function animate() {
             id: clientID,
             position: controls.getObject().position,
             rotation: controls.getObject().rotation,
+            direction: controls.getDirection(new THREE.Vector3(0, 0, -1)),
             moveForward: moveForward,
             moveBackward: moveBackward,
             moveRight: moveRight,
             moveLeft: moveLeft,
             Jump: jump,
+            name: name,
         });
 
     prevTime = time;
@@ -221,6 +222,7 @@ function newPlayer(player) {
     cube.position.set(player.position.x, player.position.y, player.position.z);
     cube.playerID = player.id;
     players[player.id] = cube;
+    cube.player = player;
     scene.add(cube);
 }
 
@@ -274,13 +276,12 @@ socket.on('shot', function (shot) {
         playSoundAt('Laser_04', players[shot.client.id]);
     }
     shoot();
-    console.log(shot);
 });
 
 function loadMap(mapNumber) {
     var DAELoader = new THREE.ColladaLoader();
     var maps = [{
-        position: 'assets/maps/Arena2.dae',
+        position: 'assets/maps/Arena-Team.dae',
         scale: 8,
         offset: 0,
         lights: [
@@ -359,15 +360,6 @@ function loadMap(mapNumber) {
             offset: -30,
             spawnPositionsTeam1: [
                 {x: 0, y: 0, z: 0}
-            ],
-            spawnPositionsTeam2: []
-        },
-        {
-            position: 'assets/maps/town.dae',
-            scale: 0.35,
-            offset: -1.3,
-            spawnPositionsTeam1: [
-                {x: 128.98325404418927, y: 7.8377952829003945, z: -130.731002825441}
             ],
             spawnPositionsTeam2: []
         }
@@ -485,6 +477,7 @@ function playSoundAtPlayer(sound) {
 }
 
 function shoot() {
-    raycasterShoot.set(controls.getObject().position.clone().sub(new THREE.Vector3(0, 2, 0)), controls.getDirection(new THREE.Vector3(0, 0, -1)));
+    raycasterShoot.set(controls.getObject().position,
+        controls.getDirection(new THREE.Vector3(0, 0, -1)));
     let hit = raycasterShoot.intersectObjects(scene.children, true);
 }

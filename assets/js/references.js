@@ -35,3 +35,4 @@ var instructions = document.getElementById('instructions');
 var socket = io('shooter.arankieskamp.com');
 var clientID;
 var players = {};
+var name = '';

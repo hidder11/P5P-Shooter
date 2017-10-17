@@ -53,7 +53,7 @@ function init() {
     camera = new THREE.PerspectiveCamera(60, window.innerWidth /
         window.innerHeight, 0.1, 1000);
     // camera.position.y = 3;
-    light = new THREE.AmbientLight(0xffffff, 0.5);
+    light = new THREE.AmbientLight(0xffffff, 0.7);
     directionalLight = new THREE.DirectionalLight(0xffffff, 0.3);
 
     controls = new THREE.PointerLockControls(camera);
@@ -148,7 +148,8 @@ function init() {
         color: 0x0000ff,
     });
 
-    const currentMap = 1;
+    const currentMap = 3;
+
 
     const spawnPositions = loadMap(currentMap);
 
@@ -354,6 +355,15 @@ function loadMap(mapNumber) {
             offset: -30,
             spawnPositionsTeam1: [
                 {x: 0, y: 0, z: 0}
+            ],
+            spawnPositionsTeam2: []
+        },
+        {
+            position: 'assets/maps/town.dae',
+            scale: 0.35,
+            offset: -1.3,
+            spawnPositionsTeam1: [
+                {x: 128.98325404418927, y: 7.8377952829003945, z: -130.731002825441}
             ],
             spawnPositionsTeam2: []
         }

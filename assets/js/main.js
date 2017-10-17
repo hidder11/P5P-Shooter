@@ -178,8 +178,6 @@ function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-var line;
-
 function animate() {
     requestAnimationFrame(animate);
     var time = performance.now();
@@ -212,20 +210,6 @@ function animate() {
 
     prevTime = time;
     renderer.render(scene, camera);
-
-    scene.remove(line);
-
-    var material = new THREE.LineBasicMaterial({color: 0x0000ff});
-    var geometry = new THREE.Geometry();
-    geometry.vertices.push(new THREE.Vector3(0, 1, 20));
-    geometry.vertices.push(new THREE.Vector3(0, 1, -20));
-    line = new THREE.Line(geometry, material);
-
-    scene.add(line);
-
-    line.position.copy(controls.getObject().position);
-    line.rotation.y = controls.getObject().rotation.y;
-// console.log(line.position);
 }
 
 function newPlayer(player) {

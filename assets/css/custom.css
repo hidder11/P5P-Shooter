@@ -54,3 +54,54 @@ body {
     text-align: center;
     cursor: pointer;
 }
+
+.toast-info {
+    background-color: #085e93;
+}
+
+#toast-container > div {
+    width: auto;
+    padding: 15px 15px 15px 15px !important;
+    -moz-border-radius: 0;
+    -webkit-border-radius: 0;
+    border-radius: 0;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    opacity: 0.3;
+    /*text-align: center;*/
+    /*background: none;*/
+}
+
+#toast-container > .toast {
+    background-image: none !important;
+}
+
+#crosshair-overlay {
+    position: relative;
+    background: none;
+}
+
+#-overlay {
+    position: relative;
+    background: none;
+}
+
+#crosshair {
+    position: absolute;
+    left: 50%;
+    margin: 50vh -50vw 0 0;
+    transform: translate(-32px, -32px)
+}
+
+#health {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+}
+
+#ammo {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}

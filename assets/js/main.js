@@ -47,11 +47,17 @@ else {
     instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
 }
 
+
 function init() {
     //init scene, camera, lights
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(60, window.innerWidth /
         window.innerHeight, 0.1, 1000);
+    listener = new THREE.AudioListener();
+    audioLoader = new THREE.AudioLoader();
+
+    camera.add(listener);
+
     // camera.position.y = 3;
     light = new THREE.AmbientLight(0xffffff, 0.7);
     directionalLight = new THREE.DirectionalLight(0xffffff, 0.3);
@@ -111,12 +117,19 @@ function init() {
         }
     };
     var onClick = function (event) {
-        socket.emit('poof');
+        switch (event.button) {
+            case 0: // shoot
+                socket.emit('shot', 'poof');
+                break;
+            case 1: // aim
+                // socket.emit('shot', 'poof');
+                break;
+        }
     };
 
     document.addEventListener('keydown', onKeyDown, false);
     document.addEventListener('keyup', onKeyUp, false);
-    document.addEventListener('click', onClick, false);
+    document.addEventListener('mousedown', onClick, false);
 
     //init rendering
     renderer = new THREE.WebGLRenderer();
@@ -135,6 +148,10 @@ function init() {
 
     raycasterRoof = new THREE.Raycaster();
     raycasterRoof.set(controls.getObject().position, new THREE.Vector3(0, 1, 0));
+
+    raycasterShoot = new THREE.Raycaster();
+    raycasterShoot.set(controls.getObject().position.clone().add(velocity.clone().normalize()), new THREE.Vector3(0, 0, 1));
+
     var distance = 10;
 
     var Plight = new THREE.PointLight(0xffffff, 0.5, 500, 5);
@@ -151,31 +168,9 @@ function init() {
     const currentMap = 3;
 
 
-    const spawnPositions = loadMap(currentMap);
+    loadMap(currentMap);
 
-
-    // geometry = new THREE.PlaneGeometry(2000, 2000, 100, 100);
-    // geometry.rotateX(-Math.PI / 2);
-    // for (var i = 0, l = geometry.vertices.length; i < l; i++) {
-    //     var vertex = geometry.vertices[i];
-    //     vertex.x += Math.random() * 20 - 10;
-    //     vertex.y += Math.random() * 2;
-    //     vertex.z += Math.random() * 20 - 10;
-    // }
-    // for (var i = 0, l = geometry.faces.length; i < l; i++) {
-    //     var face = geometry.faces[i];
-    //     face.vertexColors[0] = new THREE.Color().setHSL(Math.random() * 0.3 +
-    //         0.5, Math.random() * 0.25 + 0.75, 0.75);
-    //     face.vertexColors[1] = new THREE.Color().setHSL(Math.random() * 0.3 +
-    //         0.5, Math.random() * 0.25 + 0.75, 0.75);
-    //     face.vertexColors[2] = new THREE.Color().setHSL(Math.random() * 0.3 +
-    //         0.5, Math.random() * 0.25 + 0.75, 0.75);
-    // }
-    // material = new THREE.MeshBasicMaterial({vertexColors: THREE.VertexColors});
-    // mesh = new THREE.Mesh(geometry, material);
-    // scene.add(mesh);
     animate();
-
     window.addEventListener('resize', onWindowResize, false);
 }
 
@@ -184,8 +179,6 @@ function onWindowResize() {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
-
-var count = 0;
 
 function animate() {
     requestAnimationFrame(animate);
@@ -232,6 +225,7 @@ function newPlayer(player) {
 }
 
 init();
+
 // socket.on("*",function(data){
 //     console.log(data);
 //     debugger;
@@ -271,6 +265,16 @@ socket.on('playerData', function (clients) {
 socket.on('playerDisconnect', function (player) {
     scene.remove(players[player.id]);
     delete players[player.id];
+});
+socket.on('shot', function (shot) {
+    if (clientID == shot.client.id) {
+        playSoundAtPlayer('Laser_09');
+    }
+    else {
+        playSoundAt('Laser_04', players[shot.client.id]);
+    }
+    shoot();
+    console.log(shot);
 });
 
 function loadMap(mapNumber) {
@@ -457,4 +461,30 @@ function checkCollision(delta) {
             velocity.y = Math.abs(velocity.y) * -1;
         }
     }
+}
+
+function playSoundAt(sound, player) {
+    var shotSound = new THREE.PositionalAudio(listener);
+    audioLoader.load('assets/sounds/' + sound + '.mp3', function (buffer) {
+        shotSound.setBuffer(buffer);
+        shotSound.setVolume(0.3);
+        shotSound.setRefDistance(20);
+        shotSound.play();
+        player.add(shotSound);
+    });
+}
+
+function playSoundAtPlayer(sound) {
+    var shotSound = new THREE.Audio(listener);
+    audioLoader.load('assets/sounds/' + sound + '.mp3', function (buffer) {
+        shotSound.setBuffer(buffer);
+        shotSound.setVolume(0.3);
+        shotSound.play();
+    });
+
+}
+
+function shoot() {
+    raycasterShoot.set(controls.getObject().position.clone().sub(new THREE.Vector3(0, 2, 0)), controls.getDirection(new THREE.Vector3(0, 0, -1)));
+    let hit = raycasterShoot.intersectObjects(scene.children, true);
 }

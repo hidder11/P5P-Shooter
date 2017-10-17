@@ -5,6 +5,8 @@ var directionalLight;
 var light;
 var scene;
 var camera;
+var listener;
+var audioLoader;
 var controlsEnabled = false;
 var moveForward = false;
 var moveBackward = false;

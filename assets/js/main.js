@@ -277,6 +277,12 @@ socket.on('shot', function (shot) {
     }
     shoot();
 });
+socket.on('kill', function (data) {
+    showKill(data.killer.name, data.victim.name, '');
+    if (data.victim.name === name) {
+        updateHealth(Math.random());
+    }
+});
 
 function loadMap(mapNumber) {
     var DAELoader = new THREE.ColladaLoader();

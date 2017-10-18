@@ -268,9 +268,6 @@ socket.on('playerDisconnect', function (player) {
     scene.remove(players[player.id]);
     delete players[player.id];
 });
-socket.on('kill', function (data) {
-    showKill(data.killer.name,data.victim.name,'');
-});
 socket.on('shot', function (shot) {
     if (clientID == shot.client.id) {
         playSoundAtPlayer('Laser_09');
@@ -286,6 +283,12 @@ socket.emit('mapChange', function (map) {
     const currentMap = 0;
     loadMap(currentMap);
     scene.add(controls.getObject());
+});
+socket.on('kill', function (data) {
+    showKill(data.killer.name, data.victim.name, '');
+    if (data.victim.name === name) {
+        updateHealth(Math.random());
+    }
 });
 
 function loadMap(mapNumber) {

@@ -268,6 +268,9 @@ socket.on('playerDisconnect', function (player) {
     scene.remove(players[player.id]);
     delete players[player.id];
 });
+socket.on('kill', function (data) {
+    showKill(data.killer.name,data.victim.name,'');
+});
 socket.on('shot', function (shot) {
     if (clientID == shot.client.id) {
         playSoundAtPlayer('Laser_09');
@@ -276,6 +279,13 @@ socket.on('shot', function (shot) {
         playSoundAt('Laser_04', players[shot.client.id]);
     }
     shoot();
+});
+socket.emit('mapChange', function (map) {
+    //console.log(map);
+    scene = new THREE.scene;
+    const currentMap = 0;
+    loadMap(currentMap);
+    scene.add(controls.getObject());
 });
 
 function loadMap(mapNumber) {

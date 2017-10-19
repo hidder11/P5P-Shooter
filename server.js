@@ -37,27 +37,39 @@ function shoot(player, object) {
         raycasterShoot.set(player.position, player.direction);
     let hit = raycasterShoot.intersectObjects(scene.children, true);
 
-    return hit[0];
+    return {victim: hit[0], raycast: raycasterShoot};
 }
 
 io.on('connection', function(socket) {
-    socket.on('testKill', function() {
-        io.emit('kill', {victim: client, killer: client});
-    });
-    socket.on('testMapChange', function(mapNumber) {
-        io.emit('mapChange', mapNumber);
-    });
-    socket.emit('oldPlayers', clients);
     let client = new Client(socket.id);
-    io.emit('newPlayer', client);
-    newPlayer(client);
-    clients.push(client);
+    socket.on('checkUsername', function(name) {
+        let available = true;
+        for (let player of clients) {
+            if (player.name == name) {
+                available = false;
+                break;
+            }
+        }
+        socket.emit('checkUsername', available);
+    });
+    socket.on('userName', function(name) {
+        client.name = name;
+        io.emit('newPlayer', client);
+        newPlayer(client);
+        socket.emit('oldPlayers', clients);
+        clients.push(client);
+        console.log(clients);
+        newData(socket);
+    });
     socket.on('disconnect', function() {
         io.emit('playerDisconnect', client);
+        scene.remove(objects[client.id]);
+        delete objects[client.id];
         clients.splice(clients.indexOf(client), 1);
-        delete clients[clients.indexOf(client)];
+        // delete clients[clients.indexOf(client)];
     });
     socket.on('playerData', function(data) {
+        if (!client.name) return;
         objects[client.id].position.set(data.position.x, data.position.y,
             data.position.z);
         objects[client.id].rotation.set(data.rotation.x, data.rotation.y,
@@ -70,43 +82,38 @@ io.on('connection', function(socket) {
         client.moveForward = data.moveForward;
         client.moveBackward = data.moveBackward;
         client.jump = data.jump;
-        client.name = data.name;
+        objects[client.id].updateMatrixWorld();
     });
     socket.on('shot', function() {
+        let hit = undefined;
         io.emit('shot', {
             weapon: '',
             client: client,
-            bulletTrial: {
-                origin: client.position,
-                endPoint: new THREE.Vector3(0, 0, 0),
-            },
+            bulletTrial: new THREE.Vector3(0, 0, 0),
         });
-        let hit = shoot(client, [objects[client.id]]);
         if (hit) {
             io.emit('kill', {
-                victim: hit.object.player,
+                victim: hit.victim.object.player,
                 killer: client,
+                raycast: hit.raycast,
             });
         }
     });
     socket.on('log', function(data) {
         console.log(data);
     });
-    newData(socket);
 });
 
 function newData(socket) {
     socket.emit('playerData', clients);
-    setTimeout(function() {
-        newData(socket);
-    }, 1);
+    setTimeout(newData, 1, socket);
 }
 
 class Client {
     constructor(id) {
         this.name = '';
         this.id = id;
-        this.position = new THREE.Vector3(0, 0, 0);
+        this.position = new THREE.Vector3(1000, 0, 1000);
         this.velocity = new THREE.Vector3(0, 0, 0);
         this.rotation = {_x: 0, _y: 0, _z: 0};
         this.direction = new THREE.Vector3(1, 0, 0);

@@ -55,12 +55,8 @@ function init() {
         window.innerHeight, 0.1, 1000);
     listener = new THREE.AudioListener();
     audioLoader = new THREE.AudioLoader();
-
+    scene.add(collidables);
     camera.add(listener);
-
-    // camera.position.y = 3;
-    light = new THREE.AmbientLight(0xffffff, 0.5);
-    directionalLight = new THREE.DirectionalLight(0xffffff, 0.3);
 
     controls = new THREE.PointerLockControls(camera);
     scene.add(controls.getObject());
@@ -228,7 +224,7 @@ function newPlayer(player) {
     cube.playerID = player.id;
     players[player.id] = cube;
     cube.player = player;
-    scene.add(cube);
+    collidables.add(cube);
     addPlayerTag(cube);
 }
 
@@ -244,12 +240,13 @@ function checkUsername() {
     }
 }
 
-socket.on('checkUsername', function(available) {
-    let name = username.prop('value');
-    if (available) {
-        socket.emit('userName', name);
+socket.on('checkUsername', function(data) {
+    if (data.available) {
+        socket.emit('userName', data.name);
         $('#newPlayer').addClass('hidden');
         $('#startGame').removeClass('hidden');
+        $('#crosshair-overlay').removeClass('hidden');
+        $('#userStats-overlay').removeClass('hidden');
         joined = true;
         animate();
     }
@@ -260,6 +257,9 @@ socket.on('checkUsername', function(available) {
 });
 socket.on('connect', function() {
     console.log('socketio Connected to server!');
+    if (name) {
+        socket.emit('checkUsername', name);
+    }
 });
 socket.on('log', function(data) {
     console.log(data);
@@ -422,7 +422,7 @@ function loadMap(mapNumber) {
             collada.scene.position.y = map.offset;
             collada.receiveShadows = true;
             collada.castShadows = true;
-            scene.add(collada.scene);
+            collidables.add(collada.scene);
             objects.push(collada.scene);
         },
     );
@@ -451,8 +451,10 @@ function checkCollision(delta) {
         new THREE.Vector3(0, -1, 0));
     raycasterRoof.set(controls.getObject().position,
         new THREE.Vector3(0, 1, 0));
-    let intersectsFloor = raycasterFloor.intersectObjects(scene.children, true);
-    let intersectsRoof = raycasterRoof.intersectObjects(scene.children, true);
+    let intersectsFloor = raycasterFloor.intersectObjects(collidables.children,
+        true);
+    let intersectsRoof = raycasterRoof.intersectObjects(collidables.children,
+        true);
 
     if (intersectsFloor.length > 0) {
         if (distance > intersectsFloor[0].distance && intersectsFloor[0].object.type === 'Mesh') {
@@ -479,7 +481,8 @@ function checkCollision(delta) {
         velocity.clone().
             applyAxisAngle(new THREE.Vector3(0, 1, 0),
                 controls.getObject().rotation.y));
-    let intersectsWallFeet = raycasterWallFeet.intersectObjects(scene.children,
+    let intersectsWallFeet = raycasterWallFeet.intersectObjects(
+        collidables.children,
         true);
 
     if (intersectsWallFeet[0]) {
@@ -494,7 +497,8 @@ function checkCollision(delta) {
         velocity.clone().
             applyAxisAngle(new THREE.Vector3(0, 1, 0),
                 controls.getObject().rotation.y));
-    let intersectsWallHead = raycasterWallHead.intersectObjects(scene.children,
+    let intersectsWallHead = raycasterWallHead.intersectObjects(
+        collidables.children,
         true);
 
     if (intersectsWallHead[0]) {

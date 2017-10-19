@@ -27,18 +27,14 @@ class Weapon {
 
     shoot() {
         raycasterShoot.set(controls.getObject().position.clone().sub(new THREE.Vector3(0, 4, 0)), controls.getDirection(new THREE.Vector3(0, 0, -1)));
-        let hits = raycasterShoot.intersectObjects(scene.children, true);
-        socket.emit('shot', hits);
-        // console.log(hits);
-        for (let hit of hits) {
-            if (hit.object.type === 'Mesh') {
-                this.ammo--;
+        let hits = raycasterShoot.intersectObjects(collidables.children, true);
 
-                this.drawTrail(hit.point);
-                this.playSoundAtPlayer(this.sound);
-                break;
-            }
-        }
+        socket.emit('shot', hits);
+        console.log(hits);
+        this.ammo--;
+
+        this.drawTrail(hits[0].point);
+        this.playSoundAtPlayer(this.sound);
     }
 
     startShoot() {
@@ -97,16 +93,16 @@ class Weapon {
         scene.add(line);
 
         //Particle
-        var numParticles = 100;
+        var numParticles = 1000;
         var particleGeometry = new THREE.Geometry();
         var particleMaterial = new THREE.PointsMaterial({
             map: new THREE.CanvasTexture(generateSprite()),
             blending: THREE.AdditiveBlending,
             size: 1,
-            depthTest: false,
+            depthTest: true,
             transparent: true
         });
-        // particleMaterial.map.needsUpdate = true;
+        particleMaterial.map.needsUpdate = true;
 
         var animationPoints = [];
         for (let i = 0; i <= numParticles; i++) {
@@ -131,12 +127,12 @@ class Weapon {
             particleGeometry.vertices.push(particle);
         }
 
-        var particles = new THREE.ParticleSystem(particleGeometry, particleMaterial);
+        var particles = new THREE.Points(particleGeometry, particleMaterial);
         particles.sortParticles = true;
         particles.dynamic = true;
 
         scene.add(particles);
-        lines.push({line: line, life: 10, particle: particles});
+        lines.push({line: line, life: 100, particle: particles});
     }
 
 

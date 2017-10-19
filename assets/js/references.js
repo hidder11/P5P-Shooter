@@ -1,8 +1,6 @@
 'use strict';
 
 var renderer;
-var directionalLight;
-var light;
 var scene;
 var camera;
 var listener;
@@ -38,3 +36,5 @@ var players = {};
 var joined = false;
 const username = $('#txtName');
 const helpBlock = $('#help');
+var name;
+var collidables = new THREE.Object3D({name: 'collidables', type: 'Group'});

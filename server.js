@@ -50,7 +50,7 @@ io.on('connection', function(socket) {
                 break;
             }
         }
-        socket.emit('checkUsername', available);
+        socket.emit('checkUsername', {available: available, name: name});
     });
     socket.on('userName', function(name) {
         client.name = name;
@@ -66,7 +66,6 @@ io.on('connection', function(socket) {
         scene.remove(objects[client.id]);
         delete objects[client.id];
         clients.splice(clients.indexOf(client), 1);
-        // delete clients[clients.indexOf(client)];
     });
     socket.on('playerData', function(data) {
         if (!client.name) return;

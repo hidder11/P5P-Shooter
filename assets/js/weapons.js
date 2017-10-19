@@ -73,19 +73,21 @@ class Weapon {
 
     drawTrail(endPoint) {
         //Line
-        var lineMaterial = new THREE.LineBasicMaterial({color: 0x0000ff});
-        var lineGeometry = new THREE.Geometry();
-        lineGeometry.vertices.push(controls.getObject().position, endPoint);
-        var line = new THREE.Line(lineGeometry, lineMaterial);
-        scene.add(line);
+        // var lineMaterial = new MeshLineMaterial({color: 0x0000ff});
+        // var lineGeometry = new THREE.Geometry();
+        // lineGeometry.vertices.push(controls.getObject().position, endPoint);
+        // var line = new MeshLine();
+        // line.setGeometry(lineGeometry);
+        // var mesh = new THREE.Mesh(line.geometry, lineMaterial);
+        // scene.add(mesh);
 
         //Particle
-        var numParticles = 1000;
+        var numParticles = 2;
         var particleGeometry = new THREE.Geometry();
         var particleMaterial = new THREE.PointsMaterial({
             map: new THREE.CanvasTexture(generateSprite()),
             blending: THREE.AdditiveBlending,
-            size: 1,
+            size: 10,
             depthTest: true,
             transparent: true
         });
@@ -125,7 +127,6 @@ class Weapon {
         }, 250);
     }
 
-
     //TODO movement speed and mouse speed
     toggelAim(object) {
         camera = object.children[0].children[0];
@@ -137,7 +138,7 @@ class Weapon {
         }
         else {
             this.aim = true;
-            camera.fov = 40;
+            camera.fov = 30;
             camera.updateProjectionMatrix();
         }
         // console.log(camera);
@@ -155,7 +156,7 @@ class Weapon {
 
     playSoundAt(sound, player) {
         var shotSound = new THREE.PositionalAudio(listener);
-        audioLoader.load('assets/sounds/' + this.sound + '.mp3', function (buffer) {
+        audioLoader.load('assets/sounds/' + sound + '.mp3', function (buffer) {
             shotSound.setBuffer(buffer);
             shotSound.setVolume(0.3);
             shotSound.setRefDistance(20);

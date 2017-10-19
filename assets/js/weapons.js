@@ -30,7 +30,7 @@ class Weapon {
         let hits = raycasterShoot.intersectObjects(collidables.children, true);
 
         socket.emit('shot', hits);
-        console.log(hits);
+        // console.log(hits);
         this.ammo--;
 
         this.drawTrail(hits[0].point);
@@ -68,19 +68,6 @@ class Weapon {
             timer = 0;
         }
         //console.log(timer);
-        //delets lines
-        for (let i = 0; i < lines.length; i++) {
-            let l = lines[i];
-
-            if (l.life <= 0) {
-                scene.remove(l.line);
-                scene.remove(l.particle);
-                lines.splice(i, 1);
-                i--;
-            }
-
-            l.life -= deltaTime;
-        }
         // console.log(lines);
     }
 
@@ -132,7 +119,10 @@ class Weapon {
         particles.dynamic = true;
 
         scene.add(particles);
-        lines.push({line: line, life: 100, particle: particles});
+        setTimeout(function() {
+            scene.remove(line);
+            scene.remove(particles);
+        }, 250);
     }
 
 

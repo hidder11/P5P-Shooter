@@ -26,7 +26,7 @@ class Weapon {
     }
 
     shoot() {
-        raycasterShoot.set(controls.getObject().position.clone().sub(controls.getObject().position), controls.getDirection(new THREE.Vector3(0, 0, -1)));
+        raycasterShoot.set(controls.getObject().position.clone().sub(new THREE.Vector3(0, 4, 0)), controls.getDirection(new THREE.Vector3(0, 0, -1)));
         let hits = raycasterShoot.intersectObjects(scene.children, true);
         socket.emit('shot', hits);
         console.log(hits);
@@ -96,7 +96,47 @@ class Weapon {
         var line = new THREE.Line(lineGeometry, lineMaterial);
         scene.add(line);
 
-        lines.push({line: line, life: 100});
+        //Particle
+        var numParticles = 100;
+        var particleGeometry = new THREE.Geometry();
+        var particleMaterial = new THREE.PointsMaterial({
+            map: new THREE.CanvasTexture(generateSprite()),
+            blending: THREE.AdditiveBlending,
+            size: 1,
+            depthTest: false,
+            transparent: true
+        });
+        // particleMaterial.map.needsUpdate = true;
+
+        var animationPoints = [];
+        for (let i = 0; i <= numParticles; i++) {
+            var thisPoint = controls.getObject().position.clone().lerp(endPoint, i / numParticles);
+            animationPoints.push(thisPoint);
+        }
+
+        for (let i = 0; i < numParticles; i++) {
+            var desiredIndex = i / numParticles * animationPoints.length;
+            var rIndex = constrain(Math.floor(desiredIndex), 0, animationPoints.length - 1);
+            var particle = new THREE.Vector3();
+
+            particle = animationPoints[rIndex].clone();
+            particle.moveIndex = rIndex;
+            particle.nextIndex = rIndex + 1;
+
+            if (particle.nextIndex >= animationPoints.length)
+                particle.nextIndex = 0;
+
+            particle.lerpN = 0;
+            particle.path = animationPoints;
+            particleGeometry.vertices.push(particle);
+        }
+
+        var particles = new THREE.ParticleSystem(particleGeometry, particleMaterial);
+        particles.sortParticles = true;
+        particles.dynamic = true;
+
+        scene.add(particles);
+        lines.push({line: line, life: 100, particle: particles});
     }
 
 

@@ -420,7 +420,7 @@ function checkCollision(delta) {
     let intersectsRoof = raycasterRoof.intersectObjects(scene.children, true);
 
     if (intersectsFloor.length > 0) {
-        if (distance > intersectsFloor[0].distance && intersectsFloor[0].object.type !== 'Line') {
+        if (distance > intersectsFloor[0].distance && intersectsFloor[0].object.type === 'Mesh') {
             controls.getObject().translateY((distance - intersectsFloor[0].distance) - 1);
         }
 
@@ -444,7 +444,7 @@ function checkCollision(delta) {
 
 
     if (intersectsWallFeet[0]) {
-        if (intersectsWallFeet[0].distance < 5 && intersectsWallFeet[0].object.type !== 'Line') {
+        if (intersectsWallFeet[0].distance < 5 && intersectsWallFeet[0].object.type === 'Mesh') {
             controls.getObject().translateX(-velocity.x * delta);
             controls.getObject().translateZ(-velocity.z * delta);
         }
@@ -455,14 +455,14 @@ function checkCollision(delta) {
 
 
     if (intersectsWallHead[0]) {
-        if (intersectsWallHead[0].distance < 5 && intersectsWallHead[0].object.type !== 'Line') {
+        if (intersectsWallHead[0].distance < 5 && intersectsWallHead[0].object.type === 'Mesh') {
             controls.getObject().translateX(-velocity.x * delta);
             controls.getObject().translateZ(-velocity.z * delta);
         }
     }
 
     if (intersectsRoof.length > 0) {
-        if (intersectsRoof[0].distance < 3 && intersectsRoof[0].object.type !== 'Line') {
+        if (intersectsRoof[0].distance < 3 && intersectsRoof[0].object.type === 'Mesh') {
             velocity.y = Math.abs(velocity.y) * -1;
         }
     }

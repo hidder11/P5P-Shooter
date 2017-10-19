@@ -20,8 +20,9 @@ let raycasterWallFeet;
 let raycasterWallHead;
 let raycasterRoof;
 
+let weapon;
+
 let raycasterShoot;
-let shotRange = 10000;
 
 var map;
 const distance = 10;

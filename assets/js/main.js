@@ -47,6 +47,7 @@ else {
     instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
 }
 
+
 function init() {
     //init scene, camera, lights
     scene = new THREE.Scene();
@@ -63,6 +64,8 @@ function init() {
 
     controls = new THREE.PointerLockControls(camera);
     scene.add(controls.getObject());
+
+    weapon = new Weapon('pistol', '', 'Laser_04', 'Laser_00', 20, 15, true, 100, 1000, 0.1, 0.2);
 
     var onKeyDown = function(event) {
         if (!joined) return;
@@ -117,21 +120,33 @@ function init() {
                 break;
         }
     };
-    var onClick = function(event) {
+    var onMouseDown = function(event) {
         if (!joined) return;
         switch (event.button) {
             case 0: // shoot
-                socket.emit('shot', 'poof');
+                weapon.startShoot();
                 break;
-            case 1: // aim
-                // socket.emit('shot', 'poof');
+            case 2: // aim
+                weapon.toggelAim(controls.getObject());
+                break;
+        }
+    };
+    var onMouseUp = function (event) {
+        if (!joined) return;
+        switch (event.button) {
+            case 0: // shoot
+                weapon.stopShoot();
+                break;
+            case 2: // aim
+                weapon.toggelAim(controls.getObject());
                 break;
         }
     };
 
     document.addEventListener('keydown', onKeyDown, false);
     document.addEventListener('keyup', onKeyUp, false);
-    document.addEventListener('mousedown', onClick, false);
+    document.addEventListener('mousedown', onMouseDown, false);
+    document.addEventListener('mouseup', onMouseUp, false);
 
     //init rendering
     renderer = new THREE.WebGLRenderer();
@@ -140,33 +155,19 @@ function init() {
     document.body.appendChild(renderer.domElement);
 
     raycasterFloor = new THREE.Raycaster();
-    raycasterFloor.set(controls.getObject().position,
-        new THREE.Vector3(0, -1, 0));
+    raycasterFloor.set(controls.getObject().position, new THREE.Vector3(0, -1, 0));
 
     raycasterWallFeet = new THREE.Raycaster();
-    raycasterWallFeet.set(
-        controls.getObject().position.clone().add(velocity.clone().normalize()),
-        new THREE.Vector3(0, 0, 1));
+    raycasterWallFeet.set(controls.getObject().position.clone().add(velocity.clone().normalize()), new THREE.Vector3(0, 0, 1));
 
     raycasterWallHead = new THREE.Raycaster();
-    raycasterWallHead.set(
-        controls.getObject().position.clone().add(velocity.clone().normalize()),
-        new THREE.Vector3(0, 0, 1));
+    raycasterWallHead.set(controls.getObject().position.clone().add(velocity.clone().normalize()), new THREE.Vector3(0, 0, 1));
 
     raycasterRoof = new THREE.Raycaster();
-    raycasterRoof.set(controls.getObject().position,
-        new THREE.Vector3(0, 1, 0));
+    raycasterRoof.set(controls.getObject().position, new THREE.Vector3(0, 1, 0));
 
     raycasterShoot = new THREE.Raycaster();
-    raycasterShoot.set(
-        controls.getObject().position.clone().add(velocity.clone().normalize()),
-        new THREE.Vector3(0, 0, 1));
-
-    var distance = 10;
-
-    var material = new THREE.LineBasicMaterial({
-        color: 0x0000ff,
-    });
+    raycasterShoot.set(controls.getObject().position.clone().add(velocity.clone().normalize()), new THREE.Vector3(0, 0, 1));
 
     const currentMap = 0;
 
@@ -212,6 +213,8 @@ function animate() {
             Jump: jump,
             name: name,
         });
+
+    weapon.update(delta);
 
     prevTime = time;
     renderer.render(scene, camera);
@@ -296,10 +299,10 @@ socket.on('playerDisconnect', function(player) {
 });
 socket.on('shot', function(shot) {
     if (clientID == shot.client.id) {
-        playSoundAtPlayer('Laser_09');
+        weapon.playSoundAtPlayer('Laser_02');
     }
     else {
-        playSoundAt('Laser_04', players[shot.client.id]);
+        weapon.playSoundAtPlayer('Laser_04');
     }
     shoot();
 });
@@ -315,6 +318,7 @@ socket.on('kill', function(data) {
     if (data.victim.name === name) {
         updateHealth(Math.random());
     }
+    // console.log(shot);
 });
 
 function loadMap(mapNumber) {
@@ -451,9 +455,8 @@ function checkCollision(delta) {
     let intersectsRoof = raycasterRoof.intersectObjects(scene.children, true);
 
     if (intersectsFloor.length > 0) {
-        if (distance > intersectsFloor[0].distance && intersectsFloor[0].object.type !== "Line") {
-            controls.getObject().
-                translateY((distance - intersectsFloor[0].distance) - 1);
+        if (distance > intersectsFloor[0].distance && intersectsFloor[0].object.type === 'Mesh') {
+            controls.getObject().translateY((distance - intersectsFloor[0].distance) - 1);
         }
 
         if (distance >= intersectsFloor[0].distance && velocity.y <= 0) {
@@ -480,7 +483,7 @@ function checkCollision(delta) {
         true);
 
     if (intersectsWallFeet[0]) {
-        if (intersectsWallFeet[0].distance < 5) {
+        if (intersectsWallFeet[0].distance < 5 && intersectsWallFeet[0].object.type === 'Mesh') {
             controls.getObject().translateX(-velocity.x * delta);
             controls.getObject().translateZ(-velocity.z * delta);
         }
@@ -495,14 +498,14 @@ function checkCollision(delta) {
         true);
 
     if (intersectsWallHead[0]) {
-        if (intersectsWallHead[0].distance < 5) {
+        if (intersectsWallHead[0].distance < 5 && intersectsWallHead[0].object.type === 'Mesh') {
             controls.getObject().translateX(-velocity.x * delta);
             controls.getObject().translateZ(-velocity.z * delta);
         }
     }
 
-    if (intersectsRoof.length > 0 && intersectsRoof[0].object.type !== "Line") {
-        if (intersectsRoof[0].distance < 3) {
+    if (intersectsRoof.length > 0) {
+        if (intersectsRoof[0].distance < 3 && intersectsRoof[0].object.type === 'Mesh') {
             velocity.y = Math.abs(velocity.y) * -1;
         }
     }

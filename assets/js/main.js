@@ -304,7 +304,6 @@ socket.on('shot', function(shot) {
     else {
         weapon.playSoundAtPlayer('Laser_04');
         weapon.drawTrail(shot.bulletTrial.start, shot.bulletTrial.end);
-        console.log(shot.bulletTrial);
     }
     shoot();
 });

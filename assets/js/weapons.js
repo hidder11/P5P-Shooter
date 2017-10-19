@@ -32,7 +32,6 @@ class Weapon {
         let hits = raycasterShoot.intersectObjects(collidables.children, true);
 
         socket.emit('shot', hits[0].point);
-        // console.log(hits);
         this.ammo--;
         updateAmmo(this.ammo, this.magazineSize);
 
@@ -67,7 +66,6 @@ class Weapon {
                 this.shooting = false;
             }
         }
-        // console.log(lines);
     }
 
     drawTrail(startPoint, endPoint) {
@@ -147,7 +145,6 @@ class Weapon {
             camera.updateProjectionMatrix();
             zoomCrosshair(true);
         }
-        // console.log(camera);
     }
 
     playSoundAtPlayer(sound) {

@@ -38,3 +38,4 @@ const username = $('#txtName');
 const helpBlock = $('#help');
 var name;
 var collidables = new THREE.Object3D({name: 'collidables', type: 'Group'});
+var canJump = true;

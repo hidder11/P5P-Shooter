@@ -84,8 +84,10 @@ function init() {
                 moveRight = true;
                 break;
             case 32: // space
-                jump = true;
-                velocity.y = 1;
+                if (canJump) {
+                    velocity.y = 1;
+                    canJump = false;
+                }
                 break;
             case 80:
                 console.log(controls.getObject().position);
@@ -458,8 +460,9 @@ function checkCollision(delta) {
         true);
 
     if (intersectsFloor.length > 0) {
-        if (distance > intersectsFloor[0].distance && intersectsFloor[0].object.type === 'Mesh') {
+        if (distance > intersectsFloor[0].distance) {
             controls.getObject().translateY((distance - intersectsFloor[0].distance) - 1);
+            canJump = true;
         }
 
         if (distance >= intersectsFloor[0].distance && velocity.y <= 0) {

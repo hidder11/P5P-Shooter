@@ -64,7 +64,7 @@ function init() {
     weapon = new Weapon('pistol', '', 'Laser_04', 'Laser_00', 20, 15, true, 100, 15, 0.1, 0.2, 20);
 
     var onKeyDown = function(event) {
-        if (!joined) return;
+        if (!controlsEnabled) return;
         // console.log(event.keyCode);
         switch (event.keyCode) {
             case 38: // up
@@ -93,7 +93,7 @@ function init() {
         }
     };
     var onKeyUp = function(event) {
-        if (!joined) return;
+        if (!controlsEnabled) return;
         switch (event.keyCode) {
             case 38: // up
             case 87: // w
@@ -117,7 +117,7 @@ function init() {
         }
     };
     var onMouseDown = function(event) {
-        if (!joined) return;
+        if (!controlsEnabled) return;
         switch (event.button) {
             case 0: // shoot
                 weapon.startShoot();
@@ -128,7 +128,7 @@ function init() {
         }
     };
     var onMouseUp = function (event) {
-        if (!joined) return;
+        if (!controlsEnabled) return;
         switch (event.button) {
             case 0: // shoot
                 weapon.stopShoot();

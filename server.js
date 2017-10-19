@@ -108,7 +108,7 @@ io.on('connection', function(socket) {
 
 function newData(socket) {
     socket.emit('playerData', clients);
-    setTimeout(newData, 1, socket);
+    setTimeout(newData, 10, socket);
 }
 
 class Client {

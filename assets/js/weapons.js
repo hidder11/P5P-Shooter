@@ -136,7 +136,7 @@ class Weapon {
         particles.dynamic = true;
 
         scene.add(particles);
-        lines.push({line: line, life: 100, particle: particles});
+        lines.push({line: line, life: 10, particle: particles});
     }
 
 

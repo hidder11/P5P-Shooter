@@ -20,6 +20,8 @@ class Weapon {
         this.magazineSize = magazineSize;
         this.reloadTime = reloadTime;
 
+        updateAmmo(this.magazineSize, this.magazineSize);
+
         this.aim = false;
         this.reloading = false;
         this.shooting = false;
@@ -32,6 +34,7 @@ class Weapon {
         socket.emit('shot', hits);
         console.log(hits);
         this.ammo--;
+        updateAmmo(this.ammo, this.magazineSize);
 
         this.drawTrail(hits[0].point);
         this.playSoundAtPlayer(this.sound);
@@ -53,6 +56,7 @@ class Weapon {
             this.reloading = true;
             this.ammo = this.magazineSize;
             this.playSoundAtPlayer(this.reloadSound);
+            updateAmmo(this.magazineSize, this.magazineSize);
         }
         //shooting
         if (this.shooting && timer <= 0) {
@@ -144,11 +148,13 @@ class Weapon {
             this.aim = false;
             camera.fov = 60;
             camera.updateProjectionMatrix();
+            zoomCrosshair(false);
         }
         else {
             this.aim = true;
             camera.fov = 40;
             camera.updateProjectionMatrix();
+            zoomCrosshair(true);
         }
         // console.log(camera);
     }

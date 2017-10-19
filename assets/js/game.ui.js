@@ -16,7 +16,8 @@ toastr.options = {
     "hideMethod": "fadeOut"
 };
 
-var prevHealth = 100;
+var prevHealth = 1;
+var prevAmmo = 1;
 
 $('#health').circleProgress({
     value: 1,
@@ -27,7 +28,7 @@ $('#health').circleProgress({
 });
 
 $('#ammo').circleProgress({
-    value: 0.75,
+    value: 1,
     size: 80,
     fill: {
         color: "#2e67ff"
@@ -47,8 +48,24 @@ function toggleCrosshair(state) {
     }
 }
 
+function zoomCrosshair(state) {
+    if (state) {
+        $('#crosshair').addClass('zoom');
+    }
+    else {
+        $('#crosshair').removeClass('zoom');
+    }
+}
+
 function updateHealth(health) {
-    $('#health').circleProgress({animationStartValue: prevHealth, value: health,});
+    $('#health').circleProgress({animationStartValue: prevHealth, value: health / 100,});
+    $('#healthCount').text(health);
     prevHealth = health;
+}
+
+function updateAmmo(ammo, magSize) {
+    $('#ammo').circleProgress({animationStartValue: prevAmmo, value: ammo / magSize,});
+    $('#ammoCount').text(ammo);
+    prevAmmo = ammo / magSize;
 }
 

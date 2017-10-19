@@ -64,19 +64,26 @@ body {
     position: absolute;
     left: 50%;
     margin: 50vh -50vw 0 0;
-    transform: translate(-32px, -32px)
+    transform: translate(-32px, -32px);
+}
+
+.zoom {
+    transform: translate(-32px, -32px) scale(1.8, 1.8) !important;
 }
 
 #health {
     position: absolute;
-    bottom: 10px;
-    left: 10px;
+    width: 80px;
+    bottom: 0;
+    margin: 20px;
 }
 
 #ammo {
     position: absolute;
-    bottom: 10px;
-    right: 10px;
+    width: 80px;
+    right: 0;
+    bottom: 0;
+    margin: 20px;
 }
 
 #blocker {
@@ -147,5 +154,15 @@ input[type=button] {
 
 #help {
     display: block;
+    color: white;
+}
+
+#ammo > canvas, #health > canvas {
+    position: absolute;
+}
+
+.centerCount {
+    text-align: center;
+    vertical-align: middle;
     color: white;
 }

@@ -257,7 +257,6 @@ socket.on('checkUsername', function(available) {
 });
 socket.on('connect', function() {
     console.log('socketio Connected to server!');
-    socket.emit("userName", "hidder11");
 });
 socket.on('log', function(data) {
     console.log(data);

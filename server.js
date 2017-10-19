@@ -83,12 +83,15 @@ io.on('connection', function(socket) {
         client.jump = data.jump;
         objects[client.id].updateMatrixWorld();
     });
-    socket.on('shot', function() {
+    socket.on('shot', function(point) {
         let hit = undefined;
         io.emit('shot', {
             weapon: '',
             client: client,
-            bulletTrial: new THREE.Vector3(0, 0, 0),
+            bulletTrial: {
+                start: client.position,
+                end: point,
+            },
         });
         if (hit) {
             io.emit('kill', {
@@ -105,7 +108,7 @@ io.on('connection', function(socket) {
 
 function newData(socket) {
     socket.emit('playerData', clients);
-    setTimeout(newData, 1, socket);
+    setTimeout(newData, 10, socket);
 }
 
 class Client {

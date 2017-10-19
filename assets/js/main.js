@@ -64,7 +64,7 @@ function init() {
     weapon = new Weapon('pistol', '', 'Laser_04', 'Laser_00', 20, 15, true, 200, 15, 0.1, 0.2, 20);
 
     var onKeyDown = function(event) {
-        if (!joined) return;
+        if (!controlsEnabled) return;
         // console.log(event.keyCode);
         switch (event.keyCode) {
             case 38: // up
@@ -84,8 +84,10 @@ function init() {
                 moveRight = true;
                 break;
             case 32: // space
-                jump = true;
-                velocity.y = 1;
+                if (canJump) {
+                    velocity.y = 1;
+                    canJump = false;
+                }
                 break;
             case 80:
                 console.log(controls.getObject().position);
@@ -93,7 +95,7 @@ function init() {
         }
     };
     var onKeyUp = function(event) {
-        if (!joined) return;
+        if (!controlsEnabled) return;
         switch (event.keyCode) {
             case 38: // up
             case 87: // w
@@ -117,7 +119,7 @@ function init() {
         }
     };
     var onMouseDown = function(event) {
-        if (!joined) return;
+        if (!controlsEnabled) return;
         switch (event.button) {
             case 0: // shoot
                 weapon.startShoot();
@@ -128,7 +130,7 @@ function init() {
         }
     };
     var onMouseUp = function (event) {
-        if (!joined) return;
+        if (!controlsEnabled) return;
         switch (event.button) {
             case 0: // shoot
                 weapon.stopShoot();
@@ -304,7 +306,6 @@ socket.on('shot', function(shot) {
     else {
         weapon.playSoundAtPlayer('Laser_04');
         weapon.drawTrail(shot.bulletTrial.start, shot.bulletTrial.end);
-        console.log(shot.bulletTrial);
     }
     shoot();
 });
@@ -459,8 +460,9 @@ function checkCollision(delta) {
         true);
 
     if (intersectsFloor.length > 0) {
-        if (distance > intersectsFloor[0].distance && intersectsFloor[0].object.type === 'Mesh') {
+        if (distance > intersectsFloor[0].distance) {
             controls.getObject().translateY((distance - intersectsFloor[0].distance) - 1);
+            canJump = true;
         }
 
         if (distance >= intersectsFloor[0].distance && velocity.y <= 0) {

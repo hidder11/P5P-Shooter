@@ -63,7 +63,19 @@ function updateHealth(health) {
     prevHealth = health;
 }
 
-function updateAmmo(ammo, magSize) {
+function updateAmmo(weapon) {
+    let ammo = weapon.ammo;
+    let magSize = weapon.magazineSize;
+    if (weapon.reloading) {
+        $('#ammo').circleProgress({
+            animationStartValue: prevAmmo,
+            value: 1,
+            animation: {duration: weapon.reloadTime * 10}
+        });
+    }
+    else {
+        $('#ammo').circleProgress({animationStartValue: prevAmmo, value: ammo / magSize,});
+    }
     $('#ammo').circleProgress({animationStartValue: prevAmmo, value: ammo / magSize,});
     $('#ammoCount').text(ammo);
     prevAmmo = ammo / magSize;

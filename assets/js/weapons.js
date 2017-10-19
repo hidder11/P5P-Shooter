@@ -20,7 +20,7 @@ class Weapon {
         this.magazineSize = magazineSize;
         this.reloadTime = reloadTime;
 
-        updateAmmo(this.magazineSize, this.magazineSize);
+        updateAmmo(this);
 
         this.aim = false;
         this.reloading = false;
@@ -34,7 +34,7 @@ class Weapon {
         socket.emit('shot', hits[0].point);
         // console.log(hits);
         this.ammo--;
-        updateAmmo(this.ammo, this.magazineSize);
+        updateAmmo(this);
 
         this.drawTrail(controls.getObject().position, hits[0].point);
         this.playSoundAtPlayer(this.sound);
@@ -56,7 +56,7 @@ class Weapon {
             this.reloading = true;
             this.ammo = this.magazineSize;
             this.playSoundAtPlayer(this.reloadSound);
-            updateAmmo(this.magazineSize, this.magazineSize);
+            updateAmmo(this);
         }
         //shooting
         if (this.shooting && timer <= 0) {
@@ -132,7 +132,7 @@ class Weapon {
     }
 
     //TODO movement speed and mouse speed
-    toggelAim(object) {
+    toggleAim(object) {
         camera = object.children[0].children[0];
 
         if (this.aim) {

@@ -61,7 +61,7 @@ function init() {
     controls = new THREE.PointerLockControls(camera);
     scene.add(controls.getObject());
 
-    weapon = new Weapon('pistol', '', 'Laser_04', 'Laser_00', 20, 15, true, 100, 15, 0.1, 0.2, 20);
+    weapon = new Weapon('pistol', '', 'Laser_04', 'Laser_00', 20, 15, true, 200, 15, 0.1, 0.2, 20);
 
     var onKeyDown = function(event) {
         if (!joined) return;
@@ -123,7 +123,7 @@ function init() {
                 weapon.startShoot();
                 break;
             case 2: // aim
-                weapon.toggelAim(controls.getObject());
+                weapon.toggleAim(controls.getObject());
                 break;
         }
     };
@@ -134,7 +134,7 @@ function init() {
                 weapon.stopShoot();
                 break;
             case 2: // aim
-                weapon.toggelAim(controls.getObject());
+                weapon.toggleAim(controls.getObject());
                 break;
         }
     };

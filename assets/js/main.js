@@ -61,7 +61,7 @@ function init() {
     controls = new THREE.PointerLockControls(camera);
     scene.add(controls.getObject());
 
-    weapon = new Weapon('pistol', '', 'Laser_04', 'Laser_00', 20, 15, true, 100, 15, 0.1, 0.2);
+    weapon = new Weapon('pistol', '', 'Laser_04', 'Laser_00', 20, 15, true, 100, 15, 0.1, 0.2, 20);
 
     var onKeyDown = function(event) {
         if (!joined) return;
@@ -303,6 +303,8 @@ socket.on('shot', function(shot) {
     }
     else {
         weapon.playSoundAtPlayer('Laser_04');
+        weapon.drawTrail(shot.bulletTrial.start, shot.bulletTrial.end);
+        console.log(shot.bulletTrial);
     }
     shoot();
 });

@@ -23,6 +23,7 @@
     "jquery-circle-progress": "^1.2.2",
     "socket.io": "^2.0.3",
     "three": "^0.87.1",
+    "three.meshline": "^1.0.3",
     "toastr": "^2.1.2",
     "xhr2": "^0.1.4",
     "xmldom": "^0.1.27",

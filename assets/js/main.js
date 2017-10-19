@@ -65,6 +65,8 @@ function init() {
     controls = new THREE.PointerLockControls(camera);
     scene.add(controls.getObject());
 
+    weapon = new Weapon('pistol', '', 'Laser_04', 'Laser_00', 20, 15, true, 100, 1000, 0.1, 0.2);
+
     var onKeyDown = function (event) {
         // console.log(event.keyCode);
         switch (event.keyCode) {
@@ -116,20 +118,31 @@ function init() {
                 break;
         }
     };
-    var onClick = function (event) {
+    var onMouseDown = function (event) {
         switch (event.button) {
             case 0: // shoot
-                socket.emit('shot', 'poof');
+                weapon.startShoot();
                 break;
-            case 1: // aim
-                // socket.emit('shot', 'poof');
+            case 2: // aim
+                weapon.toggelAim(controls.getObject());
+                break;
+        }
+    };
+    var onMouseUp = function (event) {
+        switch (event.button) {
+            case 0: // shoot
+                weapon.stopShoot();
+                break;
+            case 2: // aim
+                weapon.toggelAim(controls.getObject());
                 break;
         }
     };
 
     document.addEventListener('keydown', onKeyDown, false);
     document.addEventListener('keyup', onKeyUp, false);
-    document.addEventListener('mousedown', onClick, false);
+    document.addEventListener('mousedown', onMouseDown, false);
+    document.addEventListener('mouseup', onMouseUp, false);
 
     //init rendering
     renderer = new THREE.WebGLRenderer();
@@ -156,16 +169,16 @@ function init() {
 
     var Plight = new THREE.PointLight(0xffffff, 0.5, 500, 5);
     light.position.set(0, 1, 0);
-    scene.add(Plight);
+    // scene.add(Plight);
 
     //add everything to the scene
-    scene.add(light, directionalLight);
+    // scene.add(light, directionalLight);
 
     var material = new THREE.LineBasicMaterial({
         color: 0x0000ff,
     });
 
-    const currentMap = 1;
+    const currentMap = 0;
 
     loadMap(currentMap);
 
@@ -208,6 +221,8 @@ function animate() {
             moveLeft: moveLeft,
             Jump: jump,
         });
+
+    weapon.update(delta);
 
     prevTime = time;
     renderer.render(scene, camera);
@@ -267,19 +282,19 @@ socket.on('playerDisconnect', function (player) {
 });
 socket.on('shot', function (shot) {
     if (clientID == shot.client.id) {
-        playSoundAtPlayer('Laser_09');
+        weapon.playSoundAtPlayer('Laser_02');
     }
     else {
-        playSoundAt('Laser_04', players[shot.client.id]);
+        weapon.playSoundAtPlayer('Laser_04');
     }
-    shoot();
-    console.log(shot);
+    // console.log(shot);
 });
+
 
 function loadMap(mapNumber) {
     var DAELoader = new THREE.ColladaLoader();
     var maps = [{
-        position: 'assets/maps/Arena2.dae',
+        position: 'assets/maps/Arena-Team.dae',
         scale: 8,
         offset: 0,
         lights: [
@@ -405,7 +420,7 @@ function checkCollision(delta) {
     let intersectsRoof = raycasterRoof.intersectObjects(scene.children, true);
 
     if (intersectsFloor.length > 0) {
-        if (distance > intersectsFloor[0].distance) {
+        if (distance > intersectsFloor[0].distance && intersectsFloor[0].object.type !== 'Line') {
             controls.getObject().translateY((distance - intersectsFloor[0].distance) - 1);
         }
 
@@ -429,7 +444,7 @@ function checkCollision(delta) {
 
 
     if (intersectsWallFeet[0]) {
-        if (intersectsWallFeet[0].distance < 5) {
+        if (intersectsWallFeet[0].distance < 5 && intersectsWallFeet[0].object.type !== 'Line') {
             controls.getObject().translateX(-velocity.x * delta);
             controls.getObject().translateZ(-velocity.z * delta);
         }
@@ -440,38 +455,17 @@ function checkCollision(delta) {
 
 
     if (intersectsWallHead[0]) {
-        if (intersectsWallHead[0].distance < 5) {
+        if (intersectsWallHead[0].distance < 5 && intersectsWallHead[0].object.type !== 'Line') {
             controls.getObject().translateX(-velocity.x * delta);
             controls.getObject().translateZ(-velocity.z * delta);
         }
     }
 
     if (intersectsRoof.length > 0) {
-        if (intersectsRoof[0].distance < 3) {
+        if (intersectsRoof[0].distance < 3 && intersectsRoof[0].object.type !== 'Line') {
             velocity.y = Math.abs(velocity.y) * -1;
         }
     }
-}
-
-function playSoundAt(sound, player) {
-    var shotSound = new THREE.PositionalAudio(listener);
-    audioLoader.load('assets/sounds/' + sound + '.mp3', function (buffer) {
-        shotSound.setBuffer(buffer);
-        shotSound.setVolume(0.3);
-        shotSound.setRefDistance(20);
-        shotSound.play();
-        player.add(shotSound);
-    });
-}
-
-function playSoundAtPlayer(sound) {
-    var shotSound = new THREE.Audio(listener);
-    audioLoader.load('assets/sounds/' + sound + '.mp3', function (buffer) {
-        shotSound.setBuffer(buffer);
-        shotSound.setVolume(0.3);
-        shotSound.play();
-    });
-
 }
 
 function shoot() {

@@ -154,13 +154,6 @@ function init() {
 
     var distance = 10;
 
-    var Plight = new THREE.PointLight(0xffffff, 0.5, 500, 5);
-    light.position.set(0, 1, 0);
-    // scene.add(Plight);
-
-    //add everything to the scene
-    // scene.add(light, directionalLight);
-
     var material = new THREE.LineBasicMaterial({
         color: 0x0000ff,
     });
@@ -224,6 +217,7 @@ function newPlayer(player) {
     players[player.id] = cube;
     cube.player = player;
     scene.add(cube);
+    addPlayerTag(cube);
 }
 
 init();
@@ -234,6 +228,7 @@ init();
 // });
 socket.on('connect', function () {
     console.log('socketio Connected to server!');
+    socket.emit("userName", "hidder11");
 });
 socket.on('log', function (data) {
     console.log(data);
@@ -248,6 +243,7 @@ socket.on('newPlayer', function (player) {
     }
 });
 socket.on('oldPlayers', function (players) {
+    console.log(players);
     for (let player of players) {
         if (!player.position) continue;
         newPlayer(player);
@@ -413,7 +409,7 @@ function checkCollision(delta) {
     let intersectsRoof = raycasterRoof.intersectObjects(scene.children, true);
 
     if (intersectsFloor.length > 0) {
-        if (distance > intersectsFloor[0].distance) {
+        if (distance > intersectsFloor[0].distance && intersectsFloor[0].object.type !== "Line") {
             controls.getObject().translateY((distance - intersectsFloor[0].distance) - 1);
         }
 
@@ -454,7 +450,7 @@ function checkCollision(delta) {
         }
     }
 
-    if (intersectsRoof.length > 0) {
+    if (intersectsRoof.length > 0 && intersectsRoof[0].object.type !== "Line") {
         if (intersectsRoof[0].distance < 3) {
             velocity.y = Math.abs(velocity.y) * -1;
         }
@@ -486,4 +482,31 @@ function shoot() {
     raycasterShoot.set(controls.getObject().position,
         controls.getDirection(new THREE.Vector3(0, 0, -1)));
     let hit = raycasterShoot.intersectObjects(scene.children, true);
+}
+
+function addPlayerTag(cube) {
+    let material = new THREE.SpriteMaterial();
+
+    material.map = makePlayerTag(cube.player.name);
+    material.map.needsUpdate = true;
+
+    let tag = new THREE.Sprite(material);
+
+    cube.add(tag);
+
+    tag.position.set(0, 6, 0);
+    tag.scale.set(12, 4);
+    tag.fog = true;
+}
+
+function makePlayerTag(name) {
+    let canvas = document.createElement('canvas');
+    let ctx = canvas.getContext("2d");
+    canvas.width = 512;
+    canvas.height = 128;
+    ctx.font = "64px arial";
+    ctx.fillStyle = "white";
+    ctx.textAlign = "center";
+    ctx.fillText(name, canvas.width / 2, canvas.height / 2);
+    return new THREE.Texture(canvas);
 }

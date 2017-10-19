@@ -29,7 +29,7 @@ class Weapon {
         raycasterShoot.set(controls.getObject().position.clone().sub(new THREE.Vector3(0, 4, 0)), controls.getDirection(new THREE.Vector3(0, 0, -1)));
         let hits = raycasterShoot.intersectObjects(scene.children, true);
         socket.emit('shot', hits);
-        console.log(hits);
+        // console.log(hits);
         for (let hit of hits) {
             if (hit.object.type === 'Mesh') {
                 this.ammo--;

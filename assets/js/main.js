@@ -7,7 +7,7 @@ var havePointerLock = 'pointerLockElement' in document ||
 
 if (havePointerLock) {
     var element = document.body;
-    var pointerlockchange = function (event) {
+    var pointerlockchange = function(event) {
         if (document.pointerLockElement === element ||
             document.mozPointerLockElement === element ||
             document.webkitPointerLockElement === element) {
@@ -23,7 +23,7 @@ if (havePointerLock) {
             instructions.style.display = '';
         }
     };
-    var pointerlockerror = function (event) {
+    var pointerlockerror = function(event) {
         instructions.style.display = '';
     };
     // Hook pointer lock state change events
@@ -35,7 +35,7 @@ if (havePointerLock) {
     document.addEventListener('mozpointerlockerror', pointerlockerror, false);
     document.addEventListener('webkitpointerlockerror', pointerlockerror,
         false);
-    instructions.addEventListener('click', function (event) {
+    instructions.addEventListener('click', function(event) {
         instructions.style.display = 'none';
         // Ask the browser to lock the pointer
         element.requestPointerLock = element.requestPointerLock ||
@@ -46,7 +46,6 @@ if (havePointerLock) {
 else {
     instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
 }
-
 
 function init() {
     //init scene, camera, lights
@@ -65,7 +64,8 @@ function init() {
     controls = new THREE.PointerLockControls(camera);
     scene.add(controls.getObject());
 
-    var onKeyDown = function (event) {
+    var onKeyDown = function(event) {
+        if (!joined) return;
         // console.log(event.keyCode);
         switch (event.keyCode) {
             case 38: // up
@@ -93,7 +93,8 @@ function init() {
                 break;
         }
     };
-    var onKeyUp = function (event) {
+    var onKeyUp = function(event) {
+        if (!joined) return;
         switch (event.keyCode) {
             case 38: // up
             case 87: // w
@@ -116,7 +117,8 @@ function init() {
                 break;
         }
     };
-    var onClick = function (event) {
+    var onClick = function(event) {
+        if (!joined) return;
         switch (event.button) {
             case 0: // shoot
                 socket.emit('shot', 'poof');
@@ -138,19 +140,27 @@ function init() {
     document.body.appendChild(renderer.domElement);
 
     raycasterFloor = new THREE.Raycaster();
-    raycasterFloor.set(controls.getObject().position, new THREE.Vector3(0, -1, 0));
+    raycasterFloor.set(controls.getObject().position,
+        new THREE.Vector3(0, -1, 0));
 
     raycasterWallFeet = new THREE.Raycaster();
-    raycasterWallFeet.set(controls.getObject().position.clone().add(velocity.clone().normalize()), new THREE.Vector3(0, 0, 1));
+    raycasterWallFeet.set(
+        controls.getObject().position.clone().add(velocity.clone().normalize()),
+        new THREE.Vector3(0, 0, 1));
 
     raycasterWallHead = new THREE.Raycaster();
-    raycasterWallHead.set(controls.getObject().position.clone().add(velocity.clone().normalize()), new THREE.Vector3(0, 0, 1));
+    raycasterWallHead.set(
+        controls.getObject().position.clone().add(velocity.clone().normalize()),
+        new THREE.Vector3(0, 0, 1));
 
     raycasterRoof = new THREE.Raycaster();
-    raycasterRoof.set(controls.getObject().position, new THREE.Vector3(0, 1, 0));
+    raycasterRoof.set(controls.getObject().position,
+        new THREE.Vector3(0, 1, 0));
 
     raycasterShoot = new THREE.Raycaster();
-    raycasterShoot.set(controls.getObject().position.clone().add(velocity.clone().normalize()), new THREE.Vector3(0, 0, 1));
+    raycasterShoot.set(
+        controls.getObject().position.clone().add(velocity.clone().normalize()),
+        new THREE.Vector3(0, 0, 1));
 
     var distance = 10;
 
@@ -169,7 +179,6 @@ function init() {
 
     loadMap(currentMap);
 
-    animate();
     window.addEventListener('resize', onWindowResize, false);
 }
 
@@ -228,17 +237,37 @@ function newPlayer(player) {
 
 init();
 
-// socket.on("*",function(data){
-//     console.log(data);
-//     debugger;
-// });
-socket.on('connect', function () {
+function checkUsername() {
+    let name = username.prop('value');
+    if (name == '') {
+        username.addClass('hasError');
+        helpBlock.html('Please enter a username');
+    } else {
+        socket.emit('checkUsername', name);
+    }
+}
+
+socket.on('checkUsername', function(available) {
+    let name = username.prop('value');
+    if (available) {
+        socket.emit('userName', name);
+        $('#newPlayer').addClass('hidden');
+        $('#startGame').removeClass('hidden');
+        joined = true;
+        animate();
+    }
+    else {
+        username.addClass('hasError');
+        helpBlock.html('Username already in game');
+    }
+});
+socket.on('connect', function() {
     console.log('socketio Connected to server!');
 });
-socket.on('log', function (data) {
+socket.on('log', function(data) {
     console.log(data);
 });
-socket.on('newPlayer', function (player) {
+socket.on('newPlayer', function(player) {
     if (!player.position) return;
     if (clientID) {
         newPlayer(player);
@@ -247,28 +276,31 @@ socket.on('newPlayer', function (player) {
         clientID = player.id;
     }
 });
-socket.on('oldPlayers', function (players) {
+socket.on('oldPlayers', function(players) {
     for (let player of players) {
         if (!player.position) continue;
         newPlayer(player);
     }
 });
-socket.on('playerData', function (clients) {
-    for (let player of clients) {
-        if (!player.position) continue;
-        if (player.id === clientID) {
-            continue;
+socket.on('playerData', function(clients) {
+    if (!name) {
+        for (let player of clients) {
+            if (!player.position) continue;
+            if (player.id === clientID) {
+                continue;
+            }
+            players[player.id].position.set(player.position.x,
+                player.position.y,
+                player.position.z);
+            players[player.id].rotation.y = player.rotation._y;
         }
-        players[player.id].position.set(player.position.x, player.position.y,
-            player.position.z);
-        players[player.id].rotation.y = player.rotation._y;
     }
 });
-socket.on('playerDisconnect', function (player) {
+socket.on('playerDisconnect', function(player) {
     scene.remove(players[player.id]);
     delete players[player.id];
 });
-socket.on('shot', function (shot) {
+socket.on('shot', function(shot) {
     if (clientID == shot.client.id) {
         playSoundAtPlayer('Laser_09');
     }
@@ -277,7 +309,7 @@ socket.on('shot', function (shot) {
     }
     shoot();
 });
-socket.on('kill', function (data) {
+socket.on('kill', function(data) {
     showKill(data.killer.name, data.victim.name, '');
     if (data.victim.name === name) {
         updateHealth(Math.random());
@@ -286,49 +318,13 @@ socket.on('kill', function (data) {
 
 function loadMap(mapNumber) {
     var DAELoader = new THREE.ColladaLoader();
-    var maps = [{
-        position: 'assets/maps/Arena-Team.dae',
-        scale: 8,
-        offset: 0,
-        lights: [
-            {type: ''}
-        ],
-        spawnPositionsTeam1: [
-            {x: -225, y: 21, z: -135},
-            {x: -140, y: 21, z: -90},
-            {x: -250, y: 33, z: -35},
-            {x: -160, y: 33, z: -25},
-            {x: -245, y: 33, z: 115},
-            {x: -153, y: 33, z: 70},
-            {x: -135, y: 33, z: 145},
-            {x: -165, y: 57, z: 22},
-            {x: -165, y: 9, z: 110},
-            {x: -240, y: 9, z: 145},
-            {x: -200, y: 9, z: 65},
-            {x: -205, y: 9, z: 25}
-        ],
-        spawnPositionsTeam2: [
-            {x: 225, y: 21, z: 135},
-            {x: 140, y: 21, z: 90},
-            {x: 250, y: 33, z: 35},
-            {x: 160, y: 33, z: 25},
-            {x: 245, y: 33, z: -115},
-            {x: 153, y: 33, z: -70},
-            {x: 135, y: 33, z: -145},
-            {x: 165, y: 57, z: -22},
-            {x: 140, y: 45, z: -120},
-            {x: 165, y: 9, z: -110},
-            {x: 240, y: 9, z: -145},
-            {x: 200, y: 9, z: -65},
-            {x: 205, y: 9, z: -25}
-        ]
-    },
+    var maps = [
         {
-            position: 'assets/maps/Arena.dae',
-            scale: 0.2,
+            position: 'assets/maps/Arena-Team.dae',
+            scale: 8,
             offset: 0,
             lights: [
-                {type: ''}
+                {type: ''},
             ],
             spawnPositionsTeam1: [
                 {x: -225, y: 21, z: -135},
@@ -342,7 +338,7 @@ function loadMap(mapNumber) {
                 {x: -165, y: 9, z: 110},
                 {x: -240, y: 9, z: 145},
                 {x: -200, y: 9, z: 65},
-                {x: -205, y: 9, z: 25}
+                {x: -205, y: 9, z: 25},
             ],
             spawnPositionsTeam2: [
                 {x: 225, y: 21, z: 135},
@@ -357,27 +353,65 @@ function loadMap(mapNumber) {
                 {x: 165, y: 9, z: -110},
                 {x: 240, y: 9, z: -145},
                 {x: 200, y: 9, z: -65},
-                {x: 205, y: 9, z: -25}
-            ]
+                {x: 205, y: 9, z: -25},
+            ],
+        },
+        {
+            position: 'assets/maps/Arena.dae',
+            scale: 0.2,
+            offset: 0,
+            lights: [
+                {type: ''},
+            ],
+            spawnPositionsTeam1: [
+                {x: -225, y: 21, z: -135},
+                {x: -140, y: 21, z: -90},
+                {x: -250, y: 33, z: -35},
+                {x: -160, y: 33, z: -25},
+                {x: -245, y: 33, z: 115},
+                {x: -153, y: 33, z: 70},
+                {x: -135, y: 33, z: 145},
+                {x: -165, y: 57, z: 22},
+                {x: -165, y: 9, z: 110},
+                {x: -240, y: 9, z: 145},
+                {x: -200, y: 9, z: 65},
+                {x: -205, y: 9, z: 25},
+            ],
+            spawnPositionsTeam2: [
+                {x: 225, y: 21, z: 135},
+                {x: 140, y: 21, z: 90},
+                {x: 250, y: 33, z: 35},
+                {x: 160, y: 33, z: 25},
+                {x: 245, y: 33, z: -115},
+                {x: 153, y: 33, z: -70},
+                {x: 135, y: 33, z: -145},
+                {x: 165, y: 57, z: -22},
+                {x: 140, y: 45, z: -120},
+                {x: 165, y: 9, z: -110},
+                {x: 240, y: 9, z: -145},
+                {x: 200, y: 9, z: -65},
+                {x: 205, y: 9, z: -25},
+            ],
         },
         {
             position: 'assets/maps/test.dae',
             scale: 100,
             offset: -30,
             spawnPositionsTeam1: [
-                {x: 0, y: 0, z: 0}
+                {x: 0, y: 0, z: 0},
             ],
-            spawnPositionsTeam2: []
-        }
+            spawnPositionsTeam2: [],
+        },
     ];
 
     map = maps[mapNumber];
 
     // load a resource
     DAELoader.load(map.position,
-        function (collada) {
+        function(collada) {
             let scale = map.scale;
-            collada.scene.children[0].material = new THREE.MeshLambertMaterial('0xddffdd');
+            collada.scene.children[0].material = new THREE.MeshLambertMaterial(
+                '0xddffdd');
             collada.scene.scale.set(scale, scale, scale);
             collada.scene.rotation.set(-Math.PI / 2, 0, 0);
             collada.scene.position.y = map.offset;
@@ -385,10 +419,11 @@ function loadMap(mapNumber) {
             collada.castShadows = true;
             scene.add(collada.scene);
             objects.push(collada.scene);
-        }
+        },
     );
 
-    let spawnPoint = Math.floor(Math.random() * (map.spawnPositionsTeam1.length));
+    let spawnPoint = Math.floor(Math.random() *
+        (map.spawnPositionsTeam1.length));
 
     controls.getObject().position.x = map.spawnPositionsTeam1[spawnPoint].x;
     controls.getObject().position.y = map.spawnPositionsTeam1[spawnPoint].y;
@@ -407,14 +442,17 @@ function loadMap(mapNumber) {
 }
 
 function checkCollision(delta) {
-    raycasterFloor.set(controls.getObject().position, new THREE.Vector3(0, -1, 0));
-    raycasterRoof.set(controls.getObject().position, new THREE.Vector3(0, 1, 0));
+    raycasterFloor.set(controls.getObject().position,
+        new THREE.Vector3(0, -1, 0));
+    raycasterRoof.set(controls.getObject().position,
+        new THREE.Vector3(0, 1, 0));
     let intersectsFloor = raycasterFloor.intersectObjects(scene.children, true);
     let intersectsRoof = raycasterRoof.intersectObjects(scene.children, true);
 
     if (intersectsFloor.length > 0) {
         if (distance > intersectsFloor[0].distance) {
-            controls.getObject().translateY((distance - intersectsFloor[0].distance) - 1);
+            controls.getObject().
+                translateY((distance - intersectsFloor[0].distance) - 1);
         }
 
         if (distance >= intersectsFloor[0].distance && velocity.y <= 0) {
@@ -432,9 +470,13 @@ function checkCollision(delta) {
         controls.getObject().position.y = 5;
     }
 
-    raycasterWallFeet.set(controls.getObject().position.clone().sub(new THREE.Vector3(0, 4, 0)), velocity.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), controls.getObject().rotation.y));
-    let intersectsWallFeet = raycasterWallFeet.intersectObjects(scene.children, true);
-
+    raycasterWallFeet.set(
+        controls.getObject().position.clone().sub(new THREE.Vector3(0, 4, 0)),
+        velocity.clone().
+            applyAxisAngle(new THREE.Vector3(0, 1, 0),
+                controls.getObject().rotation.y));
+    let intersectsWallFeet = raycasterWallFeet.intersectObjects(scene.children,
+        true);
 
     if (intersectsWallFeet[0]) {
         if (intersectsWallFeet[0].distance < 5) {
@@ -443,9 +485,13 @@ function checkCollision(delta) {
         }
     }
 
-    raycasterWallHead.set(controls.getObject().position.clone().add(new THREE.Vector3(0, 4, 0)), velocity.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), controls.getObject().rotation.y));
-    let intersectsWallHead = raycasterWallHead.intersectObjects(scene.children, true);
-
+    raycasterWallHead.set(
+        controls.getObject().position.clone().add(new THREE.Vector3(0, 4, 0)),
+        velocity.clone().
+            applyAxisAngle(new THREE.Vector3(0, 1, 0),
+                controls.getObject().rotation.y));
+    let intersectsWallHead = raycasterWallHead.intersectObjects(scene.children,
+        true);
 
     if (intersectsWallHead[0]) {
         if (intersectsWallHead[0].distance < 5) {
@@ -463,7 +509,7 @@ function checkCollision(delta) {
 
 function playSoundAt(sound, player) {
     var shotSound = new THREE.PositionalAudio(listener);
-    audioLoader.load('assets/sounds/' + sound + '.mp3', function (buffer) {
+    audioLoader.load('assets/sounds/' + sound + '.mp3', function(buffer) {
         shotSound.setBuffer(buffer);
         shotSound.setVolume(0.3);
         shotSound.setRefDistance(20);
@@ -474,7 +520,7 @@ function playSoundAt(sound, player) {
 
 function playSoundAtPlayer(sound) {
     var shotSound = new THREE.Audio(listener);
-    audioLoader.load('assets/sounds/' + sound + '.mp3', function (buffer) {
+    audioLoader.load('assets/sounds/' + sound + '.mp3', function(buffer) {
         shotSound.setBuffer(buffer);
         shotSound.setVolume(0.3);
         shotSound.play();

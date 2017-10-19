@@ -27,12 +27,13 @@ var map;
 const distance = 10;
 
 var blocker = document.getElementById('blocker');
-var instructions = document.getElementById('instructions');
+var instructions = document.getElementById('startGame');
 var controls;
 var objects = [];
-var blocker = document.getElementById('blocker');
-var instructions = document.getElementById('instructions');
-var socket = io('shooter.arankieskamp.com');
+var socket = io('shooter.arankieskamp.com',
+    {transports: ['websocket'], upgrade: false});
 var clientID;
 var players = {};
-var name = '';
+var joined = false;
+const username = $('#txtName');
+const helpBlock = $('#help');

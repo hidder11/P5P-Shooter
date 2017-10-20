@@ -301,7 +301,7 @@ socket.on('playerData', function(clients) {
     }
 });
 socket.on('playerDisconnect', function(player) {
-    scene.remove(players[player.id]);
+    collidables.remove(players[player.id]);
     delete players[player.id];
 });
 socket.on('shot', function(shot) {

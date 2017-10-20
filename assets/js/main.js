@@ -12,11 +12,10 @@ if (havePointerLock) {
             document.mozPointerLockElement === element ||
             document.webkitPointerLockElement === element) {
             controlsEnabled = true;
-            controls.enabled = true;
             blocker.style.display = 'none';
         }
         else {
-            controls.enabled = false;
+            controlsEnabled = false;
             blocker.style.display = '-webkit-box';
             blocker.style.display = '-moz-box';
             blocker.style.display = 'box';
@@ -64,8 +63,8 @@ function init() {
         15, 0.1, 0.2, 20);
 
     var onKeyDown = function(event) {
-        if (!controlsEnabled) return;
         // console.log(event.keyCode);
+        if (!controlsEnabled) return;
         switch (event.keyCode) {
             case 38: // up
             case 87: // w

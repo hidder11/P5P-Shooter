@@ -65,8 +65,8 @@ function init() {
         15, 0.1, 0.2, 20);
 
     var onKeyDown = function(event) {
-        // console.log(event.keyCode);
         if (!controlsEnabled) return;
+        // console.log(event.keyCode);
         switch (event.keyCode) {
             case 38: // up
             case 87: // w

@@ -33,11 +33,13 @@ function newPlayer(player) {
 
 function shoot(player, object) {
     let raycasterShoot = new THREE.Raycaster();
-    if (player.direction)
-        raycasterShoot.set(player.position, player.direction);
-    let hit = raycasterShoot.intersectObjects(scene.children, true);
+    raycasterShoot.set(player.sub(new THREE.Vector3(0, 4, 0)),
+        player.getDirection(new THREE.Vector3(0, 0, -1)));
+    let hits = raycasterShoot.intersectObjects(collidables.children, true);
 
-    return {victim: hit[0], raycast: raycasterShoot};
+    console.log(hits);
+
+    // return {victim: hits[0], raycast: raycasterShoot};
 }
 
 io.on('connection', function(socket) {
@@ -58,11 +60,12 @@ io.on('connection', function(socket) {
         newPlayer(client);
         socket.emit('oldPlayers', clients);
         clients.push(client);
-        console.log(clients);
+        io.emit('chatMessage', client.name + ' has joined the game.');
         newData(socket);
     });
     socket.on('disconnect', function() {
         io.emit('playerDisconnect', client);
+        io.emit('chatMessage', client.name + ' has left the game.');
         scene.remove(objects[client.id]);
         delete objects[client.id];
         clients.splice(clients.indexOf(client), 1);
@@ -81,25 +84,33 @@ io.on('connection', function(socket) {
         client.moveForward = data.moveForward;
         client.moveBackward = data.moveBackward;
         client.jump = data.jump;
+        client.weapon = data.weapon;
         objects[client.id].updateMatrixWorld();
     });
-    socket.on('shot', function(point) {
-        let hit = undefined;
+    socket.on('shot', function(point, target) {
+        if (client.health <= 0) return;
         io.emit('shot', {
-            weapon: '',
+            weapon: client.weapon,
             client: client,
             bulletTrial: {
                 start: client.position,
                 end: point,
             },
         });
-        if (hit) {
-            io.emit('kill', {
-                victim: hit.victim.object.player,
-                killer: client,
-                raycast: hit.raycast,
-            });
+        if (target && target !== null) {
+            let victim = getClientById(target.id);
+            victim.health -= client.weapon.damage;
+            socket.to(victim.id).emit('hit', victim.health);
+            if (victim.health <= 0) {
+                client.kills++;
+                victim.deaths++;
+                io.emit('kill', victim, client);
+                victim.health = 100;
+            }
         }
+    });
+    socket.on('chatMessage', function(msg) {
+        io.emit('chatMessage', client.name + ' : ' + msg);
     });
     socket.on('log', function(data) {
         console.log(data);
@@ -126,8 +137,15 @@ class Client {
         this.moveRight = false;
         this.jump = false;
         this.team = 'none';
-        this.heath = 100;
+        this.health = 100;
         this.kills = 0;
         this.deaths = 0;
     }
+}
+
+function getClientById(id) {
+    for (let client of clients) {
+        if (client.id === id) return client;
+    }
+    return undefined;
 }

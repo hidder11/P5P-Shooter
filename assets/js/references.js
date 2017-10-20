@@ -39,3 +39,9 @@ const helpBlock = $('#help');
 var name;
 var collidables = new THREE.Object3D({name: 'collidables', type: 'Group'});
 var canJump = true;
+
+const ammoMeter = $('#ammo');
+const healthMeter = $('#health');
+const crosshair = $('#crosshair');
+const scoreOverlay = $('#score-overlay');
+const ui = $('#ui');

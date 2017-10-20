@@ -39,45 +39,49 @@ function showKill(killer, victim, weapon) {
     toastr.info(killer + '&nbsp;&nbsp;<i class="fa fa-times" aria-hidden="true"></i>&nbsp;&nbsp;' + victim);
 }
 
-function toggleCrosshair(state) {
-    if (state) {
-        $('#crosshair').show()
-    }
-    else {
-        $('#crosshair').hide()
-    }
-}
-
 function zoomCrosshair(state) {
     if (state) {
-        $('#crosshair').addClass('zoom');
+        crosshair.addClass('zoom');
     }
     else {
-        $('#crosshair').removeClass('zoom');
+        crosshair.removeClass('zoom');
     }
 }
 
 function updateHealth(health) {
-    $('#health').circleProgress({animationStartValue: prevHealth, value: health / 100,});
+    healthMeter.circleProgress({animationStartValue: prevHealth, value: health / 100,});
     $('#healthCount').text(health);
-    prevHealth = health;
+    prevHealth = health / 100;
 }
 
 function updateAmmo(weapon) {
     let ammo = weapon.ammo;
     let magSize = weapon.magazineSize;
     if (weapon.reloading) {
-        $('#ammo').circleProgress({
+        ammoMeter.circleProgress({
             animationStartValue: prevAmmo,
             value: 1,
             animation: {duration: weapon.reloadTime * 10}
         });
     }
     else {
-        $('#ammo').circleProgress({animationStartValue: prevAmmo, value: ammo / magSize,});
+        ammoMeter.circleProgress({animationStartValue: prevAmmo, value: ammo / magSize,});
     }
-    $('#ammo').circleProgress({animationStartValue: prevAmmo, value: ammo / magSize,});
+    ammoMeter.circleProgress({animationStartValue: prevAmmo, value: ammo / magSize,});
     $('#ammoCount').text(ammo);
     prevAmmo = ammo / magSize;
+}
+
+function showScore() {
+    if (players) {
+        Object.keys(players).forEach(function (player) {
+            console.log(player);
+        });
+        for (let player of players) {
+            let player = player.player;
+            $('#players').append("<li>" + player.name + "</li>");
+        }
+    }
+    scoreOverlay.removeClass("hidden");
 }
 

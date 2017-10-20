@@ -93,6 +93,9 @@ function init() {
             case 80:
                 console.log(controls.getObject().position);
                 break;
+            case 81:
+                showScore();
+                break;
         }
     };
     var onKeyUp = function(event) {
@@ -116,6 +119,9 @@ function init() {
                 break;
             case 32: // space
                 jump = false;
+                break;
+            case 9:
+                scoreOverlay.hide();
                 break;
         }
     };
@@ -236,7 +242,7 @@ init();
 
 function checkUsername() {
     let name = username.prop('value');
-    if (name == '') {
+    if (name === '') {
         username.addClass('hasError');
         helpBlock.html('Please enter a username');
     } else {
@@ -249,8 +255,7 @@ socket.on('checkUsername', function(data) {
         socket.emit('userName', data.name);
         $('#newPlayer').addClass('hidden');
         $('#startGame').removeClass('hidden');
-        $('#crosshair-overlay').removeClass('hidden');
-        $('#userStats-overlay').removeClass('hidden');
+        ui.removeClass('hidden');
         joined = true;
         animate();
     }

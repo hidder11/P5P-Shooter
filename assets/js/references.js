@@ -39,3 +39,6 @@ const helpBlock = $('#help');
 var name;
 var collidables = new THREE.Object3D({name: 'collidables', type: 'Group'});
 var canJump = true;
+var health = 100;
+var deaths = 0;
+var kills = 0;

@@ -243,7 +243,6 @@ function checkUsername() {
         socket.emit('checkUsername', name);
     }
 }
-
 socket.on('checkUsername', function(data) {
     if (data.available) {
         socket.emit('userName', data.name);
@@ -288,12 +287,16 @@ socket.on('playerData', function(clients) {
         for (let player of clients) {
             if (!player.position) continue;
             if (player.id === clientID) {
+                deaths = player.deaths;
+                kills = player.kills;
+                health = player.health;
                 continue;
             }
             players[player.id].position.set(player.position.x,
                 player.position.y,
                 player.position.z);
             players[player.id].rotation.y = player.rotation._y;
+            players[player.id].player = player;
         }
     }
 });
@@ -586,4 +589,6 @@ function respawn() {
     controls.getObject().position.x = map.spawnPositionsTeam1[spawnPoint].x;
     controls.getObject().position.y = map.spawnPositionsTeam1[spawnPoint].y;
     controls.getObject().position.z = map.spawnPositionsTeam1[spawnPoint].z;
+
+    updateHealth(100);
 }

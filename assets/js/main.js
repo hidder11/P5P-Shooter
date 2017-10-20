@@ -16,6 +16,7 @@ if (havePointerLock) {
             blocker.style.display = 'none';
         }
         else {
+            controlsEnabled = false;
             controls.enabled = false;
             blocker.style.display = '-webkit-box';
             blocker.style.display = '-moz-box';
@@ -64,8 +65,8 @@ function init() {
         15, 0.1, 0.2, 20);
 
     var onKeyDown = function(event) {
-        if (!controlsEnabled) return;
         // console.log(event.keyCode);
+        if (!controlsEnabled) return;
         switch (event.keyCode) {
             case 38: // up
             case 87: // w

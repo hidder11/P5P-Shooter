@@ -47,7 +47,6 @@ else {
     instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
 }
 
-
 function init() {
     //init scene, camera, lights
     scene = new THREE.Scene();
@@ -61,7 +60,8 @@ function init() {
     controls = new THREE.PointerLockControls(camera);
     scene.add(controls.getObject());
 
-    weapon = new Weapon('pistol', '', 'Laser_04', 'Laser_00', 20, 15, true, 100, 15, 0.1, 0.2, 20);
+    weapon = new Weapon('pistol', '', 'Laser_04', 'Laser_00', 20, 15, true, 100,
+        15, 0.1, 0.2, 20);
 
     var onKeyDown = function(event) {
         if (!controlsEnabled) return;
@@ -129,7 +129,7 @@ function init() {
                 break;
         }
     };
-    var onMouseUp = function (event) {
+    var onMouseUp = function(event) {
         if (!controlsEnabled) return;
         switch (event.button) {
             case 0: // shoot
@@ -153,19 +153,27 @@ function init() {
     document.body.appendChild(renderer.domElement);
 
     raycasterFloor = new THREE.Raycaster();
-    raycasterFloor.set(controls.getObject().position, new THREE.Vector3(0, -1, 0));
+    raycasterFloor.set(controls.getObject().position,
+        new THREE.Vector3(0, -1, 0));
 
     raycasterWallFeet = new THREE.Raycaster();
-    raycasterWallFeet.set(controls.getObject().position.clone().add(velocity.clone().normalize()), new THREE.Vector3(0, 0, 1));
+    raycasterWallFeet.set(
+        controls.getObject().position.clone().add(velocity.clone().normalize()),
+        new THREE.Vector3(0, 0, 1));
 
     raycasterWallHead = new THREE.Raycaster();
-    raycasterWallHead.set(controls.getObject().position.clone().add(velocity.clone().normalize()), new THREE.Vector3(0, 0, 1));
+    raycasterWallHead.set(
+        controls.getObject().position.clone().add(velocity.clone().normalize()),
+        new THREE.Vector3(0, 0, 1));
 
     raycasterRoof = new THREE.Raycaster();
-    raycasterRoof.set(controls.getObject().position, new THREE.Vector3(0, 1, 0));
+    raycasterRoof.set(controls.getObject().position,
+        new THREE.Vector3(0, 1, 0));
 
     raycasterShoot = new THREE.Raycaster();
-    raycasterShoot.set(controls.getObject().position.clone().add(velocity.clone().normalize()), new THREE.Vector3(0, 0, 1));
+    raycasterShoot.set(
+        controls.getObject().position.clone().add(velocity.clone().normalize()),
+        new THREE.Vector3(0, 0, 1));
 
     const currentMap = 0;
 
@@ -210,6 +218,7 @@ function animate() {
             moveLeft: moveLeft,
             Jump: jump,
             name: name,
+            weapon: weapon,
         });
 
     weapon.update(delta);
@@ -309,19 +318,21 @@ socket.on('shot', function(shot) {
     }
     shoot();
 });
-socket.emit('mapChange', function (map) {
+socket.emit('mapChange', function(map) {
     //console.log(map);
     scene = new THREE.scene;
     const currentMap = 0;
     loadMap(currentMap);
     scene.add(controls.getObject());
 });
-socket.on('kill', function(data) {
-    showKill(data.killer.name, data.victim.name, '');
-    if (data.victim.name === name) {
-        updateHealth(Math.random() * 100);
+socket.on('kill', function(victim, killer) {
+    showKill(killer.name, victim.name, killer.weapon.name);
+    if (victim.id === clientID) {
+        respawn();
     }
-    // console.log(shot);
+});
+socket.on('hit', function(health) {
+    updateHealth(health);
 });
 
 function loadMap(mapNumber) {
@@ -433,9 +444,7 @@ function loadMap(mapNumber) {
     let spawnPoint = Math.floor(Math.random() *
         (map.spawnPositionsTeam1.length));
 
-    controls.getObject().position.x = map.spawnPositionsTeam1[spawnPoint].x;
-    controls.getObject().position.y = map.spawnPositionsTeam1[spawnPoint].y;
-    controls.getObject().position.z = map.spawnPositionsTeam1[spawnPoint].z;
+    respawn();
 
     var material = new THREE.MeshBasicMaterial({color: 0xff0000});
     var geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -461,7 +470,8 @@ function checkCollision(delta) {
 
     if (intersectsFloor.length > 0) {
         if (distance > intersectsFloor[0].distance) {
-            controls.getObject().translateY((distance - intersectsFloor[0].distance) - 1);
+            controls.getObject().
+                translateY((distance - intersectsFloor[0].distance) - 1);
             canJump = true;
         }
 
@@ -490,7 +500,8 @@ function checkCollision(delta) {
         true);
 
     if (intersectsWallFeet[0]) {
-        if (intersectsWallFeet[0].distance < 5 && intersectsWallFeet[0].object.type === 'Mesh') {
+        if (intersectsWallFeet[0].distance < 5 &&
+            intersectsWallFeet[0].object.type === 'Mesh') {
             controls.getObject().translateX(-velocity.x * delta);
             controls.getObject().translateZ(-velocity.z * delta);
         }
@@ -506,14 +517,16 @@ function checkCollision(delta) {
         true);
 
     if (intersectsWallHead[0]) {
-        if (intersectsWallHead[0].distance < 5 && intersectsWallHead[0].object.type === 'Mesh') {
+        if (intersectsWallHead[0].distance < 5 &&
+            intersectsWallHead[0].object.type === 'Mesh') {
             controls.getObject().translateX(-velocity.x * delta);
             controls.getObject().translateZ(-velocity.z * delta);
         }
     }
 
     if (intersectsRoof.length > 0) {
-        if (intersectsRoof[0].distance < 3 && intersectsRoof[0].object.type === 'Mesh') {
+        if (intersectsRoof[0].distance < 3 &&
+            intersectsRoof[0].object.type === 'Mesh') {
             velocity.y = Math.abs(velocity.y) * -1;
         }
     }
@@ -563,12 +576,21 @@ function addPlayerTag(cube) {
 
 function makePlayerTag(name) {
     let canvas = document.createElement('canvas');
-    let ctx = canvas.getContext("2d");
+    let ctx = canvas.getContext('2d');
     canvas.width = 512;
     canvas.height = 128;
-    ctx.font = "64px arial";
-    ctx.fillStyle = "white";
-    ctx.textAlign = "center";
+    ctx.font = '64px arial';
+    ctx.fillStyle = 'white';
+    ctx.textAlign = 'center';
     ctx.fillText(name, canvas.width / 2, canvas.height / 2);
     return new THREE.Texture(canvas);
+}
+
+function respawn() {
+    let spawnPoint = Math.floor(Math.random() *
+        (map.spawnPositionsTeam1.length));
+
+    controls.getObject().position.x = map.spawnPositionsTeam1[spawnPoint].x;
+    controls.getObject().position.y = map.spawnPositionsTeam1[spawnPoint].y;
+    controls.getObject().position.z = map.spawnPositionsTeam1[spawnPoint].z;
 }

@@ -3,7 +3,9 @@
 let timer = 0;
 
 class Weapon {
-    constructor(name, model, sound, reloadSound, damage, fireRate, isAutomatic, reloadTime, magazineSize, recoilVertical, recoilHorizontal, lineLife) {
+    constructor(
+        name, model, sound, reloadSound, damage, fireRate, isAutomatic,
+        reloadTime, magazineSize, recoilVertical, recoilHorizontal, lineLife) {
         this.name = name;
         this.model = model;
         this.sound = sound;
@@ -28,10 +30,14 @@ class Weapon {
     }
 
     shoot() {
-        raycasterShoot.set(controls.getObject().position.clone().sub(new THREE.Vector3(0, 4, 0)), controls.getDirection(new THREE.Vector3(0, 0, -1)));
+        raycasterShoot.set(controls.getObject().
+                position.
+                clone().
+                sub(new THREE.Vector3(0, 4, 0)),
+            controls.getDirection(new THREE.Vector3(0, 0, -1)));
         let hits = raycasterShoot.intersectObjects(collidables.children, true);
 
-        socket.emit('shot', hits[0].point);
+        socket.emit('shot', hits[0].point, hits[0].object.player);
         this.ammo--;
         updateAmmo(this.ammo, this.magazineSize);
 
@@ -71,7 +77,7 @@ class Weapon {
     drawTrail(startPoint, endPoint) {
         //Line
         var lineMaterial = new MeshLineMaterial({
-            color: new THREE.Color(0x0000ff)
+            color: new THREE.Color(0x0000ff),
         });
         var lineGeometry = new THREE.Geometry();
         lineGeometry.vertices.push(startPoint, endPoint);
@@ -123,7 +129,7 @@ class Weapon {
         // particles.dynamic = true;
 
         // scene.add(particles);
-        setTimeout(function () {
+        setTimeout(function() {
             scene.remove(mesh);
             // scene.remove(particles);
         }, this.lineLife);
@@ -149,7 +155,7 @@ class Weapon {
 
     playSoundAtPlayer(sound) {
         var shotSound = new THREE.Audio(listener);
-        audioLoader.load('assets/sounds/' + sound + '.mp3', function (buffer) {
+        audioLoader.load('assets/sounds/' + sound + '.mp3', function(buffer) {
             shotSound.setBuffer(buffer);
             shotSound.setVolume(0.3);
             shotSound.play();
@@ -159,7 +165,7 @@ class Weapon {
 
     playSoundAt(sound, player) {
         var shotSound = new THREE.PositionalAudio(listener);
-        audioLoader.load('assets/sounds/' + sound + '.mp3', function (buffer) {
+        audioLoader.load('assets/sounds/' + sound + '.mp3', function(buffer) {
             shotSound.setBuffer(buffer);
             shotSound.setVolume(0.3);
             shotSound.setRefDistance(20);
@@ -182,7 +188,9 @@ function generateSprite() {
     canvas.width = 16;
     canvas.height = 16;
     var context = canvas.getContext('2d');
-    var gradient = context.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width / 2);
+    var gradient = context.createRadialGradient(canvas.width /
+        2, canvas.height / 2, 0, canvas.width / 2, canvas.height /
+        2, canvas.width / 2);
     gradient.addColorStop(0, 'rgba(255,255,255,1)');
     gradient.addColorStop(0.2, 'rgba(0,255,255,1)');
     gradient.addColorStop(0.4, 'rgba(0,0,64,1)');

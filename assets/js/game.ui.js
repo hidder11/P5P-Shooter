@@ -77,7 +77,7 @@ function updateScore(clients) {
         let HTMLString = "";
         for (let i = 0; i < clients.length; i++) {
             let player = clients[i];
-            let team;
+            let team = '';
             if (player.team !== 'none') {
                 team = player.team;
             }

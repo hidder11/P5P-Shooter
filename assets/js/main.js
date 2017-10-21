@@ -7,7 +7,7 @@ var havePointerLock = 'pointerLockElement' in document ||
 
 if (havePointerLock) {
     var element = document.body;
-    var pointerlockchange = function(event) {
+    var pointerlockchange = function (event) {
         if (document.pointerLockElement === element ||
             document.mozPointerLockElement === element ||
             document.webkitPointerLockElement === element) {
@@ -24,7 +24,7 @@ if (havePointerLock) {
             instructions.style.display = '';
         }
     };
-    var pointerlockerror = function(event) {
+    var pointerlockerror = function (event) {
         instructions.style.display = '';
     };
     // Hook pointer lock state change events
@@ -36,7 +36,7 @@ if (havePointerLock) {
     document.addEventListener('mozpointerlockerror', pointerlockerror, false);
     document.addEventListener('webkitpointerlockerror', pointerlockerror,
         false);
-    instructions.addEventListener('click', function(event) {
+    instructions.addEventListener('click', function (event) {
         instructions.style.display = 'none';
         // Ask the browser to lock the pointer
         element.requestPointerLock = element.requestPointerLock ||
@@ -64,7 +64,7 @@ function init() {
     weapon = new Weapon('pistol', '', 'Laser_04', 'Laser_00', 20, 15, true, 200,
         15, 0.1, 0.2, 20);
 
-    var onKeyDown = function(event) {
+    var onKeyDown = function (event) {
         if (!controlsEnabled) return;
         // console.log(event.keyCode);
         switch (event.keyCode) {
@@ -94,11 +94,11 @@ function init() {
                 console.log(controls.getObject().position);
                 break;
             case 81:
-                showScore();
+                scoreOverlay.removeClass("hidden");
                 break;
         }
     };
-    var onKeyUp = function(event) {
+    var onKeyUp = function (event) {
         if (!controlsEnabled) return;
         switch (event.keyCode) {
             case 38: // up
@@ -123,9 +123,12 @@ function init() {
             case 9:
                 scoreOverlay.hide();
                 break;
+            case 81:
+                scoreOverlay.addClass('hidden');
+                break;
         }
     };
-    var onMouseDown = function(event) {
+    var onMouseDown = function (event) {
         if (!controlsEnabled) return;
         switch (event.button) {
             case 0: // shoot
@@ -241,16 +244,17 @@ function newPlayer(player) {
 init();
 
 function checkUsername() {
-    let name = username.prop('value');
-    if (name === '') {
+    let input = username.prop('value');
+    if (input === '') {
         username.addClass('hasError');
         helpBlock.html('Please enter a username');
     } else {
-        socket.emit('checkUsername', name);
+        socket.emit('checkUsername', input);
+        name = input;
     }
 }
 
-socket.on('checkUsername', function(data) {
+socket.on('checkUsername', function (data) {
     if (data.available) {
         socket.emit('userName', data.name);
         $('#newPlayer').addClass('hidden');
@@ -264,16 +268,16 @@ socket.on('checkUsername', function(data) {
         helpBlock.html('Username already in game');
     }
 });
-socket.on('connect', function() {
+socket.on('connect', function () {
     console.log('socketio Connected to server!');
     if (name) {
         socket.emit('checkUsername', name);
     }
 });
-socket.on('log', function(data) {
+socket.on('log', function (data) {
     console.log(data);
 });
-socket.on('newPlayer', function(player) {
+socket.on('newPlayer', function (player) {
     if (!player.position) return;
     if (clientID) {
         newPlayer(player);
@@ -282,13 +286,13 @@ socket.on('newPlayer', function(player) {
         clientID = player.id;
     }
 });
-socket.on('oldPlayers', function(players) {
+socket.on('oldPlayers', function (players) {
     for (let player of players) {
         if (!player.position) continue;
         newPlayer(player);
     }
 });
-socket.on('playerData', function(clients) {
+socket.on('playerData', function (clients) {
     if (!name) {
         for (let player of clients) {
             if (!player.position) continue;
@@ -299,14 +303,15 @@ socket.on('playerData', function(clients) {
                 player.position.y,
                 player.position.z);
             players[player.id].rotation.y = player.rotation._y;
+            players[player.id].player = player;
         }
     }
 });
-socket.on('playerDisconnect', function(player) {
-    scene.remove(players[player.id]);
+socket.on('playerDisconnect', function (player) {
+    collidables.remove(players[player.id]);
     delete players[player.id];
 });
-socket.on('shot', function(shot) {
+socket.on('shot', function (shot) {
     if (clientID == shot.client.id) {
         weapon.playSoundAtPlayer('Laser_02');
     }
@@ -323,14 +328,17 @@ socket.emit('mapChange', function (map) {
     loadMap(currentMap);
     scene.add(controls.getObject());
 });
-socket.on('kill', function(victim, killer) {
+socket.on('kill', function (victim, killer) {
     showKill(killer.name, victim.name, killer.weapon.name);
     if (victim.id === clientID) {
         respawn();
     }
 });
-socket.on('hit', function(health) {
+socket.on('hit', function (health) {
     updateHealth(health);
+});
+socket.on('scoreUpdate', function (clients) {
+    updateScore(clients);
 });
 
 function loadMap(mapNumber) {
@@ -425,7 +433,7 @@ function loadMap(mapNumber) {
 
     // load a resource
     DAELoader.load(map.position,
-        function(collada) {
+        function (collada) {
             let scale = map.scale;
             collada.scene.children[0].material = new THREE.MeshLambertMaterial(
                 '0xddffdd');
@@ -468,8 +476,7 @@ function checkCollision(delta) {
 
     if (intersectsFloor.length > 0) {
         if (distance > intersectsFloor[0].distance) {
-            controls.getObject().
-                translateY((distance - intersectsFloor[0].distance) - 1);
+            controls.getObject().translateY((distance - intersectsFloor[0].distance) - 1);
             canJump = true;
         }
 
@@ -490,9 +497,8 @@ function checkCollision(delta) {
 
     raycasterWallFeet.set(
         controls.getObject().position.clone().sub(new THREE.Vector3(0, 4, 0)),
-        velocity.clone().
-            applyAxisAngle(new THREE.Vector3(0, 1, 0),
-                controls.getObject().rotation.y));
+        velocity.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0),
+            controls.getObject().rotation.y));
     let intersectsWallFeet = raycasterWallFeet.intersectObjects(
         collidables.children,
         true);
@@ -507,9 +513,8 @@ function checkCollision(delta) {
 
     raycasterWallHead.set(
         controls.getObject().position.clone().add(new THREE.Vector3(0, 4, 0)),
-        velocity.clone().
-            applyAxisAngle(new THREE.Vector3(0, 1, 0),
-                controls.getObject().rotation.y));
+        velocity.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0),
+            controls.getObject().rotation.y));
     let intersectsWallHead = raycasterWallHead.intersectObjects(
         collidables.children,
         true);
@@ -532,7 +537,7 @@ function checkCollision(delta) {
 
 function playSoundAt(sound, player) {
     var shotSound = new THREE.PositionalAudio(listener);
-    audioLoader.load('assets/sounds/' + sound + '.mp3', function(buffer) {
+    audioLoader.load('assets/sounds/' + sound + '.mp3', function (buffer) {
         shotSound.setBuffer(buffer);
         shotSound.setVolume(0.3);
         shotSound.setRefDistance(20);
@@ -543,7 +548,7 @@ function playSoundAt(sound, player) {
 
 function playSoundAtPlayer(sound) {
     var shotSound = new THREE.Audio(listener);
-    audioLoader.load('assets/sounds/' + sound + '.mp3', function(buffer) {
+    audioLoader.load('assets/sounds/' + sound + '.mp3', function (buffer) {
         shotSound.setBuffer(buffer);
         shotSound.setVolume(0.3);
         shotSound.play();

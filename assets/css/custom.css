@@ -166,3 +166,50 @@ input[type=button] {
     vertical-align: middle;
     color: white;
 }
+
+#score-overlay {
+    position: absolute;
+    width: 60vw;
+    height: auto;
+    background-color: rgba(6, 144, 230, 0.2);
+    opacity: 0.8;
+    border: solid 2px #0690e6;
+    margin: auto 20vw;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
+.player > span {
+    display: inline-block;
+    color: white;
+    vertical-align: middle;
+}
+
+.player {
+    width: 50vw;
+    margin: 30px 5vw;
+    background-color: #075a8c;
+    font-size: 2em;
+}
+
+.me {
+    background-color: #0b84ce !important;
+}
+
+.playerStanding {
+    width: 6vw;
+    text-align: center;
+}
+
+.playerName {
+    width: 30vw;
+    overflow: hidden;
+}
+
+.playerKills, .playerDeaths {
+    width: 6vw;
+    text-align: center;
+    color: #fff137 !important;
+}

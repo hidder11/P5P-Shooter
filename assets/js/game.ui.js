@@ -72,16 +72,14 @@ function updateAmmo(weapon) {
     prevAmmo = ammo / magSize;
 }
 
-function showScore() {
+function updateScore(clients) {
     if (players) {
-        Object.keys(players).forEach(function (player) {
-            console.log(player);
-        });
-        for (let player of players) {
-            let player = player.player;
-            $('#players').append("<li>" + player.name + "</li>");
+        let HTMLString = "";
+        for (let i = 0; i < clients.length; i++) {
+            let player = clients[i];
+            HTMLString += "<div class='player' id='" + player.name + "'><span class='playerStanding'>" + (i + 1) + "</span><span class='playerName'>" + player.name + "</span><span class='playerKills'>" + player.kills + "</span><span class='playerDeaths'>" + player.deaths + "</span></div>";
         }
+        $('#players').html(HTMLString);
+        $('#' + name).addClass('me')
     }
-    scoreOverlay.removeClass("hidden");
 }
-

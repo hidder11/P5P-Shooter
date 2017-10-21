@@ -191,36 +191,28 @@ input[type=button] {
     vertical-align: middle;
 }
 
+.playerHead {
+    border-left: #1f1f1f solid 5px;
+}
+
+.team {
+    border-left: #ffffff solid 5px;
+}
+
 .team1 {
-    border-top: #0690e6 solid 5px;
+    border-left: #0690e6 solid 5px;
 }
 
 .team2 {
-    border-top: #ff663a solid 5px;
+    border-left: #ff663a solid 5px;
 }
 
 .team3 {
-    border-top: #e62c32 solid 5px;
+    border-left: #6ae647 solid 5px;
 }
 
 .team4 {
-    border-top: #6ae647 solid 5px;
-}
-
-.team5 {
-    border-top: #e6da4c solid 5px;
-}
-
-.team6 {
-    border-top: #3db2e6 solid 5px;
-}
-
-.team7 {
-    border-top: #e6385d solid 5px;
-}
-
-.team8 {
-    border-top: #48f394 solid 5px;
+    border-left: #e6173c solid 5px;
 }
 
 .player {

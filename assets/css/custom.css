@@ -169,11 +169,15 @@ input[type=button] {
 
 #score-overlay {
     position: absolute;
-    width: 60vw;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(17, 17, 17, 0.6);
+}
+
+#score-players {
+    position: absolute;
     height: auto;
-    background-color: rgba(6, 144, 230, 0.2);
-    opacity: 0.8;
-    border: solid 2px #0690e6;
+    width: 60vw;
     margin: auto 20vw;
     top: 50%;
     -webkit-transform: translateY(-50%);
@@ -187,15 +191,48 @@ input[type=button] {
     vertical-align: middle;
 }
 
+.team1 {
+    border-top: #0690e6 solid 5px;
+}
+
+.team2 {
+    border-top: #ff663a solid 5px;
+}
+
+.team3 {
+    border-top: #e62c32 solid 5px;
+}
+
+.team4 {
+    border-top: #6ae647 solid 5px;
+}
+
+.team5 {
+    border-top: #e6da4c solid 5px;
+}
+
+.team6 {
+    border-top: #3db2e6 solid 5px;
+}
+
+.team7 {
+    border-top: #e6385d solid 5px;
+}
+
+.team8 {
+    border-top: #48f394 solid 5px;
+}
+
 .player {
     width: 50vw;
-    margin: 30px 5vw;
-    background-color: #075a8c;
+    margin: 8px 5vw;
+    background-color: #1f1f1f;
+    opacity: 0.8;
     font-size: 2em;
 }
 
 .me {
-    background-color: #0b84ce !important;
+    background-color: #404040 !important;
 }
 
 .playerStanding {
@@ -211,5 +248,4 @@ input[type=button] {
 .playerKills, .playerDeaths {
     width: 6vw;
     text-align: center;
-    color: #fff137 !important;
 }

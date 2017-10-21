@@ -77,7 +77,7 @@ function updateScore(clients) {
         let HTMLString = "";
         for (let i = 0; i < clients.length; i++) {
             let player = clients[i];
-            HTMLString += "<div class='player' id='" + player.name + "'><span class='playerStanding'>" + (i + 1) + "</span><span class='playerName'>" + player.name + "</span><span class='playerKills'>" + player.kills + "</span><span class='playerDeaths'>" + player.deaths + "</span></div>";
+            HTMLString += "<div class='player team" + (i + 1) + "' id='" + player.name + "'><span class='playerStanding'>" + (i + 1) + "</span><span class='playerName'>" + player.name + "</span><span class='playerKills'>" + player.kills + "</span><span class='playerDeaths'>" + player.deaths + "</span></div>";
         }
         $('#players').html(HTMLString);
         $('#' + name).addClass('me')

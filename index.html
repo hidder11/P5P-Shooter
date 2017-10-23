@@ -20,12 +20,23 @@
     <title>FUS</title>
 </head>
 <body oncontextmenu="return false;">
-<div id="crosshair-overlay" class="hidden">
+<div id="ui" class="hidden">
+    <div id="crosshair-overlay">
     <img src="assets/images/crosshair.png" id="crosshair">
 </div>
-<div id="userStats-overlay" class="hidden">
+    <div id="userStats-overlay">
     <div id="health"><h1 id="healthCount" class="centerCount">100</div>
     <div id="ammo"><h1 id="ammoCount" class="centerCount"></h1></div>
+</div>
+    <div id="score-overlay" class="hidden">
+        <div id="score-players">
+            <div>
+                <div class="player playerHead"><span class="playerStanding">#</span><span class="playerName">name</span><span
+                        class="playerKills">K</span><span class="playerDeaths">D</span></div>
+            </div>
+            <div id="players" class="players"></div>
+        </div>
+    </div>
 </div>
 <div id="blocker">
     <div id="instructions">
@@ -52,6 +63,7 @@
 <script src="node_modules/three/examples/js/controls/PointerLockControls.js"></script>
 <script src="assets/js/ColladaLoader2.js"></script>
 <script src="node_modules/socket.io-client/dist/socket.io.js"></script>
+<script src="assets/js/w3.js"></script>
 <script src="assets/js/references.js"></script>
 <script src="assets/js/weapons.js"></script>
 <script src="assets/js/game.ui.js"></script>

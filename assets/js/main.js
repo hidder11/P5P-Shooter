@@ -253,6 +253,7 @@ function checkUsername() {
         name = input;
     }
 }
+
 socket.on('checkUsername', function (data) {
     if (data.available) {
         socket.emit('userName', data.name);
@@ -506,7 +507,7 @@ function checkCollision(delta) {
         true);
 
     if (intersectsWallFeet[0]) {
-        if (intersectsWallFeet[0].distance < 5 &&
+        if (intersectsWallFeet[0].distance < 3 + velocity.length() * delta &&
             intersectsWallFeet[0].object.type === 'Mesh') {
             controls.getObject().translateX(-velocity.x * delta);
             controls.getObject().translateZ(-velocity.z * delta);
@@ -522,7 +523,7 @@ function checkCollision(delta) {
         true);
 
     if (intersectsWallHead[0]) {
-        if (intersectsWallHead[0].distance < 5 &&
+        if (intersectsWallHead[0].distance < 3 + velocity.length() * delta &&
             intersectsWallHead[0].object.type === 'Mesh') {
             controls.getObject().translateX(-velocity.x * delta);
             controls.getObject().translateZ(-velocity.z * delta);

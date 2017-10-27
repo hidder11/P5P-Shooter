@@ -99,6 +99,7 @@ io.on('connection', function(socket) {
         });
         if (target && target !== null) {
             let victim = getClientById(target.id);
+            if (!victim) return;
             victim.health -= client.weapon.damage;
             socket.to(victim.id).emit('hit', victim.health);
             if (victim.health <= 0) {

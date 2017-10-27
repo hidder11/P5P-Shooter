@@ -48,7 +48,6 @@ else {
     instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
 }
 
-
 function init() {
     //init scene, camera, lights
     scene = new THREE.Scene();
@@ -122,6 +121,9 @@ function init() {
             case 53: //5
                 weapon = weapons[6];
                 break;
+            case 81:
+                scoreOverlay.removeClass("hidden");
+                break;
         }
     };
     var onKeyUp = function (event) {
@@ -145,6 +147,12 @@ function init() {
                 break;
             case 32: // space
                 jump = false;
+                break;
+            case 9:
+                scoreOverlay.hide();
+                break;
+            case 81:
+                scoreOverlay.addClass('hidden');
                 break;
         }
     };
@@ -264,13 +272,13 @@ function newPlayer(player) {
 init();
 
 function checkUsername() {
-    let name = username.prop('value');
-    if (name == '') {
+    let input = username.prop('value');
+    if (input === '') {
         username.addClass('hasError');
         helpBlock.html('Please enter a username');
-    }
-    else {
-        socket.emit('checkUsername', name);
+    } else {
+        socket.emit('checkUsername', input);
+        name = input;
     }
 }
 
@@ -279,8 +287,7 @@ socket.on('checkUsername', function (data) {
         socket.emit('userName', data.name);
         $('#newPlayer').addClass('hidden');
         $('#startGame').removeClass('hidden');
-        $('#crosshair-overlay').removeClass('hidden');
-        $('#userStats-overlay').removeClass('hidden');
+        ui.removeClass('hidden');
         joined = true;
         animate();
     }
@@ -318,25 +325,29 @@ socket.on('playerData', function (clients) {
         for (let player of clients) {
             if (!player.position) continue;
             if (player.id === clientID) {
+                deaths = player.deaths;
+                kills = player.kills;
+                health = player.health;
                 continue;
             }
             players[player.id].position.set(player.position.x,
                 player.position.y,
                 player.position.z);
             players[player.id].rotation.y = player.rotation._y;
+            players[player.id].player = player;
         }
     }
 });
 socket.on('playerDisconnect', function (player) {
-    scene.remove(players[player.id]);
+    collidables.remove(players[player.id]);
     delete players[player.id];
 });
 socket.on('shot', function (shot) {
-    if (clientID == shot.client.id) {
+    if (clientID === shot.client.id) {
         // weapon.playSoundAtPlayer('');
     }
     else {
-        // weapon.playSoundAtPlayer('Laser_04');
+        weapon.playSoundAtPlayer('Laser_04');
         weapon.drawTrail(shot.bulletTrial.start, shot.bulletTrial.end);
     }
     shoot();
@@ -356,6 +367,9 @@ socket.on('kill', function (victim, killer) {
 });
 socket.on('hit', function (health) {
     updateHealth(health);
+});
+socket.on('scoreUpdate', function (clients) {
+    updateScore(clients);
 });
 
 function loadMap(mapNumber) {
@@ -450,7 +464,7 @@ function loadMap(mapNumber) {
 
     // load a resource
     DAELoader.load(map.position,
-        function (collada) {
+        function(collada) {
             let scale = map.scale;
             collada.scene.children[0].material = new THREE.MeshLambertMaterial(
                 '0xddffdd');
@@ -493,8 +507,7 @@ function checkCollision(delta) {
 
     if (intersectsFloor.length > 0) {
         if (distance > intersectsFloor[0].distance) {
-            controls.getObject().
-                translateY((distance - intersectsFloor[0].distance) - 1);
+            controls.getObject().translateY((distance - intersectsFloor[0].distance) - 1);
             canJump = true;
         }
 
@@ -515,15 +528,14 @@ function checkCollision(delta) {
 
     raycasterWallFeet.set(
         controls.getObject().position.clone().sub(new THREE.Vector3(0, 4, 0)),
-        velocity.clone().
-            applyAxisAngle(new THREE.Vector3(0, 1, 0),
-                controls.getObject().rotation.y));
+        velocity.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0),
+            controls.getObject().rotation.y));
     let intersectsWallFeet = raycasterWallFeet.intersectObjects(
         collidables.children,
         true);
 
     if (intersectsWallFeet[0]) {
-        if (intersectsWallFeet[0].distance < 5 &&
+        if (intersectsWallFeet[0].distance < 3 + velocity.length() * delta &&
             intersectsWallFeet[0].object.type === 'Mesh') {
             controls.getObject().translateX(-velocity.x * delta);
             controls.getObject().translateZ(-velocity.z * delta);
@@ -532,15 +544,14 @@ function checkCollision(delta) {
 
     raycasterWallHead.set(
         controls.getObject().position.clone().add(new THREE.Vector3(0, 4, 0)),
-        velocity.clone().
-            applyAxisAngle(new THREE.Vector3(0, 1, 0),
-                controls.getObject().rotation.y));
+        velocity.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0),
+            controls.getObject().rotation.y));
     let intersectsWallHead = raycasterWallHead.intersectObjects(
         collidables.children,
         true);
 
     if (intersectsWallHead[0]) {
-        if (intersectsWallHead[0].distance < 5 &&
+        if (intersectsWallHead[0].distance < 3 + velocity.length() * delta &&
             intersectsWallHead[0].object.type === 'Mesh') {
             controls.getObject().translateX(-velocity.x * delta);
             controls.getObject().translateZ(-velocity.z * delta);
@@ -557,7 +568,7 @@ function checkCollision(delta) {
 
 // function playSoundAt(sound, player) {
 //     var shotSound = new THREE.PositionalAudio(listener);
-//     audioLoader.load('assets/sounds/' + sound + '.mp3', function(buffer) {
+//     audioLoader.load('assets/sounds/' + sound + '.mp3', function (buffer) {
 //         shotSound.setBuffer(buffer);
 //         shotSound.setVolume(0.3);
 //         shotSound.setRefDistance(20);
@@ -568,7 +579,7 @@ function checkCollision(delta) {
 //
 // function playSoundAtPlayer(sound) {
 //     var shotSound = new THREE.Audio(listener);
-//     audioLoader.load('assets/sounds/' + sound + '.mp3', function(buffer) {
+//     audioLoader.load('assets/sounds/' + sound + '.mp3', function (buffer) {
 //         shotSound.setBuffer(buffer);
 //         shotSound.setVolume(0.3);
 //         shotSound.play();
@@ -616,4 +627,6 @@ function respawn() {
     controls.getObject().position.x = map.spawnPositionsTeam1[spawnPoint].x;
     controls.getObject().position.y = map.spawnPositionsTeam1[spawnPoint].y;
     controls.getObject().position.z = map.spawnPositionsTeam1[spawnPoint].z;
+
+    updateHealth(100);
 }

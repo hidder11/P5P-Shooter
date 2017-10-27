@@ -3,20 +3,21 @@
 let timer = 0;
 
 class Weapon {
-    constructor(
-        name, model, sound, reloadSound, damage, fireRate, isAutomatic,
-        reloadTime, magazineSize, recoilVertical, recoilHorizontal, lineLife) {
+    constructor(name, model, sound, reloadSound, damage, fireRate, accuracy, isAutomatic,
+                reloadTime, magazineSize, recoilVertical, lineLife, lineWidth) {
         this.name = name;
         this.model = model;
         this.sound = sound;
         this.reloadSound = reloadSound;
+
         this.lineLife = lineLife;
+        this.lineWidth = lineWidth;
 
         this.damage = damage;
         this.fireRate = fireRate;
+        this.accuracy = accuracy;
         this.isAutomatic = isAutomatic;
         this.recoilVertical = recoilVertical;
-        this.recoilHorizontal = recoilHorizontal;
 
         this.ammo = magazineSize;
         this.magazineSize = magazineSize;
@@ -30,18 +31,14 @@ class Weapon {
     }
 
     shoot() {
-        raycasterShoot.set(controls.getObject().
-                position.
-                clone().
-                sub(new THREE.Vector3(0, 4, 0)),
-            controls.getDirection(new THREE.Vector3(0, 0, -1)));
+        raycasterShoot.set(controls.getObject().position.clone().sub(new THREE.Vector3(0, 2, 0)),
+            controls.getDirection(new THREE.Vector3(0, 0, -1)).sub(this.calcSpread(this.accuracy)));
         let hits = raycasterShoot.intersectObjects(collidables.children, true);
-
         socket.emit('shot', hits[0].point, hits[0].object.player);
         this.ammo--;
         updateAmmo(this);
-
-        this.drawTrail(controls.getObject().position, hits[0].point);
+        this.addRecoil(this.recoilVertical);
+        this.drawTrail(controls.getObject().position.clone().sub(new THREE.Vector3(0, 2, 0)), hits[0].point);
         this.playSoundAtPlayer(this.sound);
     }
 
@@ -72,12 +69,15 @@ class Weapon {
                 this.shooting = false;
             }
         }
+        if (timer <= 0)
+            timer = 0;
     }
 
     drawTrail(startPoint, endPoint) {
         //Line
         var lineMaterial = new MeshLineMaterial({
             color: new THREE.Color(0x0000ff),
+            lineWidth: this.lineWidth
         });
         var lineGeometry = new THREE.Geometry();
         lineGeometry.vertices.push(startPoint, endPoint);
@@ -129,7 +129,7 @@ class Weapon {
         // particles.dynamic = true;
 
         // scene.add(particles);
-        setTimeout(function() {
+        setTimeout(function () {
             scene.remove(mesh);
             // scene.remove(particles);
         }, this.lineLife);
@@ -155,7 +155,7 @@ class Weapon {
 
     playSoundAtPlayer(sound) {
         var shotSound = new THREE.Audio(listener);
-        audioLoader.load('assets/sounds/' + sound + '.mp3', function(buffer) {
+        audioLoader.load('assets/sounds/' + sound + '.mp3', function (buffer) {
             shotSound.setBuffer(buffer);
             shotSound.setVolume(0.3);
             shotSound.play();
@@ -165,7 +165,7 @@ class Weapon {
 
     playSoundAt(sound, player) {
         var shotSound = new THREE.PositionalAudio(listener);
-        audioLoader.load('assets/sounds/' + sound + '.mp3', function(buffer) {
+        audioLoader.load('assets/sounds/' + sound + '.mp3', function (buffer) {
             shotSound.setBuffer(buffer);
             shotSound.setVolume(0.3);
             shotSound.setRefDistance(20);
@@ -173,29 +173,21 @@ class Weapon {
             player.add(shotSound);
         });
     }
-}
 
-function constrain(v, min, max) {
-    if (v < min)
-        v = min;
-    else if (v > max)
-        v = max;
-    return v;
-}
+    calcSpread(accuracy) {
+        var xOffset = (Math.random() * accuracy - accuracy / 2) / 500;
+        var yOffset = (Math.random() * accuracy - accuracy / 2) / 500;
 
-function generateSprite() {
-    var canvas = document.createElement('canvas');
-    canvas.width = 16;
-    canvas.height = 16;
-    var context = canvas.getContext('2d');
-    var gradient = context.createRadialGradient(canvas.width /
-        2, canvas.height / 2, 0, canvas.width / 2, canvas.height /
-        2, canvas.width / 2);
-    gradient.addColorStop(0, 'rgba(255,255,255,1)');
-    gradient.addColorStop(0.2, 'rgba(0,255,255,1)');
-    gradient.addColorStop(0.4, 'rgba(0,0,64,1)');
-    gradient.addColorStop(1, 'rgba(0,0,0,1)');
-    context.fillStyle = gradient;
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    return canvas;
+        // console.log(xOffset, yOffset);
+
+        return new THREE.Vector3(xOffset, yOffset, 0);
+    }
+
+    addRecoil(recoil) {
+        if (controls.getObject().children[0].rotation.x < 1.57)
+            controls.getObject().children[0].rotation.x += recoil * 0.002;
+
+        // console.log(controls.getObject().children[0].rotation, recoil);
+    }
+
 }

@@ -7,7 +7,7 @@ var havePointerLock = 'pointerLockElement' in document ||
 
 if (havePointerLock) {
     var element = document.body;
-    var pointerlockchange = function(event) {
+    var pointerlockchange = function (event) {
         if (document.pointerLockElement === element ||
             document.mozPointerLockElement === element ||
             document.webkitPointerLockElement === element) {
@@ -24,7 +24,7 @@ if (havePointerLock) {
             instructions.style.display = '';
         }
     };
-    var pointerlockerror = function(event) {
+    var pointerlockerror = function (event) {
         instructions.style.display = '';
     };
     // Hook pointer lock state change events
@@ -36,7 +36,7 @@ if (havePointerLock) {
     document.addEventListener('mozpointerlockerror', pointerlockerror, false);
     document.addEventListener('webkitpointerlockerror', pointerlockerror,
         false);
-    instructions.addEventListener('click', function(event) {
+    instructions.addEventListener('click', function (event) {
         instructions.style.display = 'none';
         // Ask the browser to lock the pointer
         element.requestPointerLock = element.requestPointerLock ||
@@ -47,6 +47,7 @@ if (havePointerLock) {
 else {
     instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
 }
+
 
 function init() {
     //init scene, camera, lights
@@ -61,10 +62,23 @@ function init() {
     controls = new THREE.PointerLockControls(camera);
     scene.add(controls.getObject());
 
-    weapon = new Weapon('pistol', '', 'Laser_04', 'Laser_00', 20, 15, true, 200,
-        15, 0.1, 0.2, 20);
+    //pistols
+    weapons.push(
+        new Weapon('pistol1', '', 'Laser_04', 'Laser_00', 10, 50, 5, false, 50, 15, 10, 150, 0.1),
+        new Weapon('pistol2', '', 'Laser_04', 'Laser_00', 8, 20, 8, true, 50, 15, 10, 150, 0.1),
+        new Weapon('revolver', '', 'Laser_02', 'Laser_00', 25, 20, 2, false, 80, 6, 25, 270, 0.1)
+    );
+    //rifles
+    weapons.push(
+        new Weapon('Assault rifle semi-auto', '', 'Laser_01', 'Laser_00', 20, 30, 10, false, 50, 20, 15, 300, 0.1),
+        new Weapon('Assault rifle full-auto', '', 'Laser_01', 'Laser_00', 15, 20, 15, true, 50, 20, 15, 150, 0.1),
+        new Weapon('SMG', '', 'Laser_05', 'Laser_00', 5, 10, 40, true, 60, 40, 10, 100, 0.1),
+        new Weapon('Sniper', '', 'Laser_10', 'Laser_00', 80, 250, 1, false, 300, 4, 50, 1500, 0.5)
+    );
+    weapon = weapons[0];
+    console.log(weapons);
 
-    var onKeyDown = function(event) {
+    var onKeyDown = function (event) {
         if (!controlsEnabled) return;
         // console.log(event.keyCode);
         switch (event.keyCode) {
@@ -90,12 +104,27 @@ function init() {
                     canJump = false;
                 }
                 break;
-            case 80:
+            case 80: //p
                 console.log(controls.getObject().position);
+                break;
+            case 49: //1
+                weapon = weapons[0];
+                break;
+            case 50: //2
+                weapon = weapons[2];
+                break;
+            case 51: //3
+                weapon = weapons[3];
+                break;
+            case 52: //4
+                weapon = weapons[5];
+                break;
+            case 53: //5
+                weapon = weapons[6];
                 break;
         }
     };
-    var onKeyUp = function(event) {
+    var onKeyUp = function (event) {
         if (!controlsEnabled) return;
         switch (event.keyCode) {
             case 38: // up
@@ -119,7 +148,7 @@ function init() {
                 break;
         }
     };
-    var onMouseDown = function(event) {
+    var onMouseDown = function (event) {
         if (!controlsEnabled) return;
         switch (event.button) {
             case 0: // shoot
@@ -239,12 +268,13 @@ function checkUsername() {
     if (name == '') {
         username.addClass('hasError');
         helpBlock.html('Please enter a username');
-    } else {
+    }
+    else {
         socket.emit('checkUsername', name);
     }
 }
 
-socket.on('checkUsername', function(data) {
+socket.on('checkUsername', function (data) {
     if (data.available) {
         socket.emit('userName', data.name);
         $('#newPlayer').addClass('hidden');
@@ -259,16 +289,16 @@ socket.on('checkUsername', function(data) {
         helpBlock.html('Username already in game');
     }
 });
-socket.on('connect', function() {
+socket.on('connect', function () {
     console.log('socketio Connected to server!');
     if (name) {
         socket.emit('checkUsername', name);
     }
 });
-socket.on('log', function(data) {
+socket.on('log', function (data) {
     console.log(data);
 });
-socket.on('newPlayer', function(player) {
+socket.on('newPlayer', function (player) {
     if (!player.position) return;
     if (clientID) {
         newPlayer(player);
@@ -277,13 +307,13 @@ socket.on('newPlayer', function(player) {
         clientID = player.id;
     }
 });
-socket.on('oldPlayers', function(players) {
+socket.on('oldPlayers', function (players) {
     for (let player of players) {
         if (!player.position) continue;
         newPlayer(player);
     }
 });
-socket.on('playerData', function(clients) {
+socket.on('playerData', function (clients) {
     if (!name) {
         for (let player of clients) {
             if (!player.position) continue;
@@ -297,16 +327,16 @@ socket.on('playerData', function(clients) {
         }
     }
 });
-socket.on('playerDisconnect', function(player) {
+socket.on('playerDisconnect', function (player) {
     scene.remove(players[player.id]);
     delete players[player.id];
 });
-socket.on('shot', function(shot) {
+socket.on('shot', function (shot) {
     if (clientID == shot.client.id) {
-        weapon.playSoundAtPlayer('Laser_02');
+        // weapon.playSoundAtPlayer('');
     }
     else {
-        weapon.playSoundAtPlayer('Laser_04');
+        // weapon.playSoundAtPlayer('Laser_04');
         weapon.drawTrail(shot.bulletTrial.start, shot.bulletTrial.end);
     }
     shoot();
@@ -318,13 +348,13 @@ socket.emit('mapChange', function (map) {
     loadMap(currentMap);
     scene.add(controls.getObject());
 });
-socket.on('kill', function(victim, killer) {
+socket.on('kill', function (victim, killer) {
     showKill(killer.name, victim.name, killer.weapon.name);
     if (victim.id === clientID) {
         respawn();
     }
 });
-socket.on('hit', function(health) {
+socket.on('hit', function (health) {
     updateHealth(health);
 });
 
@@ -420,7 +450,7 @@ function loadMap(mapNumber) {
 
     // load a resource
     DAELoader.load(map.position,
-        function(collada) {
+        function (collada) {
             let scale = map.scale;
             collada.scene.children[0].material = new THREE.MeshLambertMaterial(
                 '0xddffdd');
@@ -525,26 +555,26 @@ function checkCollision(delta) {
     }
 }
 
-function playSoundAt(sound, player) {
-    var shotSound = new THREE.PositionalAudio(listener);
-    audioLoader.load('assets/sounds/' + sound + '.mp3', function(buffer) {
-        shotSound.setBuffer(buffer);
-        shotSound.setVolume(0.3);
-        shotSound.setRefDistance(20);
-        shotSound.play();
-        player.add(shotSound);
-    });
-}
-
-function playSoundAtPlayer(sound) {
-    var shotSound = new THREE.Audio(listener);
-    audioLoader.load('assets/sounds/' + sound + '.mp3', function(buffer) {
-        shotSound.setBuffer(buffer);
-        shotSound.setVolume(0.3);
-        shotSound.play();
-    });
-
-}
+// function playSoundAt(sound, player) {
+//     var shotSound = new THREE.PositionalAudio(listener);
+//     audioLoader.load('assets/sounds/' + sound + '.mp3', function(buffer) {
+//         shotSound.setBuffer(buffer);
+//         shotSound.setVolume(0.3);
+//         shotSound.setRefDistance(20);
+//         shotSound.play();
+//         player.add(shotSound);
+//     });
+// }
+//
+// function playSoundAtPlayer(sound) {
+//     var shotSound = new THREE.Audio(listener);
+//     audioLoader.load('assets/sounds/' + sound + '.mp3', function(buffer) {
+//         shotSound.setBuffer(buffer);
+//         shotSound.setVolume(0.3);
+//         shotSound.play();
+//     });
+//
+// }
 
 function shoot() {
     raycasterShoot.set(controls.getObject().position,

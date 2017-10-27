@@ -18,6 +18,7 @@ let raycasterWallFeet;
 let raycasterWallHead;
 let raycasterRoof;
 
+let weapons = [];
 let weapon;
 
 let raycasterShoot;

@@ -3,10 +3,11 @@
 let timer = 0;
 
 class Weapon {
-    constructor(name, model, sound, reloadSound, damage, fireRate, accuracy, isAutomatic,
+    constructor(name, model, sound, reloadSound, damage, fireRate, accuracy, zoom, isAutomatic,
                 reloadTime, magazineSize, recoilVertical, lineLife, lineWidth) {
         this.name = name;
-        this.model = model;
+        this.model = undefined;
+        this.loadModel(model);
         this.sound = sound;
         this.reloadSound = reloadSound;
 
@@ -16,6 +17,7 @@ class Weapon {
         this.damage = damage;
         this.fireRate = fireRate;
         this.accuracy = accuracy;
+        this.zoom = zoom;
         this.isAutomatic = isAutomatic;
         this.recoilVertical = recoilVertical;
 
@@ -147,7 +149,7 @@ class Weapon {
         }
         else {
             this.aim = true;
-            camera.fov = 30;
+            camera.fov = 60 - (10 * this.zoom);
             camera.updateProjectionMatrix();
             zoomCrosshair(true);
         }
@@ -189,5 +191,30 @@ class Weapon {
 
         // console.log(controls.getObject().children[0].rotation, recoil);
     }
+
+    loadModel(modelName) {
+        var mesh;
+        var self = this;
+
+        loader.load('assets/models/weapon1.json', function (geometry, material) {
+            mesh = new THREE.Mesh(geometry, material);
+
+            mesh.scale.set(3, 3, 3);
+
+            mesh.position.set(0, 10, 0);
+            // collidables.add(mesh);
+            self.model = mesh;
+        });
+    }
+
+    addModel(player) {
+        console.log(this.model);
+        scene.add(this.model);
+        // this.model.position.set(player.position.x, player.position.y - 3, player.position.z);
+    }
+
+    removeModel() {
+    }
+
 
 }

@@ -18,6 +18,7 @@ let raycasterWallFeet;
 let raycasterWallHead;
 let raycasterRoof;
 
+var loader = new THREE.JSONLoader();
 let weapons = [];
 let weapon;
 

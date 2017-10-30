@@ -63,19 +63,18 @@ function init() {
 
     //pistols
     weapons.push(
-        new Weapon('pistol1', '', 'Laser_04', 'Laser_00', 10, 50, 5, false, 50, 15, 10, 150, 0.1),
-        new Weapon('pistol2', '', 'Laser_04', 'Laser_00', 8, 20, 8, true, 50, 15, 10, 150, 0.1),
-        new Weapon('revolver', '', 'Laser_02', 'Laser_00', 25, 20, 2, false, 80, 6, 25, 270, 0.1)
+        new Weapon('pistol1', 'weapon1', 'Laser_04', 'Laser_00', 10, 50, 5, 1, false, 50, 15, 10, 150, 0.1),
+        new Weapon('pistol2', 'weapon1', 'Laser_04', 'Laser_00', 8, 20, 8, 1, true, 50, 15, 10, 150, 0.1),
+        new Weapon('revolver', 'weapon1', 'Laser_02', 'Laser_00', 25, 20, 2, 1, false, 80, 6, 25, 270, 0.1)
     );
     //rifles
     weapons.push(
-        new Weapon('Assault rifle semi-auto', '', 'Laser_01', 'Laser_00', 20, 30, 10, false, 50, 20, 15, 300, 0.1),
-        new Weapon('Assault rifle full-auto', '', 'Laser_01', 'Laser_00', 15, 20, 15, true, 50, 20, 15, 150, 0.1),
-        new Weapon('SMG', '', 'Laser_05', 'Laser_00', 5, 10, 40, true, 60, 40, 10, 100, 0.1),
-        new Weapon('Sniper', '', 'Laser_10', 'Laser_00', 80, 250, 1, false, 300, 4, 50, 1500, 0.5)
+        new Weapon('Assault rifle semi-auto', 'weapon1', 'Laser_01', 'Laser_00', 20, 30, 10, 1.5, false, 50, 20, 15, 300, 0.1),
+        new Weapon('Assault rifle full-auto', 'weapon1', 'Laser_01', 'Laser_00', 15, 20, 15, 1.5, true, 50, 20, 15, 150, 0.1),
+        new Weapon('SMG', 'weapon1', 'Laser_05', 'Laser_00', 5, 10, 40, 1, true, 60, 40, 10, 100, 0.1),
+        new Weapon('Sniper', 'weapon1', 'Laser_10', 'Laser_00', 80, 250, 1, 4, false, 300, 4, 50, 1500, 0.5)
     );
     weapon = weapons[0];
-    console.log(weapons);
 
     var onKeyDown = function (event) {
         if (!controlsEnabled) return;
@@ -108,18 +107,28 @@ function init() {
                 break;
             case 49: //1
                 weapon = weapons[0];
+                updateAmmo(weapon);
+                weapon.addModel();
                 break;
             case 50: //2
                 weapon = weapons[2];
+                updateAmmo(weapon);
+                weapon.addModel();
                 break;
             case 51: //3
                 weapon = weapons[3];
+                updateAmmo(weapon);
+                weapon.addModel();
                 break;
             case 52: //4
                 weapon = weapons[5];
+                updateAmmo(weapon);
+                weapon.addModel();
                 break;
             case 53: //5
                 weapon = weapons[6];
+                updateAmmo(weapon);
+                weapon.addModel();
                 break;
             case 81:
                 scoreOverlay.removeClass("hidden");
@@ -257,16 +266,40 @@ function animate() {
     renderer.render(scene, camera);
 }
 
+//TODO team colors
 function newPlayer(player) {
-    var geometry = new THREE.BoxGeometry(10, 10, 10);
-    var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-    var cube = new THREE.Mesh(geometry, material);
-    cube.position.set(player.position.x, player.position.y, player.position.z);
-    cube.playerID = player.id;
-    players[player.id] = cube;
-    cube.player = player;
-    collidables.add(cube);
-    addPlayerTag(cube);
+    // var geometry = new THREE.BoxGeometry(10, 10, 10);
+    // var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+    // var mesh = new THREE.Mesh(geometry, material);
+    var mesh;
+
+    loader.load('assets/models/bot.json', function (geometry, material) {
+        mesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial(material));
+
+        // scene.add(mesh);
+
+        var colorString = $('.team').first().css('border-left-color');
+        var numbers = colorString.match(/\d+/g)?colorString.match(/\d+/g):[];
+
+        for(var i=0;i<numbers.length;i++){
+            numbers[i]=+numbers[i]
+        }
+
+        mesh.material[1].color = {r: numbers[0]/255, g: numbers[1]/255, b: numbers[2]/255};
+
+        mesh.scale.set(3, 3, 3);
+        mesh.position.y = -1;
+        mesh.rotation.set(0, -Math.PI / 2, 0);
+
+        mesh.position.set(player.position.x, player.position.y - 3, player.position.z);
+        mesh.playerID = player.id;
+        players[player.id] = mesh;
+        mesh.player = player;
+        collidables.add(mesh);
+        addPlayerTag(mesh);
+
+    });
+    weapon.addModel(clientID);
 }
 
 init();
@@ -276,7 +309,8 @@ function checkUsername() {
     if (input === '') {
         username.addClass('hasError');
         helpBlock.html('Please enter a username');
-    } else {
+    }
+    else {
         socket.emit('checkUsername', input);
         name = input;
     }
@@ -321,7 +355,7 @@ socket.on('oldPlayers', function (players) {
     }
 });
 socket.on('playerData', function (clients) {
-    if (!name) {
+    if (joined) {
         for (let player of clients) {
             if (!player.position) continue;
             if (player.id === clientID) {
@@ -335,6 +369,7 @@ socket.on('playerData', function (clients) {
                 player.position.z);
             players[player.id].rotation.y = player.rotation._y;
             players[player.id].player = player;
+            players[player.id].weapon = player.weapon;
         }
     }
 });
@@ -464,7 +499,7 @@ function loadMap(mapNumber) {
 
     // load a resource
     DAELoader.load(map.position,
-        function(collada) {
+        function (collada) {
             let scale = map.scale;
             collada.scene.children[0].material = new THREE.MeshLambertMaterial(
                 '0xddffdd');
@@ -603,7 +638,7 @@ function addPlayerTag(cube) {
 
     cube.add(tag);
 
-    tag.position.set(0, 6, 0);
+    tag.position.set(0, 3, 0);
     tag.scale.set(12, 4);
     tag.fog = true;
 }

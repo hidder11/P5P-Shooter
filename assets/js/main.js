@@ -14,8 +14,10 @@ if (havePointerLock) {
             controlsEnabled = true;
             controls.enabled = true;
             blocker.style.display = 'none';
+            startGame.removeClass('hidden');
+            joinGame.addClass('hidden');
         }
-        else {
+        else if (!inChat) {
             controlsEnabled = false;
             controls.enabled = false;
             blocker.style.display = '-webkit-box';
@@ -75,8 +77,20 @@ function init() {
         new Weapon('Sniper', 'weapon1', 'Laser_10', 'Laser_00', 80, 250, 1, 4, false, 300, 4, 50, 1500, 0.5)
     );
     weapon = weapons[0];
+    console.log(weapons);
 
     var onKeyDown = function (event) {
+
+        if (event.keyCode == 13 && inChat) {
+            element.requestPointerLock = element.requestPointerLock ||
+                element.mozRequestPointerLock || element.webkitRequestPointerLock;
+            element.requestPointerLock();
+            controls.enabled = true;
+            $('#gameMessenger').addClass('hidden');
+            controlsEnabled = true;
+            console.log("sluitencheck");
+            //chat versturen
+        }
         if (!controlsEnabled) return;
         // console.log(event.keyCode);
         switch (event.keyCode) {
@@ -104,6 +118,16 @@ function init() {
                 break;
             case 80: //p
                 console.log(controls.getObject().position);
+                break;
+            case 84: // T
+                inChat = true;
+                document.exitPointerLock();
+                controls.enabled = false;
+                $('#gameMessenger').removeClass('hidden');
+                controlsEnabled = false;
+
+                //console.log("je moeder");
+                //chatvenster openen
                 break;
             case 49: //1
                 weapon = weapons[0];
@@ -245,19 +269,20 @@ function animate() {
     controls.getObject().translateY(velocity.y * delta);
     controls.getObject().translateZ(velocity.z * delta);
 
-    socket.emit('playerData', {
-        id: clientID,
-        position: controls.getObject().position,
-        rotation: controls.getObject().rotation,
-        direction: controls.getDirection(new THREE.Vector3(0, 0, -1)),
-        moveForward: moveForward,
-        moveBackward: moveBackward,
-        moveRight: moveRight,
-        moveLeft: moveLeft,
-        Jump: jump,
-        name: name,
-        weapon: weapon,
-    });
+    socket.emit('playerData',
+        {
+            id: clientID,
+            position: controls.getObject().position,
+            rotation: controls.getObject().rotation,
+            direction: controls.getDirection(new THREE.Vector3(0, 0, -1)),
+            moveForward: moveForward,
+            moveBackward: moveBackward,
+            moveRight: moveRight,
+            moveLeft: moveLeft,
+            Jump: jump,
+            name: name,
+            weapon: weapon,
+        });
 
     weapon.update(delta);
 
@@ -325,14 +350,15 @@ function checkUsername() {
     else {
         socket.emit('checkUsername', input);
         name = input;
+        setTimeout(respawn, 3000);
     }
 }
 
 socket.on('checkUsername', function (data) {
     if (data.available) {
         socket.emit('userName', data.name);
-        $('#newPlayer').addClass('hidden');
-        $('#startGame').removeClass('hidden');
+        $('#menu').addClass('hidden');
+        $('#blocker').removeClass('hidden');
         ui.removeClass('hidden');
         joined = true;
         animate();
@@ -341,6 +367,37 @@ socket.on('checkUsername', function (data) {
         username.addClass('hasError');
         helpBlock.html('Username already in game');
     }
+});
+
+function sendMsg() {
+
+
+    let chmsg = chatMsg.prop('value');
+    // console.log(chmsg, "check3");
+    if (chmsg == '') {
+        //terug naar spel?
+        console.log("check")
+    }
+    else {
+        clearlist();
+        socket.emit('chatMessage', chmsg); //username erbij?
+        chatMsg.prop('value', '');
+        console.log("check2")
+
+    }
+}
+
+function clearlist() {
+    $("ul").empty();
+}
+
+socket.on('chatMessage', function (msgs) {
+    clearlist();
+    for (let msg of msgs) {
+        $('#messages').append($('<li>').html(msg));
+        console.log("check4")
+    }
+
 });
 socket.on('connect', function () {
     console.log('socketio Connected to server!');
@@ -375,11 +432,12 @@ socket.on('playerData', function (clients) {
                 health = player.health;
                 continue;
             }
-            // players[player.id].position.copy(player.position);
-            // players[player.id].rotation.y = player.rotation._y;
-            // players[player.id].player = player;
-            // players[player.id].weapon = player.weapon;
-            // weapon.addModel(players[player.id]);
+            players[player.id].position.set(player.position.x,
+                player.position.y,
+                player.position.z);
+            players[player.id].rotation.y = player.rotation._y;
+            players[player.id].player = player;
+            weapon.addModel(players[player.id]);
         }
     }
 });
@@ -400,7 +458,7 @@ socket.on('shot', function (shot) {
 socket.emit('mapChange', function (map) {
     //console.log(map);
     scene = new THREE.scene;
-    const currentMap = 0;
+    const currentMap = 1;
     loadMap(currentMap);
     scene.add(controls.getObject());
 });
@@ -415,9 +473,6 @@ socket.on('hit', function (health) {
 });
 socket.on('scoreUpdate', function (clients) {
     updateScore(clients);
-});
-socket.on('ping', function (data) {
-    socket.emit('pong', {beat: 1});
 });
 
 function loadMap(mapNumber) {
@@ -453,14 +508,17 @@ function loadMap(mapNumber) {
             position: 'assets/maps/Arena-FFA.dae',
             scale: 7,
             offset: 0,
+            lights: [
+                {type: ''},
+            ],
             spawnPositionsTeam1: [
                 {x: -193, y: 10, z: 0},
                 {x: -10, y: -10, z: 71},
                 {x: -123, y: -10, z: -37},
                 {x: 217, y: 9, z: -95},
                 {x: 108, y: 30, z: 1},
-                {x: 220, y: 21, z: 105},
-                {x: 129, y: 20, z: 101},
+                {x: 220, y: 20, z: 105},
+                {x: 129, y: 21, z: 101},
                 {x: 149, y: 41, z: 68},
                 {x: 118, y: 52, z: 39},
                 {x: 212, y: 52, z: -55},
@@ -499,11 +557,6 @@ function loadMap(mapNumber) {
             objects.push(collada.scene);
         },
     );
-
-    let spawnPoint = Math.floor(Math.random() *
-        (map.spawnPositionsTeam1.length));
-
-    respawn();
 
     var material = new THREE.MeshBasicMaterial({color: 0xff0000});
     var geometry = new THREE.BoxGeometry(1, 1, 1);

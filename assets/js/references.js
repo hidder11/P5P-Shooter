@@ -28,7 +28,9 @@ var map;
 const distance = 10;
 
 var blocker = document.getElementById('blocker');
-var instructions = document.getElementById('startGame');
+var instructions = document.getElementById('instructions');
+var startGame = $('#startGame');
+var joinGame = $('#joinContent');
 var controls;
 var objects = [];
 var socket = io('shooter.arankieskamp.com',
@@ -36,8 +38,10 @@ var socket = io('shooter.arankieskamp.com',
 var clientID;
 var players = {};
 var joined = false;
+var inChat = false;
 const username = $('#txtName');
 const helpBlock = $('#help');
+const chatMsg = $('#m');
 var name;
 var collidables = new THREE.Object3D({name: 'collidables', type: 'Group'});
 var canJump = true;

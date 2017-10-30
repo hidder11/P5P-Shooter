@@ -39,45 +39,51 @@ function showKill(killer, victim, weapon) {
     toastr.info(killer + '&nbsp;&nbsp;<i class="fa fa-times" aria-hidden="true"></i>&nbsp;&nbsp;' + victim);
 }
 
-function toggleCrosshair(state) {
-    if (state) {
-        $('#crosshair').show()
-    }
-    else {
-        $('#crosshair').hide()
-    }
-}
-
 function zoomCrosshair(state) {
     if (state) {
-        $('#crosshair').addClass('zoom');
+        crosshair.addClass('zoom');
     }
     else {
-        $('#crosshair').removeClass('zoom');
+        crosshair.removeClass('zoom');
     }
 }
 
 function updateHealth(health) {
-    $('#health').circleProgress({animationStartValue: prevHealth, value: health / 100,});
+    healthMeter.circleProgress({animationStartValue: prevHealth, value: health / 100,});
     $('#healthCount').text(health);
-    prevHealth = health;
+    prevHealth = health / 100;
 }
 
 function updateAmmo(weapon) {
     let ammo = weapon.ammo;
     let magSize = weapon.magazineSize;
     if (weapon.reloading) {
-        $('#ammo').circleProgress({
+        ammoMeter.circleProgress({
             animationStartValue: prevAmmo,
             value: 1,
             animation: {duration: weapon.reloadTime * 10}
         });
     }
     else {
-        $('#ammo').circleProgress({animationStartValue: prevAmmo, value: ammo / magSize,});
+        ammoMeter.circleProgress({animationStartValue: prevAmmo, value: ammo / magSize,});
     }
-    $('#ammo').circleProgress({animationStartValue: prevAmmo, value: ammo / magSize,});
+    ammoMeter.circleProgress({animationStartValue: prevAmmo, value: ammo / magSize,});
     $('#ammoCount').text(ammo);
     prevAmmo = ammo / magSize;
 }
 
+function updateScore(clients) {
+    if (players) {
+        let HTMLString = "";
+        for (let i = 0; i < clients.length; i++) {
+            let player = clients[i];
+            let team = '';
+            if (player.team !== 'none') {
+                team = player.team;
+            }
+            HTMLString += "<div class='player team" + team + "' id='" + player.name + "'><span class='playerStanding'>" + (i + 1) + "</span><span class='playerName'>" + player.name + "</span><span class='playerKills'>" + player.kills + "</span><span class='playerDeaths'>" + player.deaths + "</span></div>";
+        }
+        $('#players').html(HTMLString);
+        $('#' + name).addClass('me')
+    }
+}

@@ -48,7 +48,6 @@ else {
     instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
 }
 
-
 function init() {
     //init scene, camera, lights
     scene = new THREE.Scene();
@@ -62,8 +61,21 @@ function init() {
     controls = new THREE.PointerLockControls(camera);
     scene.add(controls.getObject());
 
-    weapon = new Weapon('pistol', '', 'Laser_04', 'Laser_00', 20, 15, true, 200,
-        15, 0.1, 0.2, 20);
+    //pistols
+    weapons.push(
+        new Weapon('pistol1', '', 'Laser_04', 'Laser_00', 10, 50, 5, false, 50, 15, 10, 150, 0.1),
+        new Weapon('pistol2', '', 'Laser_04', 'Laser_00', 8, 20, 8, true, 50, 15, 10, 150, 0.1),
+        new Weapon('revolver', '', 'Laser_02', 'Laser_00', 25, 20, 2, false, 80, 6, 25, 270, 0.1)
+    );
+    //rifles
+    weapons.push(
+        new Weapon('Assault rifle semi-auto', '', 'Laser_01', 'Laser_00', 20, 30, 10, false, 50, 20, 15, 300, 0.1),
+        new Weapon('Assault rifle full-auto', '', 'Laser_01', 'Laser_00', 15, 20, 15, true, 50, 20, 15, 150, 0.1),
+        new Weapon('SMG', '', 'Laser_05', 'Laser_00', 5, 10, 40, true, 60, 40, 10, 100, 0.1),
+        new Weapon('Sniper', '', 'Laser_10', 'Laser_00', 80, 250, 1, false, 300, 4, 50, 1500, 0.5)
+    );
+    weapon = weapons[0];
+    console.log(weapons);
 
     var onKeyDown = function (event) {
 
@@ -102,7 +114,7 @@ function init() {
                     canJump = false;
                 }
                 break;
-            case 80:
+            case 80: //p
                 console.log(controls.getObject().position);
                 break;
             case 84: // T
@@ -114,6 +126,24 @@ function init() {
 
                 //console.log("je moeder");
                 //chatvenster openen
+                break;
+            case 49: //1
+                weapon = weapons[0];
+                break;
+            case 50: //2
+                weapon = weapons[2];
+                break;
+            case 51: //3
+                weapon = weapons[3];
+                break;
+            case 52: //4
+                weapon = weapons[5];
+                break;
+            case 53: //5
+                weapon = weapons[6];
+                break;
+            case 81:
+                scoreOverlay.removeClass("hidden");
                 break;
         }
     };
@@ -138,6 +168,12 @@ function init() {
                 break;
             case 32: // space
                 jump = false;
+                break;
+            case 9:
+                scoreOverlay.hide();
+                break;
+            case 81:
+                scoreOverlay.addClass('hidden');
                 break;
         }
     };
@@ -190,7 +226,7 @@ function init() {
     raycasterShoot = new THREE.Raycaster();
     raycasterShoot.set(controls.getObject().position.clone().add(velocity.clone().normalize()), new THREE.Vector3(0, 0, 1));
 
-    const currentMap = 0;
+    const currentMap = 1;
 
     loadMap(currentMap);
 
@@ -257,22 +293,22 @@ function newPlayer(player) {
 init();
 
 function checkUsername() {
-    let name = username.prop('value');
-    if (name == '') {
+    let input = username.prop('value');
+    if (input === '') {
         username.addClass('hasError');
         helpBlock.html('Please enter a username');
     } else {
-        socket.emit('checkUsername', name);
+        socket.emit('checkUsername', input);
+        name = input;
     }
 }
 
 socket.on('checkUsername', function (data) {
     if (data.available) {
         socket.emit('userName', data.name);
-        $('#newPlayer').addClass('hidden');//wanneer newplayer hidden class laten zien
+        $('#newPlayer').addClass('hidden');
         $('#startGame').removeClass('hidden');
-        $('#crosshair-overlay').removeClass('hidden');
-        $('#userStats-overlay').removeClass('hidden');
+        ui.removeClass('hidden');
         joined = true;
         animate();
     }
@@ -313,8 +349,9 @@ socket.on('chatMessage', function (msgs) {
 
 });
 socket.on('connect', function () {
+socket.on('connect', function () {
     console.log('socketio Connected to server!');
-    if (name) {
+    if (name && clientID) {
         socket.emit('checkUsername', name);
     }
 });
@@ -322,7 +359,6 @@ socket.on('log', function (data) {
     console.log(data);
 });
 socket.on('newPlayer', function (player) {
-    if (!player.position) return;
     if (clientID) {
         newPlayer(player);
     }
@@ -337,26 +373,30 @@ socket.on('oldPlayers', function (players) {
     }
 });
 socket.on('playerData', function (clients) {
-    if (!name) {
+    if (joined) {
         for (let player of clients) {
             if (!player.position) continue;
             if (player.id === clientID) {
+                deaths = player.deaths;
+                kills = player.kills;
+                health = player.health;
                 continue;
             }
             players[player.id].position.set(player.position.x,
                 player.position.y,
                 player.position.z);
             players[player.id].rotation.y = player.rotation._y;
+            players[player.id].player = player;
         }
     }
 });
 socket.on('playerDisconnect', function (player) {
-    scene.remove(players[player.id]);
+    collidables.remove(players[player.id]);
     delete players[player.id];
 });
 socket.on('shot', function (shot) {
-    if (clientID == shot.client.id) {
-        weapon.playSoundAtPlayer('Laser_02');
+    if (clientID === shot.client.id) {
+        // weapon.playSoundAtPlayer('');
     }
     else {
         weapon.playSoundAtPlayer('Laser_04');
@@ -380,82 +420,65 @@ socket.on('kill', function (victim, killer) {
 socket.on('hit', function (health) {
     updateHealth(health);
 });
+socket.on('scoreUpdate', function (clients) {
+    updateScore(clients);
+});
+socket.on('ping', function(data) {
+    socket.emit('pong', {beat: 1});
+});
 
 function loadMap(mapNumber) {
     var DAELoader = new THREE.ColladaLoader();
     var maps = [
         {
-            position: 'assets/maps/Arena-Team.dae',
-            scale: 8,
+            position: 'assets/maps/Arena-TD.dae',
+            scale: 7,
             offset: 0,
             lights: [
                 {type: ''},
             ],
             spawnPositionsTeam1: [
-                {x: -225, y: 21, z: -135},
-                {x: -140, y: 21, z: -90},
-                {x: -250, y: 33, z: -35},
-                {x: -160, y: 33, z: -25},
-                {x: -245, y: 33, z: 115},
-                {x: -153, y: 33, z: 70},
-                {x: -135, y: 33, z: 145},
-                {x: -165, y: 57, z: 22},
-                {x: -165, y: 9, z: 110},
-                {x: -240, y: 9, z: 145},
-                {x: -200, y: 9, z: 65},
-                {x: -205, y: 9, z: 25},
+                {x: 217, y: 9, z: -95},
+                {x: 108, y: 29, z: 1},
+                {x: 220, y: 19, z: 105},
+                {x: 129, y: 19, z: 101},
+                {x: 149, y: 40, z: 68},
+                {x: 118, y: 51, z: 39},
+                {x: 212, y: 51, z: -55},
             ],
             spawnPositionsTeam2: [
-                {x: 225, y: 21, z: 135},
-                {x: 140, y: 21, z: 90},
-                {x: 250, y: 33, z: 35},
-                {x: 160, y: 33, z: 25},
-                {x: 245, y: 33, z: -115},
-                {x: 153, y: 33, z: -70},
-                {x: 135, y: 33, z: -145},
-                {x: 165, y: 57, z: -22},
-                {x: 140, y: 45, z: -120},
-                {x: 165, y: 9, z: -110},
-                {x: 240, y: 9, z: -145},
-                {x: 200, y: 9, z: -65},
-                {x: 205, y: 9, z: -25},
+                {x: -217, y: 9, z: -95},
+                {x: -108, y: 29, z: 1},
+                {x: -220, y: 19, z: 105},
+                {x: -129, y: 19, z: 101},
+                {x: -149, y: 40, z: 68},
+                {x: -118, y: 51, z: 39},
+                {x: -212, y: 51, z: -55},
             ],
         },
         {
-            position: 'assets/maps/Arena.dae',
-            scale: 0.2,
+            position: 'assets/maps/Arena-FFA.dae',
+            scale: 7,
             offset: 0,
             lights: [
                 {type: ''},
             ],
             spawnPositionsTeam1: [
-                {x: -225, y: 21, z: -135},
-                {x: -140, y: 21, z: -90},
-                {x: -250, y: 33, z: -35},
-                {x: -160, y: 33, z: -25},
-                {x: -245, y: 33, z: 115},
-                {x: -153, y: 33, z: 70},
-                {x: -135, y: 33, z: 145},
-                {x: -165, y: 57, z: 22},
-                {x: -165, y: 9, z: 110},
-                {x: -240, y: 9, z: 145},
-                {x: -200, y: 9, z: 65},
-                {x: -205, y: 9, z: 25},
-            ],
-            spawnPositionsTeam2: [
-                {x: 225, y: 21, z: 135},
-                {x: 140, y: 21, z: 90},
-                {x: 250, y: 33, z: 35},
-                {x: 160, y: 33, z: 25},
-                {x: 245, y: 33, z: -115},
-                {x: 153, y: 33, z: -70},
-                {x: 135, y: 33, z: -145},
-                {x: 165, y: 57, z: -22},
-                {x: 140, y: 45, z: -120},
-                {x: 165, y: 9, z: -110},
-                {x: 240, y: 9, z: -145},
-                {x: 200, y: 9, z: -65},
-                {x: 205, y: 9, z: -25},
+                {x: -193, y: 10, z: 0},
+                {x: -10, y: -10, z: 71},
+                {x: -123, y: -10, z: -37},
+                {x: 217, y: 9, z: -95},
+                {x: 108, y: 30, z: 1},
+                {x: 220, y: 21, z: 105},
+                {x: 129, y: 20, z: 101},
+                {x: 149, y: 41, z: 68},
+                {x: 118, y: 52, z: 39},
+                {x: 212, y: 52, z: -55},
+                {x: -146, y: 10, z: 117},
+                {x: -91, y: 10, z: 4},
+                {x: -45, y: 55, z: 3},
+
+
             ],
         },
         {
@@ -473,7 +496,7 @@ function loadMap(mapNumber) {
 
     // load a resource
     DAELoader.load(map.position,
-        function (collada) {
+        function(collada) {
             let scale = map.scale;
             collada.scene.children[0].material = new THREE.MeshLambertMaterial(
                 '0xddffdd');
@@ -544,7 +567,7 @@ function checkCollision(delta) {
         true);
 
     if (intersectsWallFeet[0]) {
-        if (intersectsWallFeet[0].distance < 5 &&
+        if (intersectsWallFeet[0].distance < 3 + velocity.length() * delta &&
             intersectsWallFeet[0].object.type === 'Mesh') {
             controls.getObject().translateX(-velocity.x * delta);
             controls.getObject().translateZ(-velocity.z * delta);
@@ -560,7 +583,7 @@ function checkCollision(delta) {
         true);
 
     if (intersectsWallHead[0]) {
-        if (intersectsWallHead[0].distance < 5 &&
+        if (intersectsWallHead[0].distance < 3 + velocity.length() * delta &&
             intersectsWallHead[0].object.type === 'Mesh') {
             controls.getObject().translateX(-velocity.x * delta);
             controls.getObject().translateZ(-velocity.z * delta);
@@ -575,26 +598,26 @@ function checkCollision(delta) {
     }
 }
 
-function playSoundAt(sound, player) {
-    var shotSound = new THREE.PositionalAudio(listener);
-    audioLoader.load('assets/sounds/' + sound + '.mp3', function (buffer) {
-        shotSound.setBuffer(buffer);
-        shotSound.setVolume(0.3);
-        shotSound.setRefDistance(20);
-        shotSound.play();
-        player.add(shotSound);
-    });
-}
-
-function playSoundAtPlayer(sound) {
-    var shotSound = new THREE.Audio(listener);
-    audioLoader.load('assets/sounds/' + sound + '.mp3', function (buffer) {
-        shotSound.setBuffer(buffer);
-        shotSound.setVolume(0.3);
-        shotSound.play();
-    });
-
-}
+// function playSoundAt(sound, player) {
+//     var shotSound = new THREE.PositionalAudio(listener);
+//     audioLoader.load('assets/sounds/' + sound + '.mp3', function (buffer) {
+//         shotSound.setBuffer(buffer);
+//         shotSound.setVolume(0.3);
+//         shotSound.setRefDistance(20);
+//         shotSound.play();
+//         player.add(shotSound);
+//     });
+// }
+//
+// function playSoundAtPlayer(sound) {
+//     var shotSound = new THREE.Audio(listener);
+//     audioLoader.load('assets/sounds/' + sound + '.mp3', function (buffer) {
+//         shotSound.setBuffer(buffer);
+//         shotSound.setVolume(0.3);
+//         shotSound.play();
+//     });
+//
+// }
 
 function shoot() {
     raycasterShoot.set(controls.getObject().position,
@@ -636,4 +659,6 @@ function respawn() {
     controls.getObject().position.x = map.spawnPositionsTeam1[spawnPoint].x;
     controls.getObject().position.y = map.spawnPositionsTeam1[spawnPoint].y;
     controls.getObject().position.z = map.spawnPositionsTeam1[spawnPoint].z;
+
+    updateHealth(100);
 }

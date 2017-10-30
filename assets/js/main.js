@@ -298,7 +298,7 @@ socket.on('checkUsername', function (data) {
 });
 socket.on('connect', function () {
     console.log('socketio Connected to server!');
-    if (name) {
+    if (name && clientID) {
         socket.emit('checkUsername', name);
     }
 });
@@ -306,7 +306,6 @@ socket.on('log', function (data) {
     console.log(data);
 });
 socket.on('newPlayer', function (player) {
-    if (!player.position) return;
     if (clientID) {
         newPlayer(player);
     }
@@ -321,7 +320,7 @@ socket.on('oldPlayers', function (players) {
     }
 });
 socket.on('playerData', function (clients) {
-    if (!name) {
+    if (joined) {
         for (let player of clients) {
             if (!player.position) continue;
             if (player.id === clientID) {
@@ -370,6 +369,9 @@ socket.on('hit', function (health) {
 });
 socket.on('scoreUpdate', function (clients) {
     updateScore(clients);
+});
+socket.on('ping', function(data) {
+    socket.emit('pong', {beat: 1});
 });
 
 function loadMap(mapNumber) {

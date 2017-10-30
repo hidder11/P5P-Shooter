@@ -246,18 +246,18 @@ function animate() {
     controls.getObject().translateZ(velocity.z * delta);
 
     socket.emit('playerData', {
-            id: clientID,
-            position: controls.getObject().position,
-            rotation: controls.getObject().rotation,
-            direction: controls.getDirection(new THREE.Vector3(0, 0, -1)),
-            moveForward: moveForward,
-            moveBackward: moveBackward,
-            moveRight: moveRight,
-            moveLeft: moveLeft,
-            Jump: jump,
-            name: name,
-            weapon: weapon,
-        });
+        id: clientID,
+        position: controls.getObject().position,
+        rotation: controls.getObject().rotation,
+        direction: controls.getDirection(new THREE.Vector3(0, 0, -1)),
+        moveForward: moveForward,
+        moveBackward: moveBackward,
+        moveRight: moveRight,
+        moveLeft: moveLeft,
+        Jump: jump,
+        name: name,
+        weapon: weapon,
+    });
 
     weapon.update(delta);
 
@@ -270,21 +270,32 @@ function newPlayer(player) {
     // var geometry = new THREE.BoxGeometry(10, 10, 10);
     // var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
     // var mesh = new THREE.Mesh(geometry, material);
-    var mesh;
+
+    // mesh.position.set(player.position.x, player.position.y - 3, player.position.z);
+    // mesh.playerID = player.id;
+    // players[player.id] = mesh;
+    // mesh.player = player;
+    // collidables.add(mesh);
+    // addPlayerTag(mesh);
+
+
+    var geometry = new THREE.BoxGeometry(10, 10, 10);
+    var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+    var mesh = new THREE.Mesh(geometry, material);
 
     loader.load('assets/models/bot.json', function (geometry, material) {
         mesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial(material));
 
-        // scene.add(mesh);
+        scene.add(mesh);
 
         var colorString = $('.team').first().css('border-left-color');
-        var numbers = colorString.match(/\d+/g)?colorString.match(/\d+/g):[];
+        var numbers = colorString.match(/\d+/g) ? colorString.match(/\d+/g) : [];
 
-        for(var i=0;i<numbers.length;i++){
-            numbers[i]=+numbers[i]
+        for (var i = 0; i < numbers.length; i++) {
+            numbers[i] = +numbers[i]
         }
 
-        mesh.material[1].color = {r: numbers[0]/255, g: numbers[1]/255, b: numbers[2]/255};
+        mesh.material[1].color = {r: numbers[0] / 255, g: numbers[1] / 255, b: numbers[2] / 255};
 
         mesh.scale.set(3, 3, 3);
         mesh.position.y = -1;
@@ -292,12 +303,14 @@ function newPlayer(player) {
 
         mesh.position.set(player.position.x, player.position.y - 3, player.position.z);
         mesh.playerID = player.id;
+        console.log(player);
         players[player.id] = mesh;
         mesh.player = player;
         collidables.add(mesh);
         addPlayerTag(mesh);
 
     });
+
     weapon.addModel(clientID);
 }
 
@@ -356,16 +369,15 @@ socket.on('playerData', function (clients) {
     if (joined) {
         for (let player of clients) {
             if (!player) continue;
-            if (!player.position) continue;
             if (player.id === clientID) {
                 deaths = player.deaths;
                 kills = player.kills;
                 health = player.health;
                 continue;
             }
-            players[player.id].position.copy(player.position);
-            players[player.id].rotation.y = player.rotation._y;
-            players[player.id].player = player;
+            // players[player.id].position.copy(player.position);
+            // players[player.id].rotation.y = player.rotation._y;
+            // players[player.id].player = player;
             // players[player.id].weapon = player.weapon;
             // weapon.addModel(players[player.id]);
         }
@@ -404,7 +416,7 @@ socket.on('hit', function (health) {
 socket.on('scoreUpdate', function (clients) {
     updateScore(clients);
 });
-socket.on('ping', function(data) {
+socket.on('ping', function (data) {
     socket.emit('pong', {beat: 1});
 });
 

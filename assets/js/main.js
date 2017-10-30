@@ -345,13 +345,12 @@ function clearlist() {
 
 socket.on('chatMessage', function (msgs) {
     clearlist();
-    for(let msg of msgs){
+    for (let msg of msgs) {
         $('#messages').append($('<li>').html(msg));
         console.log("check4")
     }
 
 });
-socket.on('connect', function () {
 socket.on('connect', function () {
     console.log('socketio Connected to server!');
     if (name && clientID) {
@@ -496,7 +495,7 @@ function loadMap(mapNumber) {
 
     // load a resource
     DAELoader.load(map.position,
-        function(collada) {
+        function (collada) {
             let scale = map.scale;
             collada.scene.children[0].material = new THREE.MeshLambertMaterial(
                 '0xddffdd');

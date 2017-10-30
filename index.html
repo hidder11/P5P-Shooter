@@ -26,20 +26,23 @@
     <div id="crosshair-overlay">
         <img src="assets/images/crosshair.png" id="crosshair">
     </div>
-<div id="userStats-overlay" >
+    <div id="userStats-overlay">
         <div id="health"><h1 id="healthCount" class="centerCount">100></h1></div>
         <div id="ammo"><h1 id="ammoCount" class="centerCount"></h1></div>
-    <div id="gameMessenger" class="chatArea hidden">
-        <ul id="messages"></ul>
-        <div id="form" action="">
-            <input id="m" autocomplete="off" onkeydown = "if (event.keyCode == 13) document.getElementById('btnSendMsg').click()" /><input id="btnSendMsg" type="button"  autocomplete="off"onclick="sendMsg();" value="Send">
+        <div id="gameMessenger" class="chatArea hidden">
+            <ul id="messages"></ul>
+            <div id="form" action="">
+                <input id="m" autocomplete="off"
+                       onkeydown="if (event.keyCode == 13) document.getElementById('btnSendMsg').click()"/><input
+                    id="btnSendMsg" type="button" autocomplete="off" onclick="sendMsg();" value="Send">
+            </div>
         </div>
-
-</div>
+    </div>
     <div id="score-overlay" class="hidden">
         <div id="score-players">
             <div>
-                <div class="player playerHead"><span class="playerStanding">#</span><span class="playerName">name</span><span
+                <div class="player playerHead"><span class="playerStanding">#</span><span
+                        class="playerName">name</span><span
                         class="playerKills">K</span><span class="playerDeaths">D</span></div>
             </div>
             <div id="players" class="players"></div>
@@ -52,7 +55,7 @@
             <h1 id="title" class="shadowText">FUS</h1>
             <!--<h2>Enter your name to join</h2>-->
             <div id="inputWrapper">
-            <span id="help"></span>
+                <span id="help"></span>
                 <input id="txtName" class="shadow" type="text" value="" placeholder="Enter a username">
                 <input id="btnSendName" class="shadow" type="button" onclick="checkUsername();" value="OK">
             </div>
@@ -65,7 +68,8 @@
             <div id="joinGame">
                 <div id="joinScore">
                     <div>
-                        <div class="player playerHead"><span class="playerStanding">#</span><span class="playerName">name</span><span
+                        <div class="player playerHead"><span class="playerStanding">#</span><span
+                                class="playerName">name</span><span
                                 class="playerKills">K</span><span class="playerDeaths">D</span></div>
                     </div>
                     <div id="joinPlayers"></div>

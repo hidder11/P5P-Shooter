@@ -14,14 +14,6 @@ const io = require('socket.io').listen(server);
 global.THREE = require('three');
 global.DOMParser = require('xmldom').DOMParser;
 global.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
-require('jsdom').env('', function(err, window) {
-    if (err) {
-        console.error(err);
-        return;
-    }
-
-    var $ = require('jquery')(window);
-});
 var clients = [];
 let map;
 require('http');
@@ -84,6 +76,9 @@ io.on('connection', function(socket) {
     });
     socket.on('disconnecting', function(data) {
         sendMessage(client, ' is leaving the game.');
+    });
+    socket.on('chatMessage', function(msg){
+        console.log('message: ' + msg);
     });
     socket.on('playerData', function(data) {
         if (!client.name) return;

@@ -35,8 +35,10 @@ var socket = io('shooter.arankieskamp.com',
 var clientID;
 var players = {};
 var joined = false;
+var inChat = false;
 const username = $('#txtName');
 const helpBlock = $('#help');
+const chatMsg = $('#m');
 var name;
 var collidables = new THREE.Object3D({name: 'collidables', type: 'Group'});
 var canJump = true;

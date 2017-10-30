@@ -3,6 +3,52 @@ body {
     overflow: hidden;
 }
 
+ form {
+    padding: 3px;
+    position: fixed;
+    top: 250px;
+
+
+
+}
+
+form, input {
+    border: 0;
+    padding: 7px;
+
+}
+
+form button {
+    width: 10%;
+    background: rgb(130, 224, 255);
+    border: none;
+    padding: 10px;
+}
+
+#messages {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+
+
+}
+#gameMessenger {
+    width: 35%;
+    position: absolute;
+
+}
+
+#messages li {
+    padding: 5px 10px;
+    float:none;
+
+}
+
+#messages li:nth-child(odd) {
+
+}
+
+
 #webGL {
     height: 100%;
     width: 100%;
@@ -14,6 +60,9 @@ body {
     display: none !important;
     padding-bottom: 5px;
     padding-top: 5px;
+}
+.chatName{
+    color: #7abc72;
 }
 
 html, body {
@@ -31,6 +80,7 @@ body {
 .toast-info {
     background-color: #085e93;
 }
+
 
 #toast-container > div {
     width: auto;
@@ -55,6 +105,9 @@ body {
     background: none;
 }
 
+#userStats-overlay {
+
+}
 #-overlay {
     position: relative;
     background: none;
@@ -85,6 +138,7 @@ body {
     bottom: 0;
     margin: 20px;
 }
+
 
 #blocker {
     position: absolute;

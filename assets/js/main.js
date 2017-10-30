@@ -370,9 +370,6 @@ socket.on('hit', function (health) {
 socket.on('scoreUpdate', function (clients) {
     updateScore(clients);
 });
-socket.on('ping', function(data) {
-    socket.emit('pong', {beat: 1});
-});
 
 function loadMap(mapNumber) {
     var DAELoader = new THREE.ColladaLoader();

@@ -14,6 +14,14 @@ const io = require('socket.io').listen(server);
 global.THREE = require('three');
 global.DOMParser = require('xmldom').DOMParser;
 global.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
+require('jsdom').env('', function(err, window) {
+    if (err) {
+        console.error(err);
+        return;
+    }
+
+    var $ = require('jquery')(window);
+});
 var clients = [];
 let map;
 require('http');
@@ -43,7 +51,6 @@ function shoot(player, object) {
     // return {victim: hits[0], raycast: raycasterShoot};
 }
 
-setTimeout(sendHeartbeat, 8000);
 io.on('connection', function(socket) {
     let client = new Client(socket.id);
     socket.on('checkUsername', function(name) {
@@ -62,16 +69,21 @@ io.on('connection', function(socket) {
         newPlayer(client);
         socket.emit('oldPlayers', clients);
         clients.push(client);
+        socket.player = client;
         sendMessage(client, ' has joined the game.');
         newData(socket);
         scoreUpdate(socket);
     });
     socket.on('disconnect', function(data) {
+        if (client.name === '') return;
         io.emit('playerDisconnect', client);
         sendMessage(client, ' has left the game.');
         scene.remove(objects[client.id]);
         delete objects[client.id];
         clients.splice(clients.indexOf(client), 1);
+    });
+    socket.on('disconnecting', function(data) {
+        sendMessage(client, ' is leaving the game.');
     });
     socket.on('playerData', function(data) {
         if (!client.name) return;
@@ -125,26 +137,19 @@ io.on('connection', function(socket) {
     socket.on('logPlayers', function(data) {
         socket.emit('log', clients);
     });
-    socket.on('disconnectMe', function(data) {
-        socket.disconnect();
-    });
-    socket.on('pong', function(data) {
-        console.log('Pong received from client');
+    socket.on('logMe', function() {
+        socket.emit('log', getClientById(client.id));
     });
 });
 
 function sendMessage(client, msg) {
-    chatMessages.push(client.name + ' : ' + msg);
+    chatMessages.push('<span class="chatName">' + client.name + '</span> : ' +
+        msg);
     let msgsToSend = chatMessages;
     if (chatMessages.length > 10) {
         msgsToSend = chatMessages.slice(chatMessages.length - 10);
     }
     io.emit('chatMessage', msgsToSend);
-}
-
-function sendHeartbeat() {
-    setTimeout(sendHeartbeat, 8000);
-    io.sockets.emit('ping', {beat: 1});
 }
 
 function scoreUpdate(socket) {

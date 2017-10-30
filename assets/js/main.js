@@ -17,7 +17,7 @@ if (havePointerLock) {
             startGame.removeClass('hidden');
             joinGame.addClass('hidden');
         }
-        else {
+        else if (!inChat) {
             controlsEnabled = false;
             controls.enabled = false;
             blocker.style.display = '-webkit-box';
@@ -80,6 +80,17 @@ function init() {
     console.log(weapons);
 
     var onKeyDown = function (event) {
+
+        if (event.keyCode == 13 && inChat) {
+            element.requestPointerLock = element.requestPointerLock ||
+                element.mozRequestPointerLock || element.webkitRequestPointerLock;
+            element.requestPointerLock();
+            controls.enabled = true;
+            $('#gameMessenger').addClass('hidden');
+            controlsEnabled = true;
+            console.log("sluitencheck");
+            //chat versturen
+        }
         if (!controlsEnabled) return;
         // console.log(event.keyCode);
         switch (event.keyCode) {
@@ -107,6 +118,16 @@ function init() {
                 break;
             case 80: //p
                 console.log(controls.getObject().position);
+                break;
+            case 84: // T
+                inChat = true;
+                document.exitPointerLock();
+                controls.enabled = false;
+                $('#gameMessenger').removeClass('hidden');
+                controlsEnabled = false;
+
+                //console.log("je moeder");
+                //chatvenster openen
                 break;
             case 49: //1
                 weapon = weapons[0];
@@ -299,6 +320,38 @@ socket.on('checkUsername', function (data) {
         helpBlock.html('Username already in game');
     }
 });
+
+function sendMsg() {
+
+
+    let chmsg = chatMsg.prop('value');
+    // console.log(chmsg, "check3");
+    if (chmsg == '') {
+        //terug naar spel?
+        console.log("check")
+    }
+    else {
+        clearlist();
+        socket.emit('chatMessage', chmsg); //username erbij?
+        chatMsg.prop('value', '');
+        console.log("check2")
+
+    }
+}
+
+function clearlist() {
+    $("ul").empty();
+}
+
+socket.on('chatMessage', function (msgs) {
+    clearlist();
+    for(let msg of msgs){
+        $('#messages').append($('<li>').html(msg));
+        console.log("check4")
+    }
+
+});
+socket.on('connect', function () {
 socket.on('connect', function () {
     console.log('socketio Connected to server!');
     if (name && clientID) {
@@ -373,9 +426,6 @@ socket.on('hit', function (health) {
 socket.on('scoreUpdate', function (clients) {
     updateScore(clients);
 });
-socket.on('ping', function(data) {
-    socket.emit('pong', {beat: 1});
-});
 
 function loadMap(mapNumber) {
     var DAELoader = new THREE.ColladaLoader();
@@ -410,6 +460,9 @@ function loadMap(mapNumber) {
             position: 'assets/maps/Arena-FFA.dae',
             scale: 7,
             offset: 0,
+            lights: [
+                {type: ''},
+            ],
             spawnPositionsTeam1: [
                 {x: -193, y: 10, z: 0},
                 {x: -10, y: -10, z: 71},

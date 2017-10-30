@@ -432,12 +432,11 @@ socket.on('playerData', function (clients) {
                 health = player.health;
                 continue;
             }
-            players[player.id].position.set(player.position.x,
-                player.position.y,
-                player.position.z);
-            players[player.id].rotation.y = player.rotation._y;
-            players[player.id].player = player;
-            weapon.addModel(players[player.id]);
+            // players[player.id].position.copy(player.position);
+            // players[player.id].rotation.y = player.rotation._y;
+            // players[player.id].player = player;
+            // players[player.id].weapon = player.weapon;
+            // weapon.addModel(players[player.id]);
         }
     }
 });

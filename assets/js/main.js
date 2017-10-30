@@ -332,7 +332,7 @@ socket.on('checkUsername', function (data) {
 });
 socket.on('connect', function () {
     console.log('socketio Connected to server!');
-    if (name) {
+    if (name && clientID) {
         socket.emit('checkUsername', name);
     }
 });
@@ -340,7 +340,6 @@ socket.on('log', function (data) {
     console.log(data);
 });
 socket.on('newPlayer', function (player) {
-    if (!player.position) return;
     if (clientID) {
         newPlayer(player);
     }
@@ -406,6 +405,9 @@ socket.on('hit', function (health) {
 socket.on('scoreUpdate', function (clients) {
     updateScore(clients);
 });
+socket.on('ping', function(data) {
+    socket.emit('pong', {beat: 1});
+});
 
 function loadMap(mapNumber) {
     var DAELoader = new THREE.ColladaLoader();
@@ -446,12 +448,12 @@ function loadMap(mapNumber) {
                 {x: -123, y: -11, z: -37},
                 {x: 217, y: 9, z: -95},
                 {x: 108, y: 29, z: 1},
-                {x: 220, y: 19, z: 105},
+                {x: 220, y: 19, z: 106},
                 {x: 129, y: 19, z: 101},
                 {x: 149, y: 40, z: 68},
                 {x: 118, y: 51, z: 39},
                 {x: 212, y: 51, z: -55},
-                {x: -146, y: 8, z: 117},
+                {x: -146, y: 8, z: 118},
                 {x: -91, y: 9, z: 4},
                 {x: -45, y: 54, z: 3},
 

@@ -27,7 +27,9 @@ var map;
 const distance = 10;
 
 var blocker = document.getElementById('blocker');
-var instructions = document.getElementById('startGame');
+var instructions = document.getElementById('instructions');
+var startGame = $('#startGame');
+var joinGame = $('#joinContent');
 var controls;
 var objects = [];
 var socket = io('shooter.arankieskamp.com',

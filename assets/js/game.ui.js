@@ -83,7 +83,16 @@ function updateScore(clients) {
             }
             HTMLString += "<div class='player team" + team + "' id='" + player.name + "'><span class='playerStanding'>" + (i + 1) + "</span><span class='playerName'>" + player.name + "</span><span class='playerKills'>" + player.kills + "</span><span class='playerDeaths'>" + player.deaths + "</span></div>";
         }
-        $('#players').html(HTMLString);
-        $('#' + name).addClass('me')
+        if (joinGame.attr('class') === 'hidden') {
+            $('#players').html(HTMLString);
+        }
+        else {
+            $('#joinPlayers').html(HTMLString);
+        }
+        $('#' + name).addClass('me');
     }
+}
+
+function updateJoinMenu(HTMLString) {
+    $('#joinScore').html()
 }

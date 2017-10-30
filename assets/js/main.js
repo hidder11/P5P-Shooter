@@ -14,6 +14,8 @@ if (havePointerLock) {
             controlsEnabled = true;
             controls.enabled = true;
             blocker.style.display = 'none';
+            startGame.removeClass('hidden');
+            joinGame.addClass('hidden');
         }
         else {
             controlsEnabled = false;
@@ -279,14 +281,15 @@ function checkUsername() {
     } else {
         socket.emit('checkUsername', input);
         name = input;
+        setTimeout(respawn, 3000);
     }
 }
 
 socket.on('checkUsername', function (data) {
     if (data.available) {
         socket.emit('userName', data.name);
-        $('#newPlayer').addClass('hidden');
-        $('#startGame').removeClass('hidden');
+        $('#menu').addClass('hidden');
+        $('#blocker').removeClass('hidden');
         ui.removeClass('hidden');
         joined = true;
         animate();
@@ -354,7 +357,7 @@ socket.on('shot', function (shot) {
 socket.emit('mapChange', function (map) {
     //console.log(map);
     scene = new THREE.scene;
-    const currentMap = 0;
+    const currentMap = 1;
     loadMap(currentMap);
     scene.add(controls.getObject());
 });
@@ -413,8 +416,8 @@ function loadMap(mapNumber) {
                 {x: -123, y: -10, z: -37},
                 {x: 217, y: 9, z: -95},
                 {x: 108, y: 30, z: 1},
-                {x: 220, y: 21, z: 105},
-                {x: 129, y: 20, z: 101},
+                {x: 220, y: 20, z: 105},
+                {x: 129, y: 21, z: 101},
                 {x: 149, y: 41, z: 68},
                 {x: 118, y: 52, z: 39},
                 {x: 212, y: 52, z: -55},
@@ -453,11 +456,6 @@ function loadMap(mapNumber) {
             objects.push(collada.scene);
         },
     );
-
-    let spawnPoint = Math.floor(Math.random() *
-        (map.spawnPositionsTeam1.length));
-
-    respawn();
 
     var material = new THREE.MeshBasicMaterial({color: 0xff0000});
     var geometry = new THREE.BoxGeometry(1, 1, 1);

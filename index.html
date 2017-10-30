@@ -6,7 +6,9 @@
     <script>
         window.dataLayer = window.dataLayer || [];
 
-        function gtag() {dataLayer.push(arguments);}
+        function gtag() {
+            dataLayer.push(arguments);
+        }
 
         gtag('js', new Date());
 
@@ -22,12 +24,12 @@
 <body oncontextmenu="return false;">
 <div id="ui" class="hidden">
     <div id="crosshair-overlay">
-    <img src="assets/images/crosshair.png" id="crosshair">
-</div>
+        <img src="assets/images/crosshair.png" id="crosshair">
+    </div>
     <div id="userStats-overlay">
-    <div id="health"><h1 id="healthCount" class="centerCount">100</div>
-    <div id="ammo"><h1 id="ammoCount" class="centerCount"></h1></div>
-</div>
+        <div id="health"><h1 id="healthCount" class="centerCount">100</h1></div>
+        <div id="ammo"><h1 id="ammoCount" class="centerCount"></h1></div>
+    </div>
     <div id="score-overlay" class="hidden">
         <div id="score-players">
             <div>
@@ -38,20 +40,39 @@
         </div>
     </div>
 </div>
-<div id="blocker">
-    <div id="instructions">
-        <div id="newPlayer" style="display: block;">
-            <h2>Enter your name to join</h2>
-            <input id="txtName" type="text" value="" placeholder="Your name">
-            <input id="btnSendName" type="button" onclick="checkUsername();" value="OK">
+<div id="menu">
+    <div id="menuContent">
+        <div id="newPlayer">
+            <h1 id="title" class="shadowText">FUS</h1>
+            <!--<h2>Enter your name to join</h2>-->
+            <div id="inputWrapper">
             <span id="help"></span>
+                <input id="txtName" class="shadow" type="text" value="" placeholder="Enter a username">
+                <input id="btnSendName" class="shadow" type="button" onclick="checkUsername();" value="OK">
+            </div>
+        </div>
+    </div>
+</div>
+<div id="blocker" class="hidden">
+    <div id="instructions">
+        <div id="joinContent">
+            <div id="joinGame">
+                <div id="joinScore">
+                    <div>
+                        <div class="player playerHead"><span class="playerStanding">#</span><span class="playerName">name</span><span
+                                class="playerKills">K</span><span class="playerDeaths">D</span></div>
+                    </div>
+                    <div id="joinPlayers"></div>
+                </div>
+                <button class="shadow">Join</button>
+            </div>
         </div>
         <div id="startGame" class="hidden">
-            <h2>Click to play</h2>
-            <p>
-                (MOUSE = Look around, W/A/S/D = Move around, Space = Jump, Left-Mouse = Shoot, Right-Mouse = Aim)
-            </p>
-            <input id="btnStart" type="button" value="Play">
+            <h1>Are you there?</h1>
+            <!--<p>-->
+            <!--(MOUSE = Look around, W/A/S/D = Move around, Space = Jump, Left-Mouse = Shoot, Right-Mouse = Aim)-->
+            <!--</p>-->
+            <h2>Click somewhere to resume the game!</h2>
         </div>
     </div>
 </div>

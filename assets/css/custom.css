@@ -1,6 +1,8 @@
 body {
+    background-color: #45D552;
     margin: 0;
     overflow: hidden;
+    font-family: arial;
 }
 
 #webGL {
@@ -19,13 +21,6 @@ body {
 html, body {
     width: 100%;
     height: 100%;
-}
-
-body {
-    background-color: #ffffff;
-    margin: 0;
-    overflow: hidden;
-    font-family: arial;
 }
 
 .toast-info {
@@ -86,29 +81,123 @@ body {
     margin: 20px;
 }
 
+#menu {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: url("../images/bg.jpeg");
+    background-size: cover;
+    z-index: 10;
+    text-align: center;
+}
+
+#menuContent {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: block;
+    min-width: 800px;
+    width: 50%;
+}
+
+#title {
+    color: #f9f9f9;
+    font-size: 12em;
+    font-family: "Arial Black", Gadget, sans-serif;
+    margin-top: 0;
+    margin-bottom: 150px;
+}
+
+#joinContent {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: url("../images/bg.jpeg");
+    background-size: cover;
+    z-index: 10;
+    text-align: center;
+}
+
+#joinGame {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: block;
+    min-width: 620px;
+    width: 50%;
+    margin-left: 130px;
+}
+
+#joinGame button {
+    width: 625px;
+    font-size: 1em;
+    font-weight: 700;
+    display: block;
+    margin: 20px 0;
+    line-height: 23px;
+    padding: 10px 15px;
+    background: #fff;
+    outline: none;
+    border-radius: 0;
+    border: 1px solid #ddd;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    transition: all 0.25s ease-in-out;
+    -moz-transition: all 0.25s ease-in-out;
+    -webkit-transition: all 0.25s ease-in-out;
+}
+
+#joinScore .player {
+    width: 620px;
+    margin-bottom: 7px;
+    margin-left: 0;
+}
+
+#joinScore .playerStanding {
+    width: 20px;
+    text-align: center;
+}
+
+#joinScore .playerName {
+    width: 400px;
+    overflow: hidden;
+}
+
+#joinScore .playerKills, .playerDeaths {
+    width: 50px;
+    text-align: center;
+}
+
 #blocker {
     position: absolute;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.75);
+    background-color: rgba(0, 0, 0, 0.9);
     z-index: 10;
 }
 
 #instructions {
     position: absolute;
-    top: calc(50% - 250px);
     width: 100%;
     height: 100%;
     color: #fff;
     text-align: center;
 }
 
-#instructions #newPlayer {
-    display: block;
+#startGame {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
-#instructions #about {
-    margin-top: 150px;
+#startGame h1 {
+    font-size: 8em;
+    font-family: "Arial Black", sans-serif;
+}
+
+#startGame h2 {
+    font-size: 2em;
+    font-family: "Arial", Gadget, sans-serif;
 }
 
 input {
@@ -119,10 +208,8 @@ input {
     padding: 10px 15px;
     background: #fff;
     outline: none;
-    border-radius: 3px;
+    border-radius: 0;
     border: 1px solid #ddd;
-    box-shadow: inset 0 0 3px 0 rgba(0, 0, 0, 0.2);
-    -webkit-box-shadow: inset 0 0 3px 0 rgba(0, 0, 0, 0.2);
     font-family: Roboto, Helvetica, Arial, sans-serif;
     font-size: 12pt;
     font-weight: 300;
@@ -131,8 +218,40 @@ input {
     -webkit-transition: all 0.25s ease-in-out;
 }
 
+.shadow {
+    box-shadow: 0 1px 0 #ccc,
+    0 4px 0 #c9c9c9,
+    0 6px 0 #bbb,
+    0 8px 0 #b9b9b9,
+    0 10px 0 #aaa,
+    0 12px 2px rgba(0, 0, 0, .1),
+    0 0 10px rgba(0, 0, 0, .1),
+    0 2px 6px rgba(0, 0, 0, .3),
+    0 6px 10px rgba(0, 0, 0, .2),
+    0 10px 20px rgba(0, 0, 0, .25),
+    0 20px 20px rgba(0, 0, 0, .2),
+    0 40px 40px rgba(0, 0, 0, .15);
+}
+
+.shadowText {
+    text-shadow: 0 1px 0 #ccc,
+    0 4px 0 #c9c9c9,
+    0 6px 0 #bbb,
+    0 8px 0 #b9b9b9,
+    0 10px 0 #aaa,
+    0 12px 2px rgba(0, 0, 0, .1),
+    0 0 10px rgba(0, 0, 0, .1),
+    0 2px 6px rgba(0, 0, 0, .3),
+    0 6px 10px rgba(0, 0, 0, .2),
+    0 10px 20px rgba(0, 0, 0, .25),
+    0 20px 20px rgba(0, 0, 0, .2),
+    0 40px 40px rgba(0, 0, 0, .15);
+}
+
 #instructions input {
-    margin-top: 30px;
+    margin-top: 10px;
+    margin-bottom: 6em;
+    margin-right: 0;
 }
 
 #instructions #newPlayer #txtName {
@@ -140,21 +259,25 @@ input {
 }
 
 input[type=button] {
-    box-shadow: none;
-    -webkit-box-shadow: none;
-    background-color: #7abc72;
-    border-color: #61965b;
-    color: #fff;
+    background-color: #fff;
+    color: #000;
     cursor: pointer;
 }
 
+#inputWrapper {
+    display: inline-block;
+}
+
 .hasError {
-    border: 3px #ff0000 solid;
+    outline: 3px #ff0000 solid;
+    outline-offset: -3px;
 }
 
 #help {
     display: block;
     color: white;
+    font-size: 1.2em;
+    text-align: left;
 }
 
 #ammo > canvas, #health > canvas {

@@ -245,8 +245,7 @@ function animate() {
     controls.getObject().translateY(velocity.y * delta);
     controls.getObject().translateZ(velocity.z * delta);
 
-    socket.emit('playerData',
-        {
+    socket.emit('playerData', {
             id: clientID,
             position: controls.getObject().position,
             rotation: controls.getObject().rotation,
@@ -356,6 +355,7 @@ socket.on('oldPlayers', function (players) {
 socket.on('playerData', function (clients) {
     if (joined) {
         for (let player of clients) {
+            if (!player) continue;
             if (!player.position) continue;
             if (player.id === clientID) {
                 deaths = player.deaths;
@@ -363,12 +363,11 @@ socket.on('playerData', function (clients) {
                 health = player.health;
                 continue;
             }
-            players[player.id].position.set(player.position.x,
-                player.position.y,
-                player.position.z);
+            players[player.id].position.copy(player.position);
             players[player.id].rotation.y = player.rotation._y;
             players[player.id].player = player;
-            players[player.id].weapon = player.weapon;
+            // players[player.id].weapon = player.weapon;
+            // weapon.addModel(players[player.id]);
         }
     }
 });

@@ -199,8 +199,6 @@ class Weapon {
         loader.load('assets/models/weapon1.json', function (geometry, material) {
             mesh = new THREE.Mesh(geometry, material);
 
-            mesh.scale.set(3, 3, 3);
-
             mesh.position.set(0, 10, 0);
             // collidables.add(mesh);
             self.model = mesh;
@@ -208,8 +206,9 @@ class Weapon {
     }
 
     addModel(player) {
-        console.log(this.model);
-        scene.add(this.model);
+        // console.log(this.model);
+        player.add(this.model);
+        this.model.position.set(0, 0, 0);
         // this.model.position.set(player.position.x, player.position.y - 3, player.position.z);
     }
 

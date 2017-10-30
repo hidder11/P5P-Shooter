@@ -302,7 +302,6 @@ function checkUsername() {
     } else {
         socket.emit('checkUsername', input);
         name = input;
-        setTimeout(respawn, 3000);
     }
 }
 
@@ -366,6 +365,7 @@ socket.on('newPlayer', function (player) {
     }
     else {
         clientID = player.id;
+        respawn();
     }
 });
 socket.on('oldPlayers', function (players) {
@@ -512,13 +512,13 @@ function loadMap(mapNumber) {
     var material = new THREE.MeshBasicMaterial({color: 0xff0000});
     var geometry = new THREE.BoxGeometry(1, 1, 1);
 
-    for (var point of map.spawnPositionsTeam1) {
-        var mesh = new THREE.Mesh(geometry, material);
-        mesh.position.x = point.x;
-        mesh.position.y = point.y - 8;
-        mesh.position.z = point.z;
-        scene.add(mesh);
-    }
+    // for (var point of map.spawnPositionsTeam1) {
+    //     var mesh = new THREE.Mesh(geometry, material);
+    //     mesh.position.x = point.x;
+    //     mesh.position.y = point.y - 8;
+    //     mesh.position.z = point.z;
+    //     scene.add(mesh);
+    // }
 }
 
 function checkCollision(delta) {

@@ -200,19 +200,19 @@ input[type=button] {
 }
 
 .team1 {
-    border-left: #0690e6 solid 5px;
+    border-left: rgb(6, 144, 230) solid 5px;
 }
 
 .team2 {
-    border-left: #ff663a solid 5px;
+    border-left: rgb(255, 102, 58) solid 5px;
 }
 
 .team3 {
-    border-left: #6ae647 solid 5px;
+    border-left: rgb(106, 230, 71) solid 5px;
 }
 
 .team4 {
-    border-left: #e6173c solid 5px;
+    border-left: rgb(230, 23, 60) solid 5px;
 }
 
 .player {

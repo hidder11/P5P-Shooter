@@ -20,6 +20,7 @@ require('http');
 var objects = [];
 const scene = new THREE.Scene();
 
+
 function newPlayer(player) {
     var geometry = new THREE.BoxGeometry(100, 100, 100);
     var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
@@ -70,6 +71,9 @@ io.on('connection', function(socket) {
         delete objects[client.id];
         clients.splice(clients.indexOf(client), 1);
     });
+    socket.on('chatMessage', function(msg){
+        console.log('message: ' + msg);
+    });
     socket.on('playerData', function(data) {
         if (!client.name) return;
         objects[client.id].position.set(data.position.x, data.position.y,
@@ -115,7 +119,12 @@ io.on('connection', function(socket) {
     socket.on('log', function(data) {
         console.log(data);
     });
+    socket.on('chat message', function(msg){
+        console.log('message: ' + msg);
+    });
 });
+
+}
 
 function newData(socket) {
     socket.emit('playerData', clients);

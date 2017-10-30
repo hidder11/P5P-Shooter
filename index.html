@@ -11,9 +11,19 @@
 <div id="crosshair-overlay" class="hidden">
     <img src="assets/images/crosshair.png" id="crosshair">
 </div>
-<div id="userStats-overlay" class="hidden">
-    <div id="health"><h1 id="healthCount" class="centerCount">100</div>
+
+
+<div id="userStats-overlay" >
+
+    <div id="health"><h1 id="healthCount" class="centerCount">100 ></div>
+
     <div id="ammo"><h1 id="ammoCount" class="centerCount"></h1></div>
+    <div id="gameMessenger" class="chatArea hidden">
+        <ul id="messages"></ul>
+        <div id="form" action="">
+            <input id="m" autocomplete="off" onkeydown = "if (event.keyCode == 13) document.getElementById('btnSendMsg').click()" /><input id="btnSendMsg" type="button"  autocomplete="off"onclick="sendMsg();" value="Send">
+        </div>
+
 </div>
 <div id="blocker">
     <div id="instructions">
@@ -24,6 +34,7 @@
             <span id="help"></span>
         </div>
         <div id="startGame" class="hidden">
+
             <h2>Click to play</h2>
             <p>
                 (MOUSE = Look around, W/A/S/D = Move around, Space = Jump, Left-Mouse = Shoot, Right-Mouse = Aim)

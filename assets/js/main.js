@@ -85,8 +85,9 @@ function init() {
                 element.webkitRequestPointerLock;
             element.requestPointerLock();
             controls.enabled = true;
+            $('#form').addClass('hidden');
             controlsEnabled = true;
-            $('#gameMessenger').addClass('hidden');
+            inChat = false;
             //chat versturen
         }
         if (!controlsEnabled) return;
@@ -121,9 +122,11 @@ function init() {
                 inChat = true;
                 document.exitPointerLock();
                 controls.enabled = false;
-                $('#gameMessenger').removeClass('hidden');
+                $('#form').removeClass('hidden');
                 controlsEnabled = false;
-
+                setTimeout(function () {
+                    chatMsg.focus()
+                }, 50);
                 //chatvenster openen
                 break;
             case 49: //1
@@ -356,6 +359,26 @@ socket.on('checkUsername', function(data) {
         helpBlock.html('Username already in game');
     }
 });
+
+function sendMsg() {
+
+
+    let chmsg = chatMsg.prop('value');
+    if (chmsg == '') {
+        //terug naar spel?
+    }
+    else {
+        clearlist();
+        socket.emit('chatMessage', chmsg); //username erbij?
+        chatMsg.prop('value', '');
+
+    }
+}
+
+function clearlist() {
+    $("ul").empty();
+}
+
 socket.on('chatMessage', function(msgs) {
     clearlist();
     for (let msg of msgs) {
@@ -397,47 +420,46 @@ socket.on('playerData', function(clients) {
                 health = player.health;
                 continue;
             }
-            if (!players[player.id])
-                continue;
-            players[player.id].position.copy(player.position);
+            players[player.id].position.set(player.position.x,
+                player.position.y,
+                player.position.z);
             players[player.id].rotation.y = player.rotation._y;
             players[player.id].player = player;
-            players[player.id].weapon = player.weapon;
         }
     }
 });
-socket.on('playerDisconnect', function(player) {
+socket.on('playerDisconnect', function (player) {
     collidables.remove(players[player.id]);
     delete players[player.id];
 });
-socket.on('shot', function(shot) {
-    if (clientID !== shot.client.id) {
-        weapon.playSoundAt(shot.client.weapon.sound, players[shot.client.id]);
+socket.on('shot', function (shot) {
+    if (clientID === shot.client.id) {
+        // weapon.playSoundAtPlayer('');
+    }
+    else {
+        weapon.playSoundAtPlayer('Laser_04');
         weapon.drawTrail(shot.bulletTrial.start, shot.bulletTrial.end);
     }
+    shoot();
 });
-socket.emit('mapChange', function(map) {
+socket.emit('mapChange', function (map) {
+    //console.log(map);
     scene = new THREE.scene;
     const currentMap = 1;
     loadMap(currentMap);
     scene.add(controls.getObject());
 });
-socket.on('kill', function(victim, killer) {
+socket.on('kill', function (victim, killer) {
     showKill(killer.name, victim.name, killer.weapon.name);
     if (victim.id === clientID) {
         respawn();
     }
 });
-socket.on('hit', function(health) {
+socket.on('hit', function (health) {
     updateHealth(health);
 });
-socket.on('scoreUpdate', function(clients) {
+socket.on('scoreUpdate', function (clients) {
     updateScore(clients);
-});
-
-$('#btnDisconnect').click(function() {
-    socket.disconnect();
-    location.reload(true);
 });
 
 function loadMap(mapNumber) {
@@ -538,25 +560,21 @@ function checkCollision(delta) {
         new THREE.Vector3(0, -1, 0));
     raycasterRoof.set(controls.getObject().position,
         new THREE.Vector3(0, 1, 0));
-    let intersectsFloor = raycasterFloor.intersectObjects(
-        collidables.children,
+    let intersectsFloor = raycasterFloor.intersectObjects(collidables.children,
         true);
-    let intersectsRoof = raycasterRoof.intersectObjects(
-        collidables.children,
+    let intersectsRoof = raycasterRoof.intersectObjects(collidables.children,
         true);
 
     if (intersectsFloor.length > 0) {
         if (distance > intersectsFloor[0].distance) {
-            controls.getObject().
-                translateY((distance - intersectsFloor[0].distance) - 1);
+            controls.getObject().translateY((distance - intersectsFloor[0].distance) - 1);
             canJump = true;
         }
 
         if (distance >= intersectsFloor[0].distance && velocity.y <= 0) {
             velocity.y = 0;
         }
-        else if (distance <= intersectsFloor[0].distance &&
-            velocity.y === 0) {
+        else if (distance <= intersectsFloor[0].distance && velocity.y === 0) {
             velocity.y -= 0.1;
         }
         else {
@@ -569,10 +587,7 @@ function checkCollision(delta) {
     }
 
     raycasterWallFeet.set(
-        controls.getObject().
-            position.
-            clone().
-            sub(new THREE.Vector3(0, 4, 0)),
+        controls.getObject().position.clone().sub(new THREE.Vector3(0, 4, 0)),
         velocity.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0),
             controls.getObject().rotation.y));
     let intersectsWallFeet = raycasterWallFeet.intersectObjects(
@@ -580,8 +595,7 @@ function checkCollision(delta) {
         true);
 
     if (intersectsWallFeet[0]) {
-        if (intersectsWallFeet[0].distance <
-            3 + velocity.length() * delta &&
+        if (intersectsWallFeet[0].distance < 3 + velocity.length() * delta &&
             intersectsWallFeet[0].object.type === 'Mesh') {
             controls.getObject().translateX(-velocity.x * delta);
             controls.getObject().translateZ(-velocity.z * delta);
@@ -589,10 +603,7 @@ function checkCollision(delta) {
     }
 
     raycasterWallHead.set(
-        controls.getObject().
-            position.
-            clone().
-            add(new THREE.Vector3(0, 4, 0)),
+        controls.getObject().position.clone().add(new THREE.Vector3(0, 4, 0)),
         velocity.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0),
             controls.getObject().rotation.y));
     let intersectsWallHead = raycasterWallHead.intersectObjects(
@@ -600,8 +611,7 @@ function checkCollision(delta) {
         true);
 
     if (intersectsWallHead[0]) {
-        if (intersectsWallHead[0].distance <
-            3 + velocity.length() * delta &&
+        if (intersectsWallHead[0].distance < 3 + velocity.length() * delta &&
             intersectsWallHead[0].object.type === 'Mesh') {
             controls.getObject().translateX(-velocity.x * delta);
             controls.getObject().translateZ(-velocity.z * delta);
@@ -614,12 +624,6 @@ function checkCollision(delta) {
             velocity.y = Math.abs(velocity.y) * -1;
         }
     }
-}
-
-function shoot() {
-    raycasterShoot.set(controls.getObject().position,
-        controls.getDirection(new THREE.Vector3(0, 0, -1)));
-    let hit = raycasterShoot.intersectObjects(scene.children, true);
 }
 
 function addPlayerTag(cube) {

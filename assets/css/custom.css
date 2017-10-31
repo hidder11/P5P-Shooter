@@ -5,50 +5,46 @@ body {
     font-family: arial;
 }
 
- form {
-    padding: 3px;
-    position: fixed;
-    top: 250px;
+#m {
+    width: 250px;
+    margin-right: 0;
 }
 
-form, input {
-    border: 0;
-    padding: 7px;
-}
+#btnSendMsg {
+    width: 68px;
+    margin-right: 0;
 
-form button {
-    width: 10%;
-    background: rgb(130, 224, 255);
-    border: none;
-    padding: 10px;
 }
 
 #messages {
+    width: 350px;
     list-style-type: none;
+    overflow: hidden;
     margin: 0;
     padding: 0;
-
-
+    display: inline-block;
 }
-#gameMessenger {
-    width: 35%;
-    position: absolute;
 
+#gameMessenger {
+    width: 350px;
+    position: absolute;
 }
 
 #messages li {
     padding: 5px 10px;
-    float:none;
-
+    float: none;
+    background-color: rgba(0, 0, 0, 0.4);
+    opacity: 0.7;
+    max-width: 350px;
+    color: white;
 }
 
 #messages li:nth-child(odd) {
 
 }
 
-
 #webGL {
-    height: 100%;
+    height: 100vh;
     width: 100%;
     display: block;
 }
@@ -59,7 +55,8 @@ form button {
     padding-bottom: 5px;
     padding-top: 5px;
 }
-.chatName{
+
+.chatName {
     color: #7abc72;
 }
 
@@ -98,6 +95,7 @@ html, body {
 #userStats-overlay {
 
 }
+
 #-overlay {
     position: relative;
     background: none;

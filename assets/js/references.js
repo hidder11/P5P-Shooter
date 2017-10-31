@@ -29,6 +29,10 @@ let canJump = true;
 let health = 100;
 let deaths = 0;
 let kills = 0;
+let moveForward = false;
+let moveLeft = false;
+let moveBackward = false;
+let moveRight = false;
 
 const username = $('#txtName');
 const helpBlock = $('#help');

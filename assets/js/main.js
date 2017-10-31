@@ -177,9 +177,6 @@ function init() {
             case 68: // d
                 moveRight = false;
                 break;
-            case 32: // space
-                jump = false;
-                break;
             case 81: // q
                 scoreOverlay.addClass('hidden');
                 break;

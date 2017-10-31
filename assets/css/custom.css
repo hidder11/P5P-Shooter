@@ -232,7 +232,7 @@ html, body {
     position: absolute;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
+    background-color: rgba(0, 0, 0, 0.8);
     z-index: 10;
 }
 
@@ -367,6 +367,39 @@ input[type=button] {
     -webkit-transform: translateY(-50%);
     -ms-transform: translateY(-50%);
     transform: translateY(-50%);
+}
+
+#weapons {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    transform: translateX(-50%);
+    min-width: 528px;
+}
+
+.weapon {
+    display: inline-block;
+    text-align: center;
+    margin-bottom: 10px;
+    border: 1px solid white;
+    opacity: 0.5;
+}
+
+.weapon > h1 {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    color: white;
+    font-size: 20px;
+    -webkit-transform: translateX(45px);
+    -ms-transform: translateX(45px);
+    transform: translateX(45px);
+}
+
+.current {
+    opacity: 1 !important;
 }
 
 .player > span {

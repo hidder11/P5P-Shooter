@@ -93,6 +93,8 @@ function updateScore(clients) {
     }
 }
 
-function updateJoinMenu(HTMLString) {
-    $('#joinScore').html()
+function updateActiveWeapon(number) {
+    let curWeapon = weapons.indexOf(weapon) + 1;
+    $('#W' + curWeapon).removeClass('current');
+    $('#W' + number).addClass('current');
 }

@@ -66,14 +66,14 @@ function init() {
     //pistols
     weapons.push(
         new Weapon('pistol1', '', 'Laser_04', 'Laser_00', 10, 50, 5, false, 50, 15, 10, 150, 0.1),
-        new Weapon('pistol2', '', 'Laser_04', 'Laser_00', 8, 20, 8, true, 50, 15, 10, 150, 0.1),
+        // new Weapon('pistol2', '', 'Laser_04', 'Laser_00', 8, 20, 8, true, 50, 15, 10, 150, 0.1),
         new Weapon('revolver', '', 'Laser_02', 'Laser_00', 25, 20, 2, false, 80, 6, 25, 270, 0.1)
     );
     //rifles
     weapons.push(
-        new Weapon('Assault rifle semi-auto', '', 'Laser_01', 'Laser_00', 20, 30, 10, false, 50, 20, 15, 300, 0.1),
-        new Weapon('Assault rifle full-auto', '', 'Laser_01', 'Laser_00', 15, 20, 15, true, 50, 20, 15, 150, 0.1),
         new Weapon('SMG', '', 'Laser_05', 'Laser_00', 5, 10, 40, true, 60, 40, 10, 100, 0.1),
+        new Weapon('Assault rifle semi-auto', '', 'Laser_01', 'Laser_00', 20, 30, 10, false, 50, 20, 15, 300, 0.1),
+        // new Weapon('Assault rifle full-auto', '', 'Laser_01', 'Laser_00', 15, 20, 15, true, 50, 20, 15, 150, 0.1),
         new Weapon('Sniper', '', 'Laser_10', 'Laser_00', 80, 250, 1, false, 300, 4, 50, 1500, 0.5)
     );
     weapon = weapons[0];
@@ -130,19 +130,24 @@ function init() {
                 //chatvenster openen
                 break;
             case 49: //1
+                updateActiveWeapon(1);
                 weapon = weapons[0];
                 break;
             case 50: //2
-                weapon = weapons[2];
+                updateActiveWeapon(2);
+                weapon = weapons[1];
                 break;
             case 51: //3
-                weapon = weapons[3];
+                updateActiveWeapon(3);
+                weapon = weapons[2];
                 break;
             case 52: //4
-                weapon = weapons[5];
+                updateActiveWeapon(4);
+                weapon = weapons[3];
                 break;
             case 53: //5
-                weapon = weapons[6];
+                updateActiveWeapon(5);
+                weapon = weapons[4];
                 break;
             case 81:
                 scoreOverlay.removeClass("hidden");

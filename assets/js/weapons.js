@@ -3,10 +3,9 @@
 let timer = 0;
 
 class Weapon {
-    constructor(name, model, sound, reloadSound, damage, fireRate, accuracy, isAutomatic,
+    constructor(name, model, sound, reloadSound, damage, fireRate, accuracy, zoom, isAutomatic,
                 reloadTime, magazineSize, recoilVertical, lineLife, lineWidth) {
         this.name = name;
-        this.model = model;
         this.sound = sound;
         this.reloadSound = reloadSound;
 
@@ -16,6 +15,7 @@ class Weapon {
         this.damage = damage;
         this.fireRate = fireRate;
         this.accuracy = accuracy;
+        this.zoom = zoom;
         this.isAutomatic = isAutomatic;
         this.recoilVertical = recoilVertical;
 
@@ -76,62 +76,24 @@ class Weapon {
     drawTrail(startPoint, endPoint) {
         //Line
         var lineMaterial = new MeshLineMaterial({
-            color: new THREE.Color(0x0000ff),
-            lineWidth: this.lineWidth
+            color: new THREE.Color(0x29FF00),
+            lineWidth: this.lineWidth,
+            transparent: true,
+            opacity: 0.2
         });
         var lineGeometry = new THREE.Geometry();
         lineGeometry.vertices.push(startPoint, endPoint);
 
         var line = new MeshLine();
-        line.setGeometry(lineGeometry);
+        // line.setGeometry(lineGeometry);
+
+        line.setGeometry( lineGeometry, function( p ) { return p * 2; } );
 
         var mesh = new THREE.Mesh(line.geometry, lineMaterial);
         scene.add(mesh);
 
-        //TODO Look at later for review
-        //Particle
-        // var numParticles = 20;
-        // var particleGeometry = new THREE.Geometry();
-        // var particleMaterial = new THREE.PointsMaterial({
-        //     map: new THREE.CanvasTexture(generateSprite()),
-        //     blending: THREE.AdditiveBlending,
-        //     size: 10,
-        //     depthTest: true,
-        //     transparent: true
-        // });
-        // particleMaterial.map.needsUpdate = true;
-        //
-        // var animationPoints = [];
-        // for (let i = 0; i <= numParticles; i++) {
-        //     var thisPoint = controls.getObject().position.clone().lerp(endPoint, i / numParticles);
-        //     animationPoints.push(thisPoint);
-        // }
-        //
-        // for (let i = 0; i < numParticles; i++) {
-        //     var desiredIndex = i / numParticles * animationPoints.length;
-        //     var rIndex = constrain(Math.floor(desiredIndex), 0, animationPoints.length - 1);
-        //     var particle = new THREE.Vector3();
-        //
-        //     particle = animationPoints[rIndex].clone();
-        //     particle.moveIndex = rIndex;
-        //     particle.nextIndex = rIndex + 1;
-        //
-        //     if (particle.nextIndex >= animationPoints.length)
-        //         particle.nextIndex = 0;
-        //
-        //     particle.lerpN = 0;
-        //     particle.path = animationPoints;
-        //     particleGeometry.vertices.push(particle);
-        // }
-        //
-        // var particles = new THREE.Points(particleGeometry, particleMaterial);
-        // particles.sortParticles = true;
-        // particles.dynamic = true;
-
-        // scene.add(particles);
         setTimeout(function () {
             scene.remove(mesh);
-            // scene.remove(particles);
         }, this.lineLife);
     }
 
@@ -147,7 +109,7 @@ class Weapon {
         }
         else {
             this.aim = true;
-            camera.fov = 30;
+            camera.fov = 60 - (10 * this.zoom);
             camera.updateProjectionMatrix();
             zoomCrosshair(true);
         }
@@ -157,7 +119,7 @@ class Weapon {
         var shotSound = new THREE.Audio(listener);
         audioLoader.load('assets/sounds/' + sound + '.mp3', function (buffer) {
             shotSound.setBuffer(buffer);
-            shotSound.setVolume(0.3);
+            shotSound.setVolume(0.2);
             shotSound.play();
         });
 
@@ -168,7 +130,9 @@ class Weapon {
         audioLoader.load('assets/sounds/' + sound + '.mp3', function (buffer) {
             shotSound.setBuffer(buffer);
             shotSound.setVolume(0.3);
-            shotSound.setRefDistance(20);
+            shotSound.setRefDistance(450 -
+                controls.getObject().position.distanceTo(player.position));
+            shotSound.setMaxDistance(400);
             shotSound.play();
             player.add(shotSound);
         });
@@ -178,8 +142,6 @@ class Weapon {
         var xOffset = (Math.random() * accuracy - accuracy / 2) / 500;
         var yOffset = (Math.random() * accuracy - accuracy / 2) / 500;
 
-        // console.log(xOffset, yOffset);
-
         return new THREE.Vector3(xOffset, yOffset, 0);
     }
 
@@ -187,7 +149,5 @@ class Weapon {
         if (controls.getObject().children[0].rotation.x < 1.57)
             controls.getObject().children[0].rotation.x += recoil * 0.002;
 
-        // console.log(controls.getObject().children[0].rotation, recoil);
     }
-
 }

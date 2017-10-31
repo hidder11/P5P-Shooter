@@ -11,7 +11,6 @@
         }
 
         gtag('js', new Date());
-
         gtag('config', 'UA-55166937-4');
     </script>
 
@@ -27,13 +26,13 @@
         <img src="assets/images/crosshair.png" id="crosshair">
     </div>
     <div id="userStats-overlay">
-        <div id="health"><h1 id="healthCount" class="centerCount">100></h1></div>
+        <div id="health"><h1 id="healthCount" class="centerCount">100</h1></div>
         <div id="ammo"><h1 id="ammoCount" class="centerCount"></h1></div>
         <div id="gameMessenger" class="chatArea">
             <ul id="messages"></ul>
             <div id="form" class="hidden" action="">
                 <input id="m" autocomplete="off" maxlength="100"
-                       onkeydown="if (event.keyCode == 13) document.getElementById('btnSendMsg').click()"/><input
+                       onkeydown="if (event.keyCode == 13) document.getElementById('btnSendMsg').click();"/><input
                     id="btnSendMsg" type="button" autocomplete="off" onclick="sendMsg();" value="Send">
             </div>
         </div>
@@ -48,9 +47,10 @@
     <div id="score-overlay" class="hidden">
         <div id="score-players">
             <div>
-                <div class="player playerHead"><span class="playerStanding">#</span><span
-                        class="playerName">name</span><span
-                        class="playerKills">K</span><span class="playerDeaths">D</span></div>
+                <div class="player playerHead"><span class="playerStanding">#</span><span class="playerName">name</span>
+                    <span class="playerKills">K</span>
+                    <span class="playerDeaths">D</span>
+                </div>
             </div>
             <div id="players" class="players"></div>
         </div>
@@ -91,6 +91,7 @@
             <!--(MOUSE = Look around, W/A/S/D = Move around, Space = Jump, Left-Mouse = Shoot, Right-Mouse = Aim)-->
             <!--</p>-->
             <h2>Click somewhere to resume the game!</h2>
+            <button id="btnDisconnect"><b>Disconnect</b></button>
         </div>
     </div>
 </div>

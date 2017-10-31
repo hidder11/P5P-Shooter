@@ -7,7 +7,7 @@ var havePointerLock = 'pointerLockElement' in document ||
 
 if (havePointerLock) {
     var element = document.body;
-    var pointerlockchange = function (event) {
+    var pointerlockchange = function(event) {
         if (document.pointerLockElement === element ||
             document.mozPointerLockElement === element ||
             document.webkitPointerLockElement === element) {
@@ -26,7 +26,7 @@ if (havePointerLock) {
             instructions.style.display = '';
         }
     };
-    var pointerlockerror = function (event) {
+    var pointerlockerror = function(event) {
         instructions.style.display = '';
     };
     // Hook pointer lock state change events
@@ -38,15 +38,14 @@ if (havePointerLock) {
     document.addEventListener('mozpointerlockerror', pointerlockerror, false);
     document.addEventListener('webkitpointerlockerror', pointerlockerror,
         false);
-    instructions.addEventListener('click', function (event) {
+    instructions.addEventListener('click', function(event) {
         instructions.style.display = 'none';
         // Ask the browser to lock the pointer
         element.requestPointerLock = element.requestPointerLock ||
             element.mozRequestPointerLock || element.webkitRequestPointerLock;
         element.requestPointerLock();
     }, false);
-}
-else {
+} else {
     instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
 }
 
@@ -62,28 +61,28 @@ function init() {
 
     controls = new THREE.PointerLockControls(camera);
     scene.add(controls.getObject());
-
+    loadPlayer();
     //pistols
     weapons.push(
-        new Weapon('pistol1', '', 'Laser_04', 'Laser_00', 10, 50, 5, false, 50, 15, 10, 150, 0.1),
-        // new Weapon('pistol2', '', 'Laser_04', 'Laser_00', 8, 20, 8, true, 50, 15, 10, 150, 0.1),
-        new Weapon('revolver', '', 'Laser_02', 'Laser_00', 25, 20, 2, false, 80, 6, 25, 270, 0.1)
+        new Weapon('pistol1', 'weapon1', 'Laser_04', 'Laser_00', 10, 50, 5, 1, false, 50, 15, 10, 150, 0.1),
+        // new Weapon('pistol2', 'weapon1', 'Laser_04', 'Laser_00', 8, 20, 8, 1, true, 50, 15, 10, 150, 0.1),
+        new Weapon('revolver', 'weapon1', 'Laser_02', 'Laser_00', 25, 20, 2, 1, false, 80, 6, 25, 270, 0.1)
     );
     //rifles
     weapons.push(
-        new Weapon('SMG', '', 'Laser_05', 'Laser_00', 5, 10, 40, true, 60, 40, 10, 100, 0.1),
-        new Weapon('Assault rifle semi-auto', '', 'Laser_01', 'Laser_00', 20, 30, 10, false, 50, 20, 15, 300, 0.1),
-        // new Weapon('Assault rifle full-auto', '', 'Laser_01', 'Laser_00', 15, 20, 15, true, 50, 20, 15, 150, 0.1),
-        new Weapon('Sniper', '', 'Laser_10', 'Laser_00', 80, 250, 1, false, 300, 4, 50, 1500, 0.5)
-    );
+        new Weapon('SMG', 'weapon1', 'Laser_05', 'Laser_00', 5, 10, 40, 1, true, 60, 40, 10, 100, 0.1),
+        new Weapon('Assault rifle semi-auto', 'weapon1', 'Laser_01', 'Laser_00', 20, 30, 10, 1.5, false, 50, 20, 15, 300, 0.1),
+        // new Weapon('Assault rifle full-auto', 'weapon1', 'Laser_01', 'Laser_00', 15, 20, 15, 1.5, true, 50, 20, 15, 150, 0.1),
+        new Weapon('Sniper', 'weapon1', 'Laser_10', 'Laser_00', 80, 250, 1, 4, false, 300, 4, 50, 1500, 0.5)
+        );
     weapon = weapons[0];
-    console.log(weapons);
 
-    var onKeyDown = function (event) {
+    var onKeyDown = function(event) {
 
         if (event.keyCode == 13 && inChat) {
             element.requestPointerLock = element.requestPointerLock ||
-                element.mozRequestPointerLock || element.webkitRequestPointerLock;
+                element.mozRequestPointerLock ||
+                element.webkitRequestPointerLock;
             element.requestPointerLock();
             controls.enabled = true;
             $('#form').addClass('hidden');
@@ -133,29 +132,34 @@ function init() {
             case 49: //1
                 updateActiveWeapon(1);
                 weapon = weapons[0];
+                updateAmmo(weapon);
                 break;
             case 50: //2
                 updateActiveWeapon(2);
                 weapon = weapons[1];
+                updateAmmo(weapon);
                 break;
             case 51: //3
                 updateActiveWeapon(3);
                 weapon = weapons[2];
+                updateAmmo(weapon);
                 break;
             case 52: //4
                 updateActiveWeapon(4);
                 weapon = weapons[3];
+                updateAmmo(weapon);
                 break;
             case 53: //5
                 updateActiveWeapon(5);
                 weapon = weapons[4];
+                updateAmmo(weapon);
                 break;
             case 81:
-                scoreOverlay.removeClass("hidden");
+                scoreOverlay.removeClass('hidden');
                 break;
         }
     };
-    var onKeyUp = function (event) {
+    var onKeyUp = function(event) {
         if (!controlsEnabled) return;
         switch (event.keyCode) {
             case 38: // up
@@ -185,7 +189,7 @@ function init() {
                 break;
         }
     };
-    var onMouseDown = function (event) {
+    var onMouseDown = function(event) {
         if (!controlsEnabled) return;
         switch (event.button) {
             case 0: // shoot
@@ -196,7 +200,7 @@ function init() {
                 break;
         }
     };
-    var onMouseUp = function (event) {
+    var onMouseUp = function(event) {
         if (!controlsEnabled) return;
         switch (event.button) {
             case 0: // shoot
@@ -220,19 +224,27 @@ function init() {
     document.body.appendChild(renderer.domElement);
 
     raycasterFloor = new THREE.Raycaster();
-    raycasterFloor.set(controls.getObject().position, new THREE.Vector3(0, -1, 0));
+    raycasterFloor.set(controls.getObject().position,
+        new THREE.Vector3(0, -1, 0));
 
     raycasterWallFeet = new THREE.Raycaster();
-    raycasterWallFeet.set(controls.getObject().position.clone().add(velocity.clone().normalize()), new THREE.Vector3(0, 0, 1));
+    raycasterWallFeet.set(
+        controls.getObject().position.clone().add(velocity.clone().normalize()),
+        new THREE.Vector3(0, 0, 1));
 
     raycasterWallHead = new THREE.Raycaster();
-    raycasterWallHead.set(controls.getObject().position.clone().add(velocity.clone().normalize()), new THREE.Vector3(0, 0, 1));
+    raycasterWallHead.set(
+        controls.getObject().position.clone().add(velocity.clone().normalize()),
+        new THREE.Vector3(0, 0, 1));
 
     raycasterRoof = new THREE.Raycaster();
-    raycasterRoof.set(controls.getObject().position, new THREE.Vector3(0, 1, 0));
+    raycasterRoof.set(controls.getObject().position,
+        new THREE.Vector3(0, 1, 0));
 
     raycasterShoot = new THREE.Raycaster();
-    raycasterShoot.set(controls.getObject().position.clone().add(velocity.clone().normalize()), new THREE.Vector3(0, 0, 1));
+    raycasterShoot.set(
+        controls.getObject().position.clone().add(velocity.clone().normalize()),
+        new THREE.Vector3(0, 0, 1));
 
     const currentMap = 1;
 
@@ -286,18 +298,28 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-function newPlayer(player) {
-    var geometry = new THREE.BoxGeometry(10, 10, 10);
-    var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-    var cube = new THREE.Mesh(geometry, material);
-    cube.position.set(player.position.x, player.position.y, player.position.z);
-    cube.playerID = player.id;
-    players[player.id] = cube;
-    cube.player = player;
-    collidables.add(cube);
-    addPlayerTag(cube);
+function loadPlayer() {
+    loader.load('assets/models/bot.json', function (geometry, material) {
+        playerMesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial(material));
+
+        playerMesh.scale.set(3, 3, 3);
+        playerMesh.position.y = -1;
+        playerMesh.rotation.set(0, -Math.PI / 2, 0);
+
+    });
 }
 
+//TODO team colors
+function newPlayer(player) {
+    var mesh = playerMesh.clone();
+
+    mesh.position.set(player.position.x, player.position.y, player.position.z);
+    mesh.playerID = player.id;
+    players[player.id] = mesh;
+    mesh.player = player;
+    collidables.add(mesh);
+    addPlayerTag(mesh);
+}
 init();
 
 function checkUsername() {
@@ -311,7 +333,19 @@ function checkUsername() {
     }
 }
 
-socket.on('checkUsername', function (data) {
+function sendMsg() {
+    let chmsg = chatMsg.prop('value');
+    if (chmsg == '') return;
+    clearlist();
+    socket.emit('chatMessage', chmsg);
+    chatMsg.prop('value', '');
+}
+
+function clearlist() {
+    $('ul').empty();
+}
+
+socket.on('checkUsername', function(data) {
     if (data.available) {
         socket.emit('userName', data.name);
         $('#menu').addClass('hidden');
@@ -345,12 +379,11 @@ function clearlist() {
     $("ul").empty();
 }
 
-socket.on('chatMessage', function (msgs) {
+socket.on('chatMessage', function(msgs) {
     clearlist();
     for (let msg of msgs) {
         $('#messages').append($('<li>').html(msg));
     }
-
 });
 socket.on('connect', function () {
     console.log('socketio Connected to server!');
@@ -358,10 +391,10 @@ socket.on('connect', function () {
         socket.emit('checkUsername', name);
     }
 });
-socket.on('log', function (data) {
+socket.on('log', function(data) {
     console.log(data);
 });
-socket.on('newPlayer', function (player) {
+socket.on('newPlayer', function(player) {
     if (clientID) {
         newPlayer(player);
     }
@@ -370,16 +403,16 @@ socket.on('newPlayer', function (player) {
         respawn();
     }
 });
-socket.on('oldPlayers', function (players) {
+socket.on('oldPlayers', function(players) {
     for (let player of players) {
         if (!player.position) continue;
         newPlayer(player);
     }
 });
-socket.on('playerData', function (clients) {
+socket.on('playerData', function(clients) {
     if (joined) {
         for (let player of clients) {
-            if (!player.position) continue;
+            if (!player) continue;
             if (player.id === clientID) {
                 deaths = player.deaths;
                 kills = player.kills;

@@ -15,7 +15,6 @@ global.THREE = require('three');
 global.DOMParser = require('xmldom').DOMParser;
 global.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 var clients = [];
-let map;
 require('http');
 var objects = [];
 const scene = new THREE.Scene();
@@ -30,17 +29,6 @@ function newPlayer(player) {
     cube.player = player;
     objects[player.id] = cube;
     scene.add(cube);
-}
-
-function shoot(player, object) {
-    let raycasterShoot = new THREE.Raycaster();
-    raycasterShoot.set(player.sub(new THREE.Vector3(0, 4, 0)),
-        player.getDirection(new THREE.Vector3(0, 0, -1)));
-    let hits = raycasterShoot.intersectObjects(collidables.children, true);
-
-    console.log(hits);
-
-    // return {victim: hits[0], raycast: raycasterShoot};
 }
 
 io.on('connection', function(socket) {
@@ -77,15 +65,12 @@ io.on('connection', function(socket) {
     socket.on('disconnecting', function(data) {
         sendMessage(client, ' is leaving the game.');
     });
-    socket.on('chatMessage', function(msg){
-        console.log('message: ' + msg);
-    });
     socket.on('playerData', function(data) {
         if (!client.name) return;
-        objects[client.id].position.set(data.position.x, data.position.y,
-            data.position.z);
-        objects[client.id].rotation.set(data.rotation.x, data.rotation.y,
-            data.rotation.z);
+        if (!objects[client.id]) {
+            io.emit('log', 'Problem with ' + client.name);
+            return;
+        }
         client.position.set(data.position.x, data.position.y, data.position.z);
         client.rotation = (data.rotation);
         if (data.direction) client.direction = data.direction;
@@ -154,7 +139,7 @@ function scoreUpdate(socket) {
 
 function newData(socket) {
     socket.emit('playerData', clients);
-    setTimeout(newData, 1, socket);
+    setTimeout(newData, 16, socket);
 }
 
 class Client {

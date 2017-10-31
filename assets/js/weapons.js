@@ -31,14 +31,14 @@ class Weapon {
     }
 
     shoot() {
-        raycasterShoot.set(controls.getObject().position.clone().sub(new THREE.Vector3(0, 2, 0)),
+        raycasterShoot.set(controls.getObject().position.clone().sub(new THREE.Vector3(0, 0, 0)),
             controls.getDirection(new THREE.Vector3(0, 0, -1)).sub(this.calcSpread(this.accuracy)));
         let hits = raycasterShoot.intersectObjects(collidables.children, true);
         socket.emit('shot', hits[0].point, hits[0].object.player);
         this.ammo--;
         updateAmmo(this);
         this.addRecoil(this.recoilVertical);
-        this.drawTrail(controls.getObject().position.clone().sub(new THREE.Vector3(0, 2, 0)), hits[0].point);
+        this.drawTrail(controls.getObject().position.clone().sub(new THREE.Vector3(0, 0, 0)), hits[0].point);
         this.playSoundAtPlayer(this.sound);
     }
 

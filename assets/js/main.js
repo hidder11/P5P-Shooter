@@ -64,16 +64,16 @@ function init() {
     loadPlayer();
     //pistols
     weapons.push(
-        new Weapon('pistol1', 'weapon1', 'Laser_04', 'Laser_00', 10, 50, 5, 1, false, 50, 15, 10, 150, 0.1),
+        new Weapon('pistol1', 'weapon1', 'Laser_04', 'Laser_00', 10, 20, 5, 1, false, 50, 15, 10, 150, 0.2),
         // new Weapon('pistol2', 'weapon1', 'Laser_04', 'Laser_00', 8, 20, 8, 1, true, 50, 15, 10, 150, 0.1),
-        new Weapon('revolver', 'weapon1', 'Laser_02', 'Laser_00', 25, 20, 2, 1, false, 80, 6, 25, 270, 0.1)
+        new Weapon('revolver', 'weapon1', 'Laser_02', 'Laser_00', 25, 20, 2, 1, false, 300, 6, 25, 270, 0.4)
     );
     //rifles
     weapons.push(
-        new Weapon('SMG', 'weapon1', 'Laser_05', 'Laser_00', 5, 10, 40, 1, true, 60, 40, 10, 100, 0.1),
-        new Weapon('Assault rifle semi-auto', 'weapon1', 'Laser_01', 'Laser_00', 20, 30, 10, 1.5, false, 50, 20, 15, 300, 0.1),
+        new Weapon('SMG', 'weapon1', 'Laser_05', 'Laser_00', 7.5, 10, 30, 1, true, 60, 40, 10, 100, 0.1),
+        new Weapon('Assault rifle semi-auto', 'weapon1', 'Laser_01', 'Laser_00', 20, 30, 10, 1.5, false, 50, 20, 15, 300, 0.3),
         // new Weapon('Assault rifle full-auto', 'weapon1', 'Laser_01', 'Laser_00', 15, 20, 15, 1.5, true, 50, 20, 15, 150, 0.1),
-        new Weapon('Sniper', 'weapon1', 'Laser_10', 'Laser_00', 80, 250, 1, 4, false, 300, 4, 50, 1500, 0.5)
+        new Weapon('Sniper', 'weapon1', 'Laser_10', 'Laser_00', 80, 250, 1, 4, false, 300, 4, 50, 1500, 0.75)
         );
     weapon = weapons[0];
 
@@ -123,6 +123,7 @@ function init() {
                 controls.enabled = false;
                 $('#gameMessenger').removeClass('hidden');
                 controlsEnabled = false;
+
                 //chatvenster openen
                 break;
             case 49: //1
@@ -285,7 +286,7 @@ function animate() {
             moveLeft: moveLeft,
             Jump: jump,
             name: name,
-            weapon: weapon,
+            weapon: weapon
         });
 
     weapon.update(delta);
@@ -360,6 +361,7 @@ socket.on('chatMessage', function(msgs) {
     for (let msg of msgs) {
         $('#messages').append($('<li>').html(msg));
     }
+
 });
 socket.on('connect', function () {
     console.log('socketio Connected to server!');
@@ -612,6 +614,12 @@ function checkCollision(delta) {
             velocity.y = Math.abs(velocity.y) * -1;
         }
     }
+}
+
+function shoot() {
+    raycasterShoot.set(controls.getObject().position,
+        controls.getDirection(new THREE.Vector3(0, 0, -1)));
+    let hit = raycasterShoot.intersectObjects(scene.children, true);
 }
 
 function addPlayerTag(cube) {

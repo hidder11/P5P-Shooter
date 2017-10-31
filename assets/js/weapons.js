@@ -76,62 +76,24 @@ class Weapon {
     drawTrail(startPoint, endPoint) {
         //Line
         var lineMaterial = new MeshLineMaterial({
-            color: new THREE.Color(0x0000ff),
-            lineWidth: this.lineWidth
+            color: new THREE.Color(0x29FF00),
+            lineWidth: this.lineWidth,
+            transparent: true,
+            opacity: 0.2
         });
         var lineGeometry = new THREE.Geometry();
         lineGeometry.vertices.push(startPoint, endPoint);
 
         var line = new MeshLine();
-        line.setGeometry(lineGeometry);
+        // line.setGeometry(lineGeometry);
+
+        line.setGeometry( lineGeometry, function( p ) { return p * 2; } );
 
         var mesh = new THREE.Mesh(line.geometry, lineMaterial);
         scene.add(mesh);
 
-        //TODO Look at later for review
-        //Particle
-        // var numParticles = 20;
-        // var particleGeometry = new THREE.Geometry();
-        // var particleMaterial = new THREE.PointsMaterial({
-        //     map: new THREE.CanvasTexture(generateSprite()),
-        //     blending: THREE.AdditiveBlending,
-        //     size: 10,
-        //     depthTest: true,
-        //     transparent: true
-        // });
-        // particleMaterial.map.needsUpdate = true;
-        //
-        // var animationPoints = [];
-        // for (let i = 0; i <= numParticles; i++) {
-        //     var thisPoint = controls.getObject().position.clone().lerp(endPoint, i / numParticles);
-        //     animationPoints.push(thisPoint);
-        // }
-        //
-        // for (let i = 0; i < numParticles; i++) {
-        //     var desiredIndex = i / numParticles * animationPoints.length;
-        //     var rIndex = constrain(Math.floor(desiredIndex), 0, animationPoints.length - 1);
-        //     var particle = new THREE.Vector3();
-        //
-        //     particle = animationPoints[rIndex].clone();
-        //     particle.moveIndex = rIndex;
-        //     particle.nextIndex = rIndex + 1;
-        //
-        //     if (particle.nextIndex >= animationPoints.length)
-        //         particle.nextIndex = 0;
-        //
-        //     particle.lerpN = 0;
-        //     particle.path = animationPoints;
-        //     particleGeometry.vertices.push(particle);
-        // }
-        //
-        // var particles = new THREE.Points(particleGeometry, particleMaterial);
-        // particles.sortParticles = true;
-        // particles.dynamic = true;
-
-        // scene.add(particles);
         setTimeout(function () {
             scene.remove(mesh);
-            // scene.remove(particles);
         }, this.lineLife);
     }
 

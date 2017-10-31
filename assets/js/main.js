@@ -132,27 +132,22 @@ function init() {
             case 49: //1
                 weapon = weapons[0];
                 updateAmmo(weapon);
-                weapon.addModel();
                 break;
             case 50: //2
                 weapon = weapons[2];
                 updateAmmo(weapon);
-                weapon.addModel();
                 break;
             case 51: //3
                 weapon = weapons[3];
                 updateAmmo(weapon);
-                weapon.addModel();
                 break;
             case 52: //4
                 weapon = weapons[5];
                 updateAmmo(weapon);
-                weapon.addModel();
                 break;
             case 53: //5
                 weapon = weapons[6];
                 updateAmmo(weapon);
-                weapon.addModel();
                 break;
             case 81:
                 scoreOverlay.removeClass("hidden");
@@ -424,7 +419,6 @@ socket.on('playerData', function (clients) {
             players[player.id].rotation.y = player.rotation._y;
             players[player.id].player = player;
             players[player.id].weapon = player.weapon;
-            weapon.addModel(players[player.id]);
         }
     }
 });

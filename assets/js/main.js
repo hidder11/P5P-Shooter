@@ -86,9 +86,9 @@ function init() {
                 element.mozRequestPointerLock || element.webkitRequestPointerLock;
             element.requestPointerLock();
             controls.enabled = true;
-            $('#gameMessenger').addClass('hidden');
+            $('#form').addClass('hidden');
             controlsEnabled = true;
-            console.log("sluitencheck");
+            inChat = false;
             //chat versturen
         }
         if (!controlsEnabled) return;
@@ -123,10 +123,11 @@ function init() {
                 inChat = true;
                 document.exitPointerLock();
                 controls.enabled = false;
-                $('#gameMessenger').removeClass('hidden');
+                $('#form').removeClass('hidden');
                 controlsEnabled = false;
-
-                //console.log("je moeder");
+                setTimeout(function () {
+                    chatMsg.focus()
+                }, 50);
                 //chatvenster openen
                 break;
             case 49: //1
@@ -329,16 +330,13 @@ function sendMsg() {
 
 
     let chmsg = chatMsg.prop('value');
-    // console.log(chmsg, "check3");
     if (chmsg == '') {
         //terug naar spel?
-        console.log("check")
     }
     else {
         clearlist();
         socket.emit('chatMessage', chmsg); //username erbij?
         chatMsg.prop('value', '');
-        console.log("check2")
 
     }
 }
@@ -351,7 +349,6 @@ socket.on('chatMessage', function (msgs) {
     clearlist();
     for (let msg of msgs) {
         $('#messages').append($('<li>').html(msg));
-        console.log("check4")
     }
 
 });

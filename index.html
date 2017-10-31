@@ -29,10 +29,10 @@
     <div id="userStats-overlay">
         <div id="health"><h1 id="healthCount" class="centerCount">100></h1></div>
         <div id="ammo"><h1 id="ammoCount" class="centerCount"></h1></div>
-        <div id="gameMessenger" class="chatArea hidden">
+        <div id="gameMessenger" class="chatArea">
             <ul id="messages"></ul>
-            <div id="form" action="">
-                <input id="m" autocomplete="off"
+            <div id="form" class="hidden" action="">
+                <input id="m" autocomplete="off" maxlength="100"
                        onkeydown="if (event.keyCode == 13) document.getElementById('btnSendMsg').click()"/><input
                     id="btnSendMsg" type="button" autocomplete="off" onclick="sendMsg();" value="Send">
             </div>

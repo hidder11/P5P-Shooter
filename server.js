@@ -14,6 +14,9 @@ const server = app.listen(3000);
 // init socket.io
 const io = require('socket.io').listen(server);
 
+// load THREE for vectors
+global.THREE = require('three');
+
 let clients = [];
 const chatMessages = [];
 
@@ -32,7 +35,6 @@ io.on('connection', function (socket) {
     socket.on('userName', function (name) {
         client.name = name;
         io.emit('newPlayer', client);
-        newPlayer(client);
         socket.emit('oldPlayers', clients);
         clients.push(client);
         socket.player = client;
@@ -44,8 +46,6 @@ io.on('connection', function (socket) {
         if (client.name === '') return;
         io.emit('playerDisconnect', client);
         sendMessage(client, ' has left the game.');
-        scene.remove(objects[client.id]);
-        delete objects[client.id];
         clients.splice(clients.indexOf(client), 1);
     });
     socket.on('disconnecting', function (data) {
@@ -53,10 +53,6 @@ io.on('connection', function (socket) {
     });
     socket.on('playerData', function (data) {
         if (!client.name) return;
-        if (!objects[client.id]) {
-            io.emit('log', 'Problem with ' + client.name);
-            return;
-        }
         client.position.set(data.position.x, data.position.y, data.position.z);
         client.rotation = (data.rotation);
         if (data.direction) client.direction = data.direction;
@@ -66,7 +62,6 @@ io.on('connection', function (socket) {
         client.moveBackward = data.moveBackward;
         client.jump = data.jump;
         client.weapon = data.weapon;
-        objects[client.id].updateMatrixWorld();
     });
     socket.on('shot', function (point, target) {
         if (client.health <= 0) return;

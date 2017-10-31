@@ -529,11 +529,8 @@ socket.on('playerDisconnect', function (player) {
     delete players[player.id];
 });
 socket.on('shot', function (shot) {
-    if (clientID === shot.client.id) {
-        // weapon.playSoundAtPlayer('');
-    }
-    else {
-        weapon.playSoundAtPlayer('Laser_04');
+    if (clientID !== shot.client.id) {
+        weapon.playSoundAt(shot.client.weapon.sound, players[shot.client.id]);
         weapon.drawTrail(shot.bulletTrial.start, shot.bulletTrial.end);
     }
 });

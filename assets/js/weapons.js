@@ -133,7 +133,7 @@ class Weapon {
             shotSound.setVolume(0.3);
             shotSound.setRefDistance(450 -
                 controls.getObject().position.distanceTo(player.position));
-            shotSound.setMaxDistance(400);
+            shotSound.setMaxDistance(300);
             shotSound.play();
             player.add(shotSound);
         });

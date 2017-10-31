@@ -440,7 +440,6 @@ socket.on('shot', function (shot) {
         weapon.playSoundAtPlayer('Laser_04');
         weapon.drawTrail(shot.bulletTrial.start, shot.bulletTrial.end);
     }
-    shoot();
 });
 socket.emit('mapChange', function (map) {
     //console.log(map);

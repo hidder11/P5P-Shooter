@@ -82,6 +82,10 @@ io.on('connection', function(socket) {
     });
     socket.on('playerData', function(data) {
         if (!client.name) return;
+        if (!objects[client.id]) {
+            io.emit('log', 'Problem with ' + client.name);
+            return;
+        }
         objects[client.id].position.set(data.position.x, data.position.y,
             data.position.z);
         objects[client.id].rotation.set(data.rotation.x, data.rotation.y,
@@ -154,7 +158,7 @@ function scoreUpdate(socket) {
 
 function newData(socket) {
     socket.emit('playerData', clients);
-    setTimeout(newData, 1, socket);
+    setTimeout(newData, 16, socket);
 }
 
 class Client {

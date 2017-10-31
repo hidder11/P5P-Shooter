@@ -1,13 +1,14 @@
 'use strict';
 
-//Pointer Lock
+//Pointer Lock check
 var havePointerLock = 'pointerLockElement' in document ||
     'mozPointerLockElement' in document || 'webkitPointerLockElement' in
     document;
 
+// pointerlock API https://developer.mozilla.org/en-US/docs/Web/API/Pointer_Lock_API
 if (havePointerLock) {
     var element = document.body;
-    var pointerlockchange = function(event) {
+    var pointerlockchange = function (event) {
         if (document.pointerLockElement === element ||
             document.mozPointerLockElement === element ||
             document.webkitPointerLockElement === element) {
@@ -26,7 +27,7 @@ if (havePointerLock) {
             instructions.style.display = '';
         }
     };
-    var pointerlockerror = function(event) {
+    var pointerlockerror = function (event) {
         instructions.style.display = '';
     };
     // Hook pointer lock state change events
@@ -38,7 +39,7 @@ if (havePointerLock) {
     document.addEventListener('mozpointerlockerror', pointerlockerror, false);
     document.addEventListener('webkitpointerlockerror', pointerlockerror,
         false);
-    instructions.addEventListener('click', function(event) {
+    instructions.addEventListener('click', function (event) {
         instructions.style.display = 'none';
         // Ask the browser to lock the pointer
         element.requestPointerLock = element.requestPointerLock ||
@@ -61,25 +62,25 @@ function init() {
 
     controls = new THREE.PointerLockControls(camera);
     scene.add(controls.getObject());
+    // preload player model to prevent position errors
     loadPlayer();
-    //pistols
+    // pistols
     weapons.push(
         new Weapon('pistol1', 'weapon1', 'Laser_04', 'Laser_00', 10, 20, 5, 1, false, 50, 15, 10, 150, 0.2),
-        // new Weapon('pistol2', 'weapon1', 'Laser_04', 'Laser_00', 8, 20, 8, 1, true, 50, 15, 10, 150, 0.1),
         new Weapon('revolver', 'weapon1', 'Laser_02', 'Laser_00', 25, 20, 2, 1, false, 300, 6, 25, 270, 0.4)
     );
-    //rifles
+    // rifles
     weapons.push(
         new Weapon('SMG', 'weapon1', 'Laser_05', 'Laser_00', 7.5, 10, 30, 1, true, 60, 40, 10, 100, 0.1),
         new Weapon('Assault rifle semi-auto', 'weapon1', 'Laser_01', 'Laser_00', 20, 30, 10, 1.5, false, 50, 20, 15, 300, 0.3),
-        // new Weapon('Assault rifle full-auto', 'weapon1', 'Laser_01', 'Laser_00', 15, 20, 15, 1.5, true, 50, 20, 15, 150, 0.1),
         new Weapon('Sniper', 'weapon1', 'Laser_10', 'Laser_00', 80, 250, 1, 4, false, 300, 4, 50, 1500, 0.75)
-        );
+    );
     weapon = weapons[0];
 
-    var onKeyDown = function(event) {
+    var onKeyDown = function (event) {
 
-        if (event.keyCode == 13 && inChat) {
+        if (event.keyCode === 13 && inChat) {
+            //chat versturen en chat dicht doen
             element.requestPointerLock = element.requestPointerLock ||
                 element.mozRequestPointerLock ||
                 element.webkitRequestPointerLock;
@@ -88,10 +89,8 @@ function init() {
             $('#form').addClass('hidden');
             controlsEnabled = true;
             inChat = false;
-            //chat versturen
         }
         if (!controlsEnabled) return;
-        // console.log(event.keyCode);
         switch (event.keyCode) {
             case 38: // up
             case 87: // w
@@ -115,10 +114,11 @@ function init() {
                     canJump = false;
                 }
                 break;
-            case 80: //p
+            case 80: // p
                 console.log(controls.getObject().position);
                 break;
             case 84: // T
+                // chatvenster openen
                 inChat = true;
                 document.exitPointerLock();
                 controls.enabled = false;
@@ -127,39 +127,38 @@ function init() {
                 setTimeout(function () {
                     chatMsg.focus()
                 }, 50);
-                //chatvenster openen
                 break;
-            case 49: //1
+            case 49: // 1
                 updateActiveWeapon(1);
                 weapon = weapons[0];
                 updateAmmo(weapon);
                 break;
-            case 50: //2
+            case 50: // 2
                 updateActiveWeapon(2);
                 weapon = weapons[1];
                 updateAmmo(weapon);
                 break;
-            case 51: //3
+            case 51: // 3
                 updateActiveWeapon(3);
                 weapon = weapons[2];
                 updateAmmo(weapon);
                 break;
-            case 52: //4
+            case 52: // 4
                 updateActiveWeapon(4);
                 weapon = weapons[3];
                 updateAmmo(weapon);
                 break;
-            case 53: //5
+            case 53: // 5
                 updateActiveWeapon(5);
                 weapon = weapons[4];
                 updateAmmo(weapon);
                 break;
-            case 81:
+            case 81: // q
                 scoreOverlay.removeClass('hidden');
                 break;
         }
     };
-    var onKeyUp = function(event) {
+    var onKeyUp = function (event) {
         if (!controlsEnabled) return;
         switch (event.keyCode) {
             case 38: // up
@@ -181,15 +180,12 @@ function init() {
             case 32: // space
                 jump = false;
                 break;
-            case 9:
-                scoreOverlay.hide();
-                break;
-            case 81:
+            case 81: // q
                 scoreOverlay.addClass('hidden');
                 break;
         }
     };
-    var onMouseDown = function(event) {
+    var onMouseDown = function (event) {
         if (!controlsEnabled) return;
         switch (event.button) {
             case 0: // shoot
@@ -200,7 +196,7 @@ function init() {
                 break;
         }
     };
-    var onMouseUp = function(event) {
+    var onMouseUp = function (event) {
         if (!controlsEnabled) return;
         switch (event.button) {
             case 0: // shoot
@@ -217,7 +213,7 @@ function init() {
     document.addEventListener('mousedown', onMouseDown, false);
     document.addEventListener('mouseup', onMouseUp, false);
 
-    //init rendering
+    // init rendering
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -283,11 +279,6 @@ function animate() {
             position: controls.getObject().position,
             rotation: controls.getObject().rotation,
             direction: controls.getDirection(new THREE.Vector3(0, 0, -1)),
-            moveForward: moveForward,
-            moveBackward: moveBackward,
-            moveRight: moveRight,
-            moveLeft: moveLeft,
-            Jump: jump,
             name: name,
             weapon: weapon
         });
@@ -308,10 +299,8 @@ function loadPlayer() {
     });
 }
 
-//TODO team colors
 function newPlayer(player) {
     var mesh = playerMesh.clone();
-
     mesh.position.set(player.position.x, player.position.y, player.position.z);
     mesh.playerID = player.id;
     players[player.id] = mesh;
@@ -319,7 +308,6 @@ function newPlayer(player) {
     collidables.add(mesh);
     addPlayerTag(mesh);
 }
-init();
 
 function checkUsername() {
     let input = username.prop('value');
@@ -343,122 +331,6 @@ function sendMsg() {
 function clearlist() {
     $('ul').empty();
 }
-
-socket.on('checkUsername', function(data) {
-    if (data.available) {
-        socket.emit('userName', data.name);
-        $('#menu').addClass('hidden');
-        $('#blocker').removeClass('hidden');
-        ui.removeClass('hidden');
-        joined = true;
-        animate();
-    }
-    else {
-        username.addClass('hasError');
-        helpBlock.html('Username already in game');
-    }
-});
-
-function sendMsg() {
-
-
-    let chmsg = chatMsg.prop('value');
-    if (chmsg == '') {
-        //terug naar spel?
-    }
-    else {
-        clearlist();
-        socket.emit('chatMessage', chmsg); //username erbij?
-        chatMsg.prop('value', '');
-
-    }
-}
-
-function clearlist() {
-    $("ul").empty();
-}
-
-socket.on('chatMessage', function(msgs) {
-    clearlist();
-    for (let msg of msgs) {
-        $('#messages').append($('<li>').html(msg));
-    }
-
-});
-socket.on('connect', function () {
-    console.log('socketio Connected to server!');
-    if (name && clientID) {
-        socket.emit('checkUsername', name);
-    }
-});
-socket.on('log', function(data) {
-    console.log(data);
-});
-socket.on('newPlayer', function(player) {
-    if (clientID) {
-        newPlayer(player);
-    }
-    else {
-        clientID = player.id;
-        respawn();
-    }
-});
-socket.on('oldPlayers', function(players) {
-    for (let player of players) {
-        if (!player.position) continue;
-        newPlayer(player);
-    }
-});
-socket.on('playerData', function(clients) {
-    if (joined) {
-        for (let player of clients) {
-            if (!player) continue;
-            if (player.id === clientID) {
-                deaths = player.deaths;
-                kills = player.kills;
-                health = player.health;
-                continue;
-            }
-            players[player.id].position.set(player.position.x,
-                player.position.y,
-                player.position.z);
-            players[player.id].rotation.y = player.rotation._y;
-            players[player.id].player = player;
-        }
-    }
-});
-socket.on('playerDisconnect', function (player) {
-    collidables.remove(players[player.id]);
-    delete players[player.id];
-});
-socket.on('shot', function (shot) {
-    if (clientID === shot.client.id) {
-        // weapon.playSoundAtPlayer('');
-    }
-    else {
-        weapon.playSoundAtPlayer('Laser_04');
-        weapon.drawTrail(shot.bulletTrial.start, shot.bulletTrial.end);
-    }
-});
-socket.emit('mapChange', function (map) {
-    //console.log(map);
-    scene = new THREE.scene;
-    const currentMap = 1;
-    loadMap(currentMap);
-    scene.add(controls.getObject());
-});
-socket.on('kill', function (victim, killer) {
-    showKill(killer.name, victim.name, killer.weapon.name);
-    if (victim.id === clientID) {
-        respawn();
-    }
-});
-socket.on('hit', function (health) {
-    updateHealth(health);
-});
-socket.on('scoreUpdate', function (clients) {
-    updateScore(clients);
-});
 
 function loadMap(mapNumber) {
     var DAELoader = new THREE.ColladaLoader();
@@ -589,3 +461,94 @@ function respawn() {
 
     updateHealth(100);
 }
+
+init();
+
+socket.on('checkUsername', function (data) {
+    if (data.available) {
+        socket.emit('userName', data.name);
+        $('#menu').addClass('hidden');
+        $('#blocker').removeClass('hidden');
+        ui.removeClass('hidden');
+        joined = true;
+        animate();
+    }
+    else {
+        username.addClass('hasError');
+        helpBlock.html('Username already in game');
+    }
+});
+socket.on('chatMessage', function (msgs) {
+    clearlist();
+    for (let msg of msgs) {
+        $('#messages').append($('<li>').html(msg));
+    }
+
+});
+socket.on('connect', function () {
+    console.log('socketio Connected to server!');
+    if (name && clientID) {
+        socket.emit('checkUsername', name);
+    }
+});
+socket.on('log', function (data) {
+    console.log(data);
+});
+socket.on('newPlayer', function (player) {
+    if (clientID) {
+        newPlayer(player);
+    }
+    else {
+        clientID = player.id;
+        respawn();
+    }
+});
+socket.on('oldPlayers', function (players) {
+    for (let player of players) {
+        if (!player.position) continue;
+        newPlayer(player);
+    }
+});
+socket.on('playerData', function (clients) {
+    if (joined) {
+        for (let player of clients) {
+            if (!player) continue;
+            if (player.id === clientID) {
+                deaths = player.deaths;
+                kills = player.kills;
+                health = player.health;
+                continue;
+            }
+            players[player.id].position.set(player.position.x,
+                player.position.y,
+                player.position.z);
+            players[player.id].rotation.y = player.rotation._y;
+            players[player.id].player = player;
+        }
+    }
+});
+socket.on('playerDisconnect', function (player) {
+    collidables.remove(players[player.id]);
+    delete players[player.id];
+});
+socket.on('shot', function (shot) {
+    if (clientID === shot.client.id) {
+        // weapon.playSoundAtPlayer('');
+    }
+    else {
+        weapon.playSoundAtPlayer('Laser_04');
+        weapon.drawTrail(shot.bulletTrial.start, shot.bulletTrial.end);
+    }
+});
+socket.on('kill', function (victim, killer) {
+    showKill(killer.name, victim.name, killer.weapon.name);
+    if (victim.id === clientID) {
+        respawn();
+    }
+});
+socket.on('hit', function (health) {
+    updateHealth(health);
+});
+socket.on('scoreUpdate', function (clients) {
+    updateScore(clients);
+});

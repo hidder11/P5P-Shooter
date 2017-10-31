@@ -1,55 +1,45 @@
 'use strict';
 
-var renderer;
-var scene;
-var camera;
-var listener;
-var audioLoader;
-var controlsEnabled = false;
-var moveForward = false;
-var moveBackward = false;
-var moveLeft = false;
-var moveRight = false;
-var jump = false;
-var prevTime = performance.now();
-var velocity = new THREE.Vector3();
+let renderer;
+let scene;
+let camera;
+let listener;
+let audioLoader;
+let controlsEnabled = false;
+let prevTime = performance.now();
+let velocity = new THREE.Vector3();
+let controls;
 let raycasterFloor;
 let raycasterWallFeet;
 let raycasterWallHead;
 let raycasterRoof;
-
-var loader = new THREE.JSONLoader();
-var playerMesh;
+let raycasterShoot;
+let loader = new THREE.JSONLoader();
+let playerMesh;
 let weapons = [];
 let weapon;
+let map;
+let objects = [];
+let clientID;
+let players = {};
+let joined = false;
+let inChat = false;
+let name;
+let canJump = true;
+let health = 100;
+let deaths = 0;
+let kills = 0;
 
-let raycasterShoot;
-
-var map;
-const distance = 10;
-
-var blocker = document.getElementById('blocker');
-var instructions = document.getElementById('instructions');
-var startGame = $('#startGame');
-var joinGame = $('#joinContent');
-var controls;
-var objects = [];
-var socket = io('shooter.arankieskamp.com',
-    {transports: ['websocket'], upgrade: false});
-var clientID;
-var players = {};
-var joined = false;
-var inChat = false;
 const username = $('#txtName');
 const helpBlock = $('#help');
 const chatMsg = $('#m');
-var name;
-var collidables = new THREE.Object3D({name: 'collidables', type: 'Group'});
-var canJump = true;
-var health = 100;
-var deaths = 0;
-var kills = 0;
-
+const socket = io('shooter.arankieskamp.com', {transports: ['websocket'], upgrade: false});
+const distance = 10;
+const collidables = new THREE.Object3D({name: 'collidables', type: 'Group'});
+const blocker = document.getElementById('blocker');
+const instructions = document.getElementById('instructions');
+const startGame = $('#startGame');
+const joinGame = $('#joinContent');
 const ammoMeter = $('#ammo');
 const healthMeter = $('#health');
 const crosshair = $('#crosshair');
@@ -105,14 +95,5 @@ const maps = [
             {x: -91, y: 10, z: 4},
             {x: -45, y: 55, z: 3},
         ],
-    },
-    {
-        position: 'assets/maps/test.dae',
-        scale: 100,
-        offset: -30,
-        spawnPositionsTeam1: [
-            {x: 0, y: 0, z: 0},
-        ],
-        spawnPositionsTeam2: [],
     },
 ];

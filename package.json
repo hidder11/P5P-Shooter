@@ -24,11 +24,6 @@
     "socket.io": "^2.0.4",
     "three": "^0.87.1",
     "three.meshline": "^1.0.3",
-    "toastr": "^2.1.2",
-    "w3": "^1.0.0",
-    "w3.js": "^1.0.5",
-    "xhr2": "^0.1.4",
-    "xmldom": "^0.1.27",
-    "xmlhttprequest": "^1.8.0"
+    "toastr": "^2.1.2"
   }
 }

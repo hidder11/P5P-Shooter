@@ -87,7 +87,9 @@ class Weapon {
         var line = new MeshLine();
         // line.setGeometry(lineGeometry);
 
-        line.setGeometry( lineGeometry, function( p ) { return p * 2; } );
+        line.setGeometry(lineGeometry, function (p) {
+            return p * 2;
+        });
 
         var mesh = new THREE.Mesh(line.geometry, lineMaterial);
         scene.add(mesh);

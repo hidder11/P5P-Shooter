@@ -16,8 +16,8 @@ toastr.options = {
     "hideMethod": "fadeOut"
 };
 
-var prevHealth = 1;
-var prevAmmo = 1;
+let prevHealth = 1;
+let prevAmmo = 1;
 
 $('#health').circleProgress({
     value: 1,

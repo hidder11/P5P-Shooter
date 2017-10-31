@@ -45,8 +45,7 @@ if (havePointerLock) {
             element.mozRequestPointerLock || element.webkitRequestPointerLock;
         element.requestPointerLock();
     }, false);
-}
-else {
+} else {
     instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
 }
 
@@ -410,14 +409,10 @@ socket.on('playerDisconnect', function(player) {
     delete players[player.id];
 });
 socket.on('shot', function(shot) {
-    if (clientID === shot.client.id) {
-        // weapon.playSoundAtPlayer('');
-    }
-    else {
-        weapon.playSoundAtPlayer('Laser_04');
+    if (clientID !== shot.client.id) {
+        weapon.playSoundAt(shot.client.weapon.sound, players[shot.client.id]);
         weapon.drawTrail(shot.bulletTrial.start, shot.bulletTrial.end);
     }
-    shoot();
 });
 socket.emit('mapChange', function(map) {
     scene = new THREE.scene;
@@ -617,12 +612,6 @@ function checkCollision(delta) {
             velocity.y = Math.abs(velocity.y) * -1;
         }
     }
-}
-
-function shoot() {
-    raycasterShoot.set(controls.getObject().position,
-        controls.getDirection(new THREE.Vector3(0, 0, -1)));
-    let hit = raycasterShoot.intersectObjects(scene.children, true);
 }
 
 function addPlayerTag(cube) {

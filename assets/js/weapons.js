@@ -119,7 +119,7 @@ class Weapon {
         var shotSound = new THREE.Audio(listener);
         audioLoader.load('assets/sounds/' + sound + '.mp3', function (buffer) {
             shotSound.setBuffer(buffer);
-            shotSound.setVolume(0.3);
+            shotSound.setVolume(0.2);
             shotSound.play();
         });
 
@@ -130,7 +130,9 @@ class Weapon {
         audioLoader.load('assets/sounds/' + sound + '.mp3', function (buffer) {
             shotSound.setBuffer(buffer);
             shotSound.setVolume(0.3);
-            shotSound.setRefDistance(20);
+            shotSound.setRefDistance(450 -
+                controls.getObject().position.distanceTo(player.position));
+            shotSound.setMaxDistance(400);
             shotSound.play();
             player.add(shotSound);
         });

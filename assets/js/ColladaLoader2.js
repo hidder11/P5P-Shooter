@@ -1354,6 +1354,7 @@ THREE.ColladaLoader.prototype = {
 
 				case 'phong':
 				case 'blinn':
+                    //Modded for changing material of map
                     material = new THREE.MeshLambertMaterial();
 					break;
 

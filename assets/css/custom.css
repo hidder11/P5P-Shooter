@@ -160,6 +160,15 @@ html, body {
     margin-bottom: 150px;
 }
 
+#lobby {
+    color: #f9f9f9;
+    font-size: 8em;
+    width: 620px;
+    font-family: "Arial Black", Gadget, sans-serif;
+    margin-top: 0;
+    margin-bottom: 150px;
+}
+
 #joinContent {
     position: absolute;
     width: 100%;
@@ -171,13 +180,13 @@ html, body {
 }
 
 #joinGame {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
+    position: fixed;
+    top: 8%;
     display: block;
     min-width: 620px;
     width: 50%;
     margin-left: 130px;
+    margin-bottom: 50px;
 }
 
 #joinGame button {

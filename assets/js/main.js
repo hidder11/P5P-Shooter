@@ -77,7 +77,7 @@ function init() {
         new Weapon('Sniper', 'weapon1', 'Laser_10', 'Laser_00', 80, 250, 1, 4, false, 300, 4, 50, 1500, 0.5)
     );
     weapon = weapons[0];
-    console.log(weapons);
+    // console.log(weapons);
 
     var onKeyDown = function (event) {
 
@@ -88,7 +88,7 @@ function init() {
             controls.enabled = true;
             $('#gameMessenger').addClass('hidden');
             controlsEnabled = true;
-            console.log("sluitencheck");
+            // console.log("sluitencheck");
             //chat versturen
         }
         if (!controlsEnabled) return;
@@ -357,13 +357,13 @@ function sendMsg() {
     // console.log(chmsg, "check3");
     if (chmsg == '') {
         //terug naar spel?
-        console.log("check")
+        // console.log("check")
     }
     else {
         clearlist();
         socket.emit('chatMessage', chmsg); //username erbij?
         chatMsg.prop('value', '');
-        console.log("check2")
+        // console.log("check2")
 
     }
 }
@@ -376,7 +376,7 @@ socket.on('chatMessage', function (msgs) {
     clearlist();
     for (let msg of msgs) {
         $('#messages').append($('<li>').html(msg));
-        console.log("check4")
+        // console.log("check4")
     }
 
 });

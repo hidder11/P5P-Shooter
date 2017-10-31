@@ -140,8 +140,6 @@ class Weapon {
         var xOffset = (Math.random() * accuracy - accuracy / 2) / 500;
         var yOffset = (Math.random() * accuracy - accuracy / 2) / 500;
 
-        // console.log(xOffset, yOffset);
-
         return new THREE.Vector3(xOffset, yOffset, 0);
     }
 

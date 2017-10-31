@@ -50,7 +50,7 @@ if (havePointerLock) {
 }
 
 function init() {
-    //init scene, camera, lights
+    //init scene, camera
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(60, window.innerWidth /
         window.innerHeight, 0.1, 1000);
@@ -301,7 +301,6 @@ function animate() {
 function loadPlayer() {
     loader.load('assets/models/bot.json', function (geometry, material) {
         playerMesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial(material));
-
         playerMesh.scale.set(3, 3, 3);
         playerMesh.position.y = -1;
         playerMesh.rotation.set(0, -Math.PI / 2, 0);
@@ -463,67 +462,6 @@ socket.on('scoreUpdate', function (clients) {
 
 function loadMap(mapNumber) {
     var DAELoader = new THREE.ColladaLoader();
-    var maps = [
-        {
-            position: 'assets/maps/Arena-TD.dae',
-            scale: 7,
-            offset: 0,
-            lights: [
-                {type: ''},
-            ],
-            spawnPositionsTeam1: [
-                {x: 217, y: 9, z: -95},
-                {x: 108, y: 29, z: 1},
-                {x: 220, y: 19, z: 105},
-                {x: 129, y: 19, z: 101},
-                {x: 149, y: 40, z: 68},
-                {x: 118, y: 51, z: 39},
-                {x: 212, y: 51, z: -55},
-            ],
-            spawnPositionsTeam2: [
-                {x: -217, y: 9, z: -95},
-                {x: -108, y: 29, z: 1},
-                {x: -220, y: 19, z: 105},
-                {x: -129, y: 19, z: 101},
-                {x: -149, y: 40, z: 68},
-                {x: -118, y: 51, z: 39},
-                {x: -212, y: 51, z: -55},
-            ],
-        },
-        {
-            position: 'assets/maps/Arena-FFA.dae',
-            scale: 7,
-            offset: 0,
-            lights: [
-                {type: ''},
-            ],
-            spawnPositionsTeam1: [
-                {x: -193, y: 10, z: 0},
-                {x: -10, y: -10, z: 71},
-                {x: -123, y: -10, z: -37},
-                {x: 217, y: 9, z: -95},
-                {x: 108, y: 30, z: 1},
-                {x: 220, y: 20, z: 105},
-                {x: 129, y: 21, z: 101},
-                {x: 149, y: 41, z: 68},
-                {x: 118, y: 52, z: 39},
-                {x: 212, y: 52, z: -55},
-                {x: -146, y: 10, z: 117},
-                {x: -91, y: 10, z: 4},
-                {x: -45, y: 55, z: 3},
-            ],
-        },
-        {
-            position: 'assets/maps/test.dae',
-            scale: 100,
-            offset: -30,
-            spawnPositionsTeam1: [
-                {x: 0, y: 0, z: 0},
-            ],
-            spawnPositionsTeam2: [],
-        },
-    ];
-
     map = maps[mapNumber];
 
     // load a resource
@@ -541,17 +479,6 @@ function loadMap(mapNumber) {
             objects.push(collada.scene);
         },
     );
-
-    var material = new THREE.MeshBasicMaterial({color: 0xff0000});
-    var geometry = new THREE.BoxGeometry(1, 1, 1);
-
-    // for (var point of map.spawnPositionsTeam1) {
-    //     var mesh = new THREE.Mesh(geometry, material);
-    //     mesh.position.x = point.x;
-    //     mesh.position.y = point.y - 8;
-    //     mesh.position.z = point.z;
-    //     scene.add(mesh);
-    // }
 }
 
 function checkCollision(delta) {

@@ -29,8 +29,4 @@ class player{
         this.jump = json.jump;
         this.team = json.team;
     }
-
-    updatePosition(){
-
-    }
 }

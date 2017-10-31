@@ -97,7 +97,6 @@ class Weapon {
         }, this.lineLife);
     }
 
-    //TODO movement speed and mouse speed
     toggleAim(object) {
         camera = object.children[0].children[0];
 

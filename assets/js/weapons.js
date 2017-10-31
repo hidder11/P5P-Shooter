@@ -6,8 +6,6 @@ class Weapon {
     constructor(name, model, sound, reloadSound, damage, fireRate, accuracy, zoom, isAutomatic,
                 reloadTime, magazineSize, recoilVertical, lineLife, lineWidth) {
         this.name = name;
-        this.model = undefined;
-        this.loadModel(model);
         this.sound = sound;
         this.reloadSound = reloadSound;
 
@@ -189,31 +187,5 @@ class Weapon {
         if (controls.getObject().children[0].rotation.x < 1.57)
             controls.getObject().children[0].rotation.x += recoil * 0.002;
 
-        // console.log(controls.getObject().children[0].rotation, recoil);
     }
-
-    loadModel(modelName) {
-        var mesh;
-        var self = this;
-
-        loader.load('assets/models/weapon1.json', function (geometry, material) {
-            mesh = new THREE.Mesh(geometry, material);
-
-            mesh.position.set(0, 10, 0);
-            // collidables.add(mesh);
-            self.model = mesh;
-        });
-    }
-
-    addModel(player) {
-        // console.log(this.model);
-        player.add(this.model);
-        this.model.position.set(0, 0, 0);
-        // this.model.position.set(player.position.x, player.position.y - 3, player.position.z);
-    }
-
-    removeModel() {
-    }
-
-
 }

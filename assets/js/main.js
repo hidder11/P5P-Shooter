@@ -62,7 +62,7 @@ function init() {
 
     controls = new THREE.PointerLockControls(camera);
     scene.add(controls.getObject());
-
+    loadPlayer();
     //pistols
     weapons.push(
         new Weapon('pistol1', 'weapon1', 'Laser_04', 'Laser_00', 10, 50, 5, 1, false, 50, 15, 10, 150, 0.1),
@@ -281,7 +281,7 @@ function animate() {
             moveLeft: moveLeft,
             Jump: jump,
             name: name,
-            weapon: weapon,
+            weapon: weapon
         });
 
     weapon.update(delta);
@@ -290,53 +290,39 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-//TODO team colors
-function newPlayer(player) {
-    // var geometry = new THREE.BoxGeometry(10, 10, 10);
-    // var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-    // var mesh = new THREE.Mesh(geometry, material);
-
-    // mesh.position.set(player.position.x, player.position.y - 3, player.position.z);
-    // mesh.playerID = player.id;
-    // players[player.id] = mesh;
-    // mesh.player = player;
-    // collidables.add(mesh);
-    // addPlayerTag(mesh);
-
-
-    var geometry = new THREE.BoxGeometry(10, 10, 10);
-    var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-    var mesh = new THREE.Mesh(geometry, material);
-
+function loadPlayer() {
     loader.load('assets/models/bot.json', function (geometry, material) {
-        mesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial(material));
+        playerMesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial(material));
 
-        scene.add(mesh);
-
-        var colorString = $('.team').first().css('border-left-color');
-        var numbers = colorString.match(/\d+/g) ? colorString.match(/\d+/g) : [];
-
-        for (var i = 0; i < numbers.length; i++) {
-            numbers[i] = +numbers[i]
-        }
-
-        mesh.material[1].color = {r: numbers[0] / 255, g: numbers[1] / 255, b: numbers[2] / 255};
-
-        mesh.scale.set(3, 3, 3);
-        mesh.position.y = -1;
-        mesh.rotation.set(0, -Math.PI / 2, 0);
-
-        mesh.position.set(player.position.x, player.position.y - 3, player.position.z);
-        mesh.playerID = player.id;
-        console.log(player);
-        players[player.id] = mesh;
-        mesh.player = player;
-        collidables.add(mesh);
-        addPlayerTag(mesh);
+        playerMesh.scale.set(3, 3, 3);
+        playerMesh.position.y = -1;
+        playerMesh.rotation.set(0, -Math.PI / 2, 0);
 
     });
+}
 
-    weapon.addModel(clientID);
+//TODO team colors
+function newPlayer(player) {
+    var mesh = playerMesh.clone();
+
+    mesh.position.set(player.position.x, player.position.y, player.position.z);
+    mesh.playerID = player.id;
+    players[player.id] = mesh;
+    mesh.player = player;
+    collidables.add(mesh);
+    addPlayerTag(mesh);
+}
+
+function newPlayer2(player) {
+    var geometry = new THREE.BoxGeometry(10, 10, 10);
+    var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+    var cube = new THREE.Mesh(geometry, material);
+    cube.position.set(player.position.x, player.position.y, player.position.z);
+    cube.playerID = player.id;
+    players[player.id] = cube;
+    cube.player = player;
+    collidables.add(cube);
+    addPlayerTag(cube);
 }
 
 init();
@@ -432,11 +418,13 @@ socket.on('playerData', function (clients) {
                 health = player.health;
                 continue;
             }
-            // players[player.id].position.copy(player.position);
-            // players[player.id].rotation.y = player.rotation._y;
-            // players[player.id].player = player;
-            // players[player.id].weapon = player.weapon;
-            // weapon.addModel(players[player.id]);
+            if (!players[player.id])
+                continue;
+            players[player.id].position.copy(player.position);
+            players[player.id].rotation.y = player.rotation._y;
+            players[player.id].player = player;
+            players[player.id].weapon = player.weapon;
+            weapon.addModel(players[player.id]);
         }
     }
 });
